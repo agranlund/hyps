@@ -1,0 +1,919 @@
+@node "3. ET4000/W32i Pin Descriptions"
+@{B}3. ET4000/W32i Pin Descriptions@{b}
+
+The ET4000/W32i provides a flexible interface to different types of CPU
+buses as well as options such as the image port, high color DAC, and
+hardware sprite. It is compatible with the following CPU buses:
+
+    * ISA 8/16 bits
+    * Micro Channel 8/16 bits
+    * Local Bus 386/486 SX/DX 16/32 bits
+    * VESA LBUS
+
+A specific host bus type is selected by pulling the UCPC and AEN* input
+pins to appropriate levels at reset. A Power On Reset Initialize (PORI)
+scheme is used to determine different configurations for each bus type
+to ensure full hardware compatibility.
+
+@{"3.1 Power On Reset Initialize (PORI)" link "3.1 Power On Reset Initialize (PORI)"}
+@{"3.2 Bus Configurations" link "3.2 Bus Configurations"}
+@{"3.3 Host Interface" link "3.3 Host Interface"}
+@{"3.4 Clock Interface" link "3.4 Clock Interface"}
+@{"3.5 General Interface" link "3.5 General Interface"}
+@{"3.6 Display Memory Interface" link "3.6 Display Memory Interface"}
+@{"3.7 Display Interface" link "3.7 Display Interface"}
+@{"3.8 Image Port Interface" link "3.8 Image Port Interface"}
+@{"3.9 Power Source Interface" link "3.9 Power Source Interface"}
+@{"3.10 Electrical Specifications" link "3.10 Electrical Specifications"}
+
+@endnode
+
+@node "3.1 Power On Reset Initialize (PORI)"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.1 Power On Reset Initialize (PORI)@{b}
+
+During the high-to-low transition of the REST signal, DB<15:0> is
+latched internally. These latched data bits are used to determine the
+host interface configuration. DB<15:0> are normally pulled high
+internally; these signals can be pulled down via a series resistor to
+ground, or driven low with a tri-state buffer during reset.
+
+Description of terms
+
+I = Input
+O = Output
+IO = Bidirectional
+PWR = Power input pin
+TTL = Pin has standard TTL input and output thresholds
+CMOS = Pin has standard CMOS input and output thresholds
+S = Schmitt Trigger on input
+TS = Tri-state
+OC = Open-collector
+(these are actually tri-state outputs, driven low, float high)
+PU = Internal passive pull-up
+PD = Internal passive pull-down
+B2 = Output buffer can source/sink 2mA
+B4 = Output buffer can source/sink 4mA
+B8 = Output buffer can source/sink 8mA
+High =Voltage level between 2.0V and VDD (also abbreviated "H")
+Low = Voltage level between VSS and 0.7V (also abbreviated "L")
+* = Active Low
+@endnode
+
+@node "3.2 Bus Configurations"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.2 Bus Configurations@{b}
+
+  SYMBOL PIN# I/O TYPE              
+
+- UCPC   16   I   TTL,PU,TS,B4
+@{I}Bus type selection,
+latched during PORI. Pin is shared with Image Port IXCM* signal.
+Low : ISA bus interface
+High : MCA or Local Bus interface protocol, depending on AEN*.
+@{i}
+
+- AEN*   32   I   TTL,PU
+@{I}MCA or Local Bus selection.
+Pin shared with ISA bus AEN*.
+Low : MCA bus protocol
+High : Local Bus protocol
+@{i}
+UCPC AEN* Bus Type
+L    x    ISA
+H    L    MCA
+H    H    Local Bus
+
+Additional PORI configuration bits are described in each
+individual bus interface section.
+@endnode
+
+@node "3.3 Host Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.3 Host Interface@{b}
+
+@{"3.3.1.1 ISA PORI" link "3.3.1.1 ISA PORI"}
+@{"3.3.1.2 ISA Bus Interface" link "3.3.1.2 ISA Bus Interface"}
+
+@{"3.3.2.1 MCA PORI" link "3.3.2.1 MCA PORI"}
+@{"3.3.2.2 MCA Bus Interface" link "3.3.2.2 MCA Bus Interface"}
+
+@{"3.3.3.1 Local Bus PORI" link "3.3.3.1 Local Bus PORI"}
+@{"3.3.3.2 Local Bus SX/DX 16-bit Interface" link "3.3.3.2 Local Bus SX/DX 16-bit Interface"}
+@{"3.3.3.3 Local Bus DX 32-bit Interface" link "3.3.3.3 Local Bus DX 32-bit Interface"}
+
+@endnode
+
+@node "3.3.1.1 ISA PORI"
+@toc "3.3 Host Interface"
+@{B}3.3.1.1 ISA PORI@{b}
+
+  SYMBOL     PIN#      I/O  TYPE
+
+- IOD<2:0>   70,68,67  I    TTL,PU,TS,B4
+@{I}CRTC/Sprite I/O map addresses 21xA,21xB where x = IOD<2:0>.
+Pins shared with DB<15:13>.
+@{i}
+- MONID<5:0> 57-52     I    TTL,PU,TS,B4
+@{I}Bits 0-1 readable via Status Register 0.
+Bits 5-2 via Feature Control Register.
+Pins shared with DB<5:0>.
+@{i}
+- SYSW       65        I    TTL,PU
+@{I}System Linear Wiring bit. See table in Section 6.2.1.2.
+Pin shared with DB<11>.
+@{i}
+@endnode
+
+
+@node "3.3.1.2 ISA Bus Interface"
+@toc "3.3 Host Interface"
+@{B}3.3.1.2 ISA Bus Interface@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- SEGE*    50               I   TTL,PU,TS
+@{I}Segment Enable input for memory access.
+Used to decode LA<23:20>. Latched on BUSALE edge.
+@{i}
+- A<22:20> 49-47            I   TTL,PU,TS,B4
+@{I}Address lines LA<22:20>. Latched on BUSALE.
+@{i}
+- A<19:17> 46-44            I   TTL,PU,TS,B4
+@{I}Address lines LA<19:17>. Latched on BUSALE.
+@{i}
+- A<16>    43               I   TTL,PU,TS,B4
+@{I}SA<16> address line.
+@{i}
+- DB<15:0> 70,68-62, 59-52  IO  TTL,PU,B4,TS
+@{I}Data/Address multiplexed bus.
+Address when ADRE active, data when RDML or RDMH* active.
+@{i}
+- RDMH*    73               O   TTL,PD,B4,TS
+@{I}Enable external DB<15:8> data bus driver.
+@{i}
+- RDML*    72               O   TTL,B8
+@{I}Enable external DB<7:0> data bus driver.
+@{i}
+- DIR      71               O   TTL,B8
+@{I}Direction control for DB<15:0> bus drivers.
+@{i}
+- ADRE*    74               O   TTL,B8
+@{I}Enable external address bus driver.
+@{i}
+- SBHE*    35               I   TTL,PU
+@{I}Identifies 8- or 16-bit bus cycle with A<0>.
+@{i}
+- EBIO*    25               I   TTL,PU
+@{I}Must be tied low.
+@{i}
+- AEN*     32               I   TTL,PU
+@{I}Active low I/O address valid signal.
+@{i}
+- MRDC*    30               I   CMOS,S
+@{I}Memory read command.
+@{i}
+- MWTC*    31               I   CMOS,S
+@{I}Memory write command.
+@{i}
+- IORC*    28               I   CMOS,S
+@{I}I/O read command.
+@{i}
+- IOWC*    29               I   CMOS,S
+@{I}I/O write command.
+@{i}
+- IOWW*    17               I   TTL,PU
+@{I}16-bit I/O write input.
+@{i}
+- BUSALE   38               I   TTL,PU
+@{I}Latches ISA address bus.
+@{i}
+- MCS16*   37               O   TTL,OC,B8
+@{I}Identify device as 16-bit memory.
+@{i}
+- XR16*    75               O   TTL,OC,B4
+@{I}Identify device as 16-bit I/O.
+@{i}
+- WAIT*    33               O   TTL,OC,B8
+@{I}Extend ISA command cycle.
+@{i}
+- SRDY*    97               O   TTL,OC,B8
+@{I}Zero wait-state indicator.
+@{i}
+- REST     34               I   CMOS,S
+@{I}Active high reset signal to initialize the ET4000/W32i.
+When high, the chip is held in the reset state.
+@{i}
+@endnode
+
+@node "3.3.2.1 MCA PORI"
+@toc "3.3 Host Interface"
+@{B}3.3.2.1 MCA PORI@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- IOD<2:0> 70,68,67         I   TTL,PU,TS,B4
+@{I}CRTCB/Sprite I/O register map for I/O addresses 21xA, 21xB
+where x = IOD<2:0>. Pins are shared with D<15:13>.
+@{i}
+- PID<7:0> 59-52            I   TTL,PU,TS,B4
+@{I}POS register ID. Pins are shared with D<7:0>.
+If PID<7:0>=00h-FEh then POS 100 = 00h-FEh, POS 101 = 80h
+If PID<7:0>=FFh then POS 100 = FFh, POS 101 = FFh
+@{i}
+@endnode
+
+@node "3.3.2.2 MCA Bus Interface"
+@toc "3.3 Host Interface"
+@{B}3.3.2.2 MCA Bus Interface@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- A<23:16> 50-43            I   TTL,PU,TS,B4
+@{I}Upper 8 bits of address interface for MCA bus. These inputs
+are latched internally during the high-to-low transition of
+the CMD* input.
+@{i}
+- D<15:0>  70,68-62,59-52   IO  TTL,PU,B4,TS
+@{I}Data/Address time-multiplexed bus, A<15:0> input while
+ADRE* active and D<15:0> input/output while RDML*/RDMH*
+is active. A<15:0> are latched internally by ET4000/W32i
+during the high-to-low transition of the CMD* input.
+@{i}
+- RDMH*    73               O   TTL,PD,B4
+@{I}Active low signal used to enable external tri-state
+DB<15:8> data bus driver.
+@{i}
+- RDML*    72               O   TTL,B8,TS
+@{I}Active low signal used to enable external tri-state
+DB<7:0> data bus driver.
+@{i}
+- DIR      71               O   TTL,B8
+@{I}Signal used to control direction of bidirectional bus drivers
+connected to DB<15:0> between ET4000/W32i and MCA data bus.
+Low : signal low during I/O and memory write operations.
+High: signal high during I/O and memory read operations.
+@{i}
+- ADRE*    74               O   TTL,B8
+@{I}Active low signal used to enable external tri-state
+A<15:0> address bus driver to ET4000/W32i.
+@{i}
+- SBHE*    35               I   TTL,PU
+@{I}System Byte High Enable. Active low input signal along with
+A<0> identifies the current bus cycle as an 8- or 16-bit access.
+@{i}
+- MADE24   38               I   TTL,PU
+@{I}Memory Address Enable 24. Active high input indicates
+A<31:24> are undefined. Must be driven high during all
+memory accesses.
+@{i}
+- SETUP*   28               I   CMOS,S
+@{I}Card setup. Active low input signal to ET4000/W32i
+for channel setup.
+@{i}
+- MIO*     29               I   CMOS,S
+@{I}Memory or I/O status input.
+Low : I/O
+High: Memory
+@{i}
+- S<1:0>*  25,26            I   TTL,PU
+@{I}Status bits. These inputs define the current bus
+cycle as read or write.
+@{i}
+- CMD*     31               I   CMOS,S
+@{I}Command. Active low input signal to indicate a
+read/write command cycle.
+@{i}
+- IOWW*    17               I   TTL,PU
+@{I}Active low input signal to ET4000/W32i for 16-bit I/O write
+access. Generated by delaying CMD*. Used only if 16-bit I/O
+enabled via CRTC Indexed Register 36 bit 7 and DB<15:8>
+meets setup time. Otherwise this input must be pulled low.
+@{i}
+- SFDBK*   97               O   TTL,TS,B8
+@{I}Card Selected Feedback. Active low signal indicating
+availability of ET4000/W32i memory or I/O resources
+to the Micro Channel host.
+@{i}
+- CHRDY    33               O   TTL,OC,B8
+@{I}Channel Ready. Active tri-state indicates termination
+of a command cycle.
+@{i}
+- DS16*    37               O   OC,B8
+@{I}Card Data Size 16. Active low output identifying
+ET4000/W32i memory as a 16-bit device.
+@{i}
+- XROM*    75               O   TS,B8,PU
+@{I}Active low output used to enable external
+translation ROM.
+@{i}
+- CHRESET  34               I   CMOS,S
+@{I}Channel reset. Active high reset signal to
+initialize the ET4000/W32i.
+@{i}
+
+@endnode
+
+@node "3.3.3.1 Local Bus PORI"
+@toc "3.3 Host Interface"
+@{B}3.3.3.1 Local Bus PORI@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- SNPE     62               I   TTL,PU,TS,B4
+@{I}Snoop Enable. When snoop feature is enabled the W32i will
+not respond with LOCAL* and RDY* during DAC write operation.
+Pin shared with D<8>.
+Low : External RAMDAC snoop enable.
+High: External RAMDAC snoop disable.
+@{i}
+- IOD<2:0> 70,68,67         I   TTL,PU,B4,TS
+@{I}CRTCB/Sprite I/O register map for I/O addresses 21xA,
+21xB where x = IOD<2:0>. Pins shared with DB<15:13>.
+@{i}
+- WAT<1:0> 59,58            I   TTL,PU,TS,B4
+@{I}Local Bus programmed wait state control. Pins shared
+with D<7:6>.
+
+MIO* WAT<1:0>  # CPU T2 States
+H    LL        4
+H    LH        3
+H    HL        2
+H    HH        1 (zero wait state)
+L    LL        4
+L    LH        3
+L    HL        4
+L    HH        3
+@{i}
+- SXDX     63               I   TTL,PU,B4,TS
+@{I}SX/DX selection. Pin shared with D<9>.
+Low : BE3*, BE2*, BE1*, BE0* decoding on lower 4 bytes of address.
+High: A<1>, BHE*, BLE* decoding on lower 4 bytes of address.
+@{i}
+- DVCK     64               I   TTL,PU,TS,B4
+@{I}Internal local bus (LCLK) clock divide. Pin shared with D<10>.
+Low : LCLK = BCLK
+High: LCLK = BCLK/2
+@{i}
+- DELC     65               I   TTL,PU,TS,B4
+@{I}Command delay. Pin shared with D<11>.
+Low : Internal command starts at first T2 after the low-to-high
+transition of ADS*.
+High: Internal command starts at first T2.
+@{i}
+- BU32*    66               I   TTL,PU,TS,B4
+@{I}32-bit data bus enable. Pin shared with D<12>.
+Low : Enables 32-bit data bus operation.
+High: Enables 16-bit data bus operation.
+@{i}
+- MONID<3:0> 55-52          IO  TTL,PU,TS,B4
+@{I}Bits 0 and 1 can be read back via Status Register 0.
+Bits 3 and 2 can be read back via the Feature Control Register.
+Pins are shared with D<3:0>.
+@{i}
+- RDYS     57               I   TTL,PU,TS,B4
+@{I}RDY* type select. Pin shared with D<5>.
+Low : RDY* output = tri-state
+High: RDY* output = totem pole
+@{i}
+- DISB     56               I   TTL,PU,TS,B4
+@{I}Disable BIOS. Pin shared with D<4>.
+Low : Enable BIOS decode.
+High: Disable BIOS decode.
+@{i}
+- BLOK     15               IO  TTL,PU,TS,B2
+@{I}I/O space decode. Determines the I/O space decoded by the W32i.
+When I/O space is decoded the W32i generates LOCAL* to claim the
+cycle and RDY* to terminate it.
+
+When BLOK is low the following space is decoded:
+03B0-03BE (if Miscellaneous Output Register bit 0 = 0)
+03BF
+03C0-03CF
+03D0-03DF (if Miscellaneous Output Register bit 0 = 1)
+21xA-21xB (x = IOD<2:0>)
+46E8
+
+If BLOK is high the following space is decoded:
+03B0-03BB (if Miscellaneous Output Register bit 0 = 0)
+03BF-03C5
+03C6-03C9
+03CA-03CF
+03D0-03DC, 03DE (if Miscellaneous Output Register bit 0 = 1)
+21xA-21xB (x = IOD<2:0>)
+46E8
+
+Note: When BLOK is enabled the DAC cannot be disabled.
+03BF is unaffected by BLOK decode.
+
+This function is used to facilitate use of motherboard controllers
+that can internally generate LOCAL* for the VGA controller space.
+@{i}
+@endnode
+
+
+@node "3.3.3.2 Local Bus SX/DX 16-bit Interface"
+@toc "3.3 Host Interface"
+@{B}3.3.3.2 Local Bus SX/DX 16-bit Interface@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- A<23:16> 50-43            I   TTL,PU,TS,B4
+@{I}Upper 8-bit address interface for local bus. Inputs are latched
+internally during the low-to-high transition of LCLK at the start
+of the internal command.
+@{i}
+- D<15:0>  70,68-62,59-52   IO  TTL,PU,B4,TS
+@{I}Data/Address time-multiplexed bus. A<15:1>, BLE* input for SX bus
+or A<15:2>, BE1*, and BE0* for DX bus while ADRE* active and
+DB<15:0> input/output while RDMX* active. A<15:0>, BE1*, and BE0*
+are latched internally during the low-to-high transition of LCLK
+at the start of the internal command. If External Palette Memory
+is enabled, DB<9:8> also outputs RS<1:0> (RAMDAC Register Select
+bits) at the proper time.
+@{i}
+- RDMX*    72               O   TTL,B8
+@{I}Active low signal used to enable DB<15:0> data bus driver.
+@{i}
+- DIR      71               O   TTL,B8
+@{I}Signal used to control direction of bidirectional bus drivers
+connected to DB<15:0> between ET4000/W32i and Local data bus.
+Low : signal low during I/O and memory write operations.
+High: signal high during I/O and memory read operations.
+@{i}
+- ADRE*    74               O   TTL,B8
+@{I}Active low signal used to enable A<15:0> of Local Bus address
+to ET4000/W32i.
+@{i}
+- ADS*     30               I   CMOS,S
+@{I}Active low input signal indicates address and status valid.
+@{i}
+- SEG1     28               I   CMOS,S
+@{I}Active high input signal from upper address decode. This input
+must be high during memory access cycle to ET4000/W32i.
+@{i}
+- SEG0     38               I   TTL,PU
+@{I}Active high input signal from upper address decode. This input
+must be high during memory access cycle to ET4000/W32i.
+@{i}
+- SEG2     26               I   TTL,PU
+@{I}Active high input signal from upper address decode. This input
+must be high during memory access cycle to ET4000/W32i.
+@{i}
+- BE3*     31               I   CMOS,S
+@{I}Active low input signal in DX mode to indicate byte 3 data is
+enabled.
+@{i}
+- BHE*     35               I   TTL,PU
+@{I}In SX mode, active low input signal which along with A<0>
+identifies current bus cycle as 8- or 16-bit access. In DX mode,
+this pin is tied to the CPU's BE2* to indicate byte 2 is enabled.
+@{i}
+- MIO*     29               I   CMOS,S
+@{I}Memory or I/O status input.
+Low : I/O
+High: Memory
+@{i}
+- W/R*     25               I   TTL,PU
+@{I}Defines the current bus cycle as read or write.
+@{i}
+- LOCAL*   97               O   TTL,B8,TS
+@{I}Active low signal indicating availability of ET4000/W32i
+memory or I/O resources to the Local Bus.
+@{i}
+- BS16*    37               O   TTL,OC,B8
+@{I}Active low output signal to identify ET4000/W32i memory
+as a 16-bit device.
+@{i}
+- RDY*     33               O   TTL,OC,B8,TS
+@{I}Active low output indicating termination of a command cycle.
+Open collector or totem pole output selected by RDYS PORI bit.
+@{i}
+- RDYR*    73               I   TTL,PD,TS,B4
+@{I}Ready Return. Active low signal used to extend the current
+Local Bus cycle.
+@{i}
+- REST     34               I   CMOS,S
+@{I}Active high reset signal to initialize the ET4000/W32i.
+When high the chip is held in the reset state.
+@{i}
+- BCLK     17               I   TTL,PU
+@{I}Local Bus system clock input.
+@{i}
+@endnode
+
+
+@node "3.3.3.3 Local Bus DX 32-bit Interface"
+@toc "3.3 Host Interface"
+@{B}3.3.3.3 Local Bus DX 32-bit Interface@{b}
+
+  SYMBOL   PIN#             I/O TYPE
+- D<31:24> 159,122,119,82,79,42,39,2 IO  TTL,TS,B4
+@{I}Upper 8-bit data bus interface.
+@{i}
+- D<23:0>  50-43,70,68-62,59-52 IO  TTL,PU,B4,TS
+@{I}Data/Address time-multiplexed bus. A<23:2>, BE1*, and BE0*
+while ADRE* active and DB<23:0> input/output while RDMX*
+is active. A<23:2>, BE1*, and BE0* are latched internally
+during the low-to-high transition of LCLK at the start of
+internal command. If External Palette Memory is enabled,
+DB<9:8> outputs RS<1:0> (RAMDAC Register Select bits)
+at the proper time.
+@{i}
+- RDMX*    72               O   TTL,B8
+@{I}Active low signal used to enable DB<31:0> data bus driver.
+@{i}
+- DIR      71               O   TTL,B8
+@{I}Signal used to control direction of bidirectional bus
+drivers connected to DB<31:0> between ET4000/W32i and
+Local data bus.
+Low : signal low during I/O and memory write operations.
+High: signal high during I/O and memory read operations.
+@{i}
+- ADRE*    74               O   TTL,B8
+@{I}Active low signal used to enable A<23:2>, BE1*, and BE0*
+of Local Bus address to ET4000/W32i.
+@{i}
+- ADS*     30               I   CMOS,S
+@{I}Active low input signal indicates address and status valid.
+@{i}
+- SEG1     28               I   CMOS,S
+@{I}Active high input signal from upper address decode.
+This input must be high during memory access cycle
+to ET4000/W32i.
+@{i}
+- SEG0     38               I   TTL,PU
+@{I}Active high input signal from upper address decode.
+This input must be high during memory access cycle
+to ET4000/W32i.
+@{i}
+- SEG2     26               I   TTL,PU
+@{I}Active high input signal from upper address decode.
+This input must be high during memory access cycle
+to ET4000/W32i.
+@{i}
+- BE3*     31               I   CMOS,S
+@{I}Active low input signal to indicate byte 3 data is enabled.
+@{i}
+- BE2*     35               I   TTL,PU
+@{I}Active low input signal to indicate byte 2 data is enabled.
+@{i}
+- MIO*     29               I   CMOS,S
+@{I}Memory or I/O status input.
+Low : I/O
+High: Memory
+@{i}
+- W/R*     25               I   TTL,PU
+@{I}This signal defines the current bus cycle as read or write.
+@{i}
+- LOCAL*   97               O   TTL,B8,TS
+@{I}Active low signal indicating availability of ET4000/W32i
+memory or I/O resources to the Local Bus.
+@{i}
+- BS16*    37               O   TTL,OC,B8
+@{I}Active low output signal to identify ET4000/W32i
+memory as a 16-bit device.
+@{i}
+- RDY*     33               O   TTL,OC,B8,TS
+@{I}Active low output indicates termination of a command
+cycle. Open collector or totem pole output selected
+by RDYS PORI bit.
+@{i}
+- RDYR*    73               I   TTL,PD,TS,B4
+@{I}Ready Return. Active low signal used to extend the
+current Local Bus cycle.
+@{i}
+- REST     34               I   CMOS,S
+@{I}Active high reset signal to initialize the ET4000/W32i.
+When high the chip is held in the reset state.
+@{i}
+- BCLK     17               I   TTL,PU
+@{I}Local Bus system clock input.
+@{i}
+@endnode
+
+@node "3.4 Clock Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.4 Clock Interface@{b}
+
+  SYMBOL   PIN#   I/O TYPE
+- SCLK     22     I   TTL
+@{I}System clock used to generate all display memory timing and
+ET4000/W32i internal sequencing.
+@{i}
+- MCLK     19     I   TTL
+@{I}Variable frequency clock used to generate video, vertical,
+and horizontal timing for the ET4000/W32i. Programmable
+clock select pins CS<4:0> select the proper MCLK frequency
+for the display mode.
+@{i}
+- CS<2:0>  15,23,24 O TTL,B2,PU,TS
+@{I}Clock select outputs used to select one of eight possible
+MCLK frequencies.
+@{i}
+- CS<3>    36     O   TTL,B4
+@{I}Additional MCLK select signal. Pin shared with Image Port
+IXRD signal. IMA Indexed Register F7 bit 0 selects the
+function of this pin.
+@{i}
+- CS<4>    81     O   TTL,B4
+@{I}Additional MCLK select signal. Pin shared with CRTCB/Sprite
+BDE signal. IMA Indexed Register F7 bit 7 selects the
+function of this pin.
+@{i}
+@endnode
+
+@node "3.5 General Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.5 General Interface@{b}
+
+  SYMBOL   PIN#   I/O TYPE
+- SYNR     98     IO  TTL
+@{I}Active high synchronous reset signal. When active it resets
+the ET4000/W32i internal LINE and CHARACTER counters.
+Pin shared with Image Port IDMK and TKN/SP<0>. IMA
+Indexed Register F7 bits 0 and 6 select the function of
+this pin.
+@{i}
+- SWSE     18     IO  TTL
+@{I}Input status readable via Input Status Register 0 bit 4.
+Pin shared with Image Port IXWQ and TKN/SP<1>. IMA
+Indexed Register F7 bit 0 selects the function of this
+pin.
+@{i}
+- ROME*    76     O   TTL,B2
+@{I}Active low signal used to enable external BIOS ROM
+during ROM read operation.
+@{i}
+- IRQ      27     O   TTL,OC,B8
+@{I}Interrupt request. Active tri?state signal used to
+indicate an interrupting condition.
+@{i}
+@endnode
+
+@node "3.6 Display Memory Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.6 Display Memory Interface@{b}
+
+@{B}3.6.1 Bank A (MD<15:0>)@{b}
+
+  SYMBOL   PIN#        I/O TYPE
+- AA<9:0>  75,4-12     O   TTL,TS,B4
+@{I}Row/column time multiplexed address bus outputs.
+AA<9> available on pin 75 when CRTC Indexed
+Register 37 bit 3 = 0.
+@{i}
+- MWA*     13          O   TTL,TS,B8
+@{I}Active low write command output.
+@{i}
+- RASA*    135         O   TTL,TS,B4
+@{I}Active low row address strobe.
+@{i}
+- CAS<0>*  139         O   TTL,TS,B8
+@{I}Active low column address strobe for MD<7:0>.
+@{i}
+- CAS<1>*  138         O   TTL,TS,B8
+@{I}Active low column address strobe for MD<15:8>.
+@{i}
+- CAS<4>*  123         O   TTL,TS,B8
+@{I}Active low column address strobe for MD<7:0> when
+interleave is enabled (CRTC Indexed Register 32
+bit 7 = 1).
+@{i}
+- CAS<5>*  3           O   TTL,TS,B8
+@{I}Active low column address strobe for MD<15:8> when
+interleave is enabled (CRTC Indexed Register 32
+bit 7 = 1).
+@{i}
+- MD<15:0> 142-148,150-158 IO TTL,PU,B4,TS
+@{I}Display memory data bus.
+@{i}
+
+@{B}3.6.2 Bank B (MD<31:16>)@{b}
+
+  SYMBOL   PIN#           I/O TYPE
+- AB<9:0>  81,124-130,132-133 O TTL,TS,B4
+@{I}Row/column time multiplexed address bus outputs.
+AB<9> available on pin 81 when CRTC Indexed
+Register 37 bit 3 = 0.@{i}
+- MWB*     117            O   TTL,TS,B8
+@{I}Active low write command output.
+@{i}
+- RASB*    134            O   TTL,TS,B4
+@{I}Active low row address strobe.
+@{i}
+- CAS<2>*  137            O   TTL,TS,B8
+@{I}Active low column address strobe for MD<23:16>.
+@{i}
+- CAS<3>*  136            O   TTL,TS,B8
+@{I}Active low column address strobe for MD<31:24>.
+@{i}
+- CAS<6>*  96             O   TTL,TS,B8
+@{I}Active low column address strobe for MD<23:16> when
+interleave is enabled (CRTC Indexed Register 32
+bit 7 = 1).
+@{i}
+- CAS<7>*  95             O   TTL,TS,B8
+@{I}Active low column address strobe for MD<31:24> when
+interleave is enabled (CRTC Indexed Register 32
+bit 7 = 1).
+@{i}
+- MD<31:16> 99,102-116 IO TTL,PU,B4,TS
+@{I}Display memory data bus.
+@{i}
+@endnode
+
+@node "3.7 Display Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.7 Display Interface@{b}
+
+  SYMBOL   PIN#   I/O TYPE
+- PCLK     92     O   TTL,TS,B8
+@{I}Pixel clock used to sample pixel data AP<15:0>
+and SP<1:0>.
+@{i}
+- AP<7:0>  91-84  O   TTL,TS,B8
+@{I}Display pixel data bus connected to bits <7:0>
+of external DAC pixel inputs.
+@{i}
+- MBS      83     O   TTL,TS,B8
+@{I}Active low display blank signal indicating
+a blanking period. During blanking the video
+output line is cleared. Used with DAC digital
+video outputs to generate R,G,B analog output.
+@{i}
+- PMER*    78     O   TTL,B2
+@{I}Active low external DAC register read command.
+@{i}
+- PMEW*    77     O   TTL,B2
+@{I}Active low external DAC register write command.
+@{i}
+- VS       93     O   TTL,TS,B4
+@{I}Vertical retrace synchronization signal for
+CRT monitor.
+@{i}
+- HS       94     O   TTL,TS,B4
+@{I}Horizontal retrace synchronization signal
+for CRT monitor.
+@{i}
+- BDE      81     O   TTL,B8
+@{I}CRTCB/Sprite display enable timing synchronized
+to first and last pixel of display data. Pin shared
+with Clock Select CS<4>. IMA Indexed Register F7
+bit 7 selects function of this pin. Used as AB<9>
+when CRTC Indexed Register 37 bit 3 = 0.
+@{i}
+- TKN<1:0>  18,98   O   TTL,B2
+@{I}Token status output. Pins shared with Hardware Sprite
+SP<1:0> signals and SWSE (18) and SYNR (98). Output
+enabled when IMA Indexed Register F7<6> = 1 and
+F7<0> = 0, or CRTCB/Sprite Control Indexed Register
+EF<1:0> != <0,0>.
+@{i}
+@{I}If CRTC Index 35 bit 5 = 0:
+  TKN<1> = MCU processing FONT cycle.
+  TKN<0> = MCU processing pixel cycle.
+If CRTC Index 35 bit 5 = 1:
+  TKN<1> = interlace mode active.
+  TKN<0> = even field.
+@{i}
+- SP<1:0>   18,98   O   TTL,B2
+@{I}Sprite data bus to external XGA-compatible DAC.
+Pins shared with TKN<1:0> signals and SWSE (18) and
+SYNR (98). Sprite data output enabled when IMA
+Indexed Register 7<6> = 1 and F7<7> = 1 and
+CRTCB/Sprite Control Indexed Register EF<1:0> = <0,0>.
+IMA Indexed Register F7 bit 7 and CRTCB/Sprite Control
+Register EF<1> select the function of this pin.
+@{i}
+@endnode
+
+@node "3.8 Image Port Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.8 Image Port Interface@{b}
+
+@{I}The Image Port Interface provides image data and command
+decode for an external image processing device. All pins
+for the Image Port are shared with other chip interfaces.
+IMA Indexed Register F7 bit 0 determines whether pins
+are used for Image Port functions or other purposes.@{i}
+
+  SYMBOL    PIN#                         I/O TYPE
+- IM<7:0>   159,122,119,82,79,42,39,2    I   TTL,TS,B4
+@{I}Image data bus from external image processing device.
+Pins shared with bits <31:24> of host interface data bus.
+@{i}
+- IDMK      98                            I   TTL
+@{I}Image Data Mask. Pin shared with SYNR signal.
+Low  : ET4000/W32i ignores current data byte and
+       only steps the internal address sequencer.
+High : ET4000/W32i accepts the current data byte
+       and writes it to display memory.
+@{i}
+- IXWQ*     18                            I   TTL
+@{I}External Write Request. Pin shared with SWSE.
+IM<7:0> and IDMK strobed into ET4000/W32i during
+low-to-high transition of this signal.
+@{i}
+- IXRD      36                            O   TTL,B4
+@{I}External Data Port Ready. When active the external
+image processor may transfer the next image data
+byte by pulsing IXWQ. Signal should be synchronized
+by the external processor. Pin shared with Clock
+Select CS<3>.
+@{i}
+- IXFS      49                            I   TTL,PU,TS,B4
+@{I}External Frame Synchronization. Low-to-high edge
+indicates start of a new frame of image data.
+Pin shared with bit 22 of host address bus.
+@{i}
+- IXLS      48                            I   TTL,PU,TS,B4
+@{I}External Line Synchronization. Low-to-high edge
+indicates start of a new line of image data.
+Pin shared with bit 21 of host address bus.
+@{i}
+- IXOF      47                            I   TTL,PU,TS,B4
+@{I}External Odd Field Status. Indicates odd or even
+field information during interlaced transfer.
+Should be pulled low if transfer format is
+non-interlaced. Pin shared with bit 20 of host
+address bus.
+@{i}
+- IXCM*     16      O   TTL,PU,B4
+@{I}External Command. Active low external memory-
+mapped register decode. External device (for
+example an image processor) may use this signal
+as a read/write command for connection to the
+host bus. ET4000/W32i provides control for
+data/address steering at on-board host interface
+logic. Pin shared with Bus Configuration UCPC
+signal.@{i}
+@endnode
+
+@node "3.9 Power Source Interface"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.9 Power Source Interface@{b}
+
+  SYMBOL   PIN#                         I/O TYPE
+- VSS      14,21,40,51,61,69,80,101,
+           120,131,141,149              I   PWR
+@{I}Ground.
+@{i}
+- VDD      1,20,41,60,100,118,
+           121,140,160                  I   PWR
+@{I}+5V supply.
+@{i}
+@endnode
+
+@node "3.10 Electrical Specifications"
+@toc "3. ET4000/W32i Pin Descriptions"
+@{B}3.10 Electrical Specifications@{b}
+
+Maximum Ratings
+
+Storage temperature                         -40 to +125 deg C
+Operating free-air temperature range          0 to  +70 deg C
+Supply voltage applied to ground potential  -0.5 to +7.0 V
+DC voltage applied to outputs (high state)  -0.5 to Vdd max.
+DC input voltage                            +4.75V to +5.25 V
+Supply current                              200 mA typ / 300 max
+
+@{B}3.10.1 Electrical Characteristics@{b}
+
+Unless otherwise specified:
+T(A) = 0 to +70 deg C
+Vdd  = 5.0 V +/- 5%
+
+DC Characteristics Over Operating Temperature
+
+Symbol Parameter                        Condition         Min Typ Max  Unit
+---------------------------------------------------------------------------
+V_IH   High level input voltage
+       TTL                                                2.0            V
+       CMOS Schmitt trigger                               4.0            V
+
+V_IL   Low level input voltage
+       TTL                                                        0.8    V
+       CMOS Schmitt trigger                                       1.0    V
+
+I_IH   High level input current         V_IN = V_DD      -10       10   uA
+       Input buffer with pull-down                       -10      200   uA
+
+I_IL   Low level input current          V_IN = V_SS      -200     -10   uA
+       Input buffer with pull-up                         -10       10   uA
+
+V_OH   High level output voltage
+       B2 buffer                        I_OH = -2 mA      2.4            V
+       B4 buffer                        I_OH = -4 mA      2.4            V
+       B8 buffer                        I_OH = -8 mA      2.4            V
+                                        I_OL = 1 uA       V_DD-0.05      V
+
+V_OL   Low level output voltage
+       B2 buffer                        I_OL = 2 mA       0.4            V
+       B4 buffer                        I_OL = 4 mA       0.4            V
+       B8 buffer                        I_OL = 8 mA       0.4            V
+                                        I_OL = 1 uA       0.04     0.05  V
+
+I_OZ   High impedance leakage current                     -10        10 uA
+       Output buffer with pull-up       V_OUT=V_DD/V_SS  -200       -10 uA
+       Output buffer with pull-down     V_OUT=V_DD/V_SS    10       200 uA
+
+V_H    Schmitt trigger hysteresis 
+       CMOS                                                    0.6       V
+
+@endnode

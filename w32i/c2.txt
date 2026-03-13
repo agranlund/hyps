@@ -1,0 +1,1443 @@
+@node "2. ET4000/W32i Functional Description"
+@{B}2. ET4000/W32i Functional Description@{b}
+
+@{"2.1 VGA CRT Controller (CRTC)" link "2.1 VGA CRT Controller (CRTC)"}
+@{"2.2 Secondary CRT Controller (CRTCB)/Sprite" link "2.2 Secondary CRT Controller (CRTCB)/Sprite"}
+@{"2.3 Memory Control Unit (MCU)" link "2.3 Memory Control Unit (MCU)"}
+@{"2.4 System Priority Controller (SPC)" link "2.4 System Priority Controller (SPC)"}
+@{"2.5 Multiport Cache" link "2.5 Multiport Cache"}
+@{"2.6 Timing Sequencer (TS)" link "2.6 Timing Sequencer (TS)"}
+@{"2.7 Graphics Display Controller (GDC)" link "2.7 Graphics Display Controller (GDC)"}
+@{"2.8 Attribute Controller (ATC)" link "2.8 Attribute Controller (ATC)"}
+@{"2.9 Image Port (IMA)" link "2.9 Image Port (IMA)"}
+@{"2.10 Memory Management Unit (MMU)" link "2.10 Memory Management Unit (MMU)"}
+@{"2.11 Graphics Accelerator (ACL)" link "2.11 Graphics Accelerator (ACL)"}
+@endnode
+
+
+@node "2.1 VGA CRT Controller (CRTC)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.1 VGA CRT Controller (CRTC)@{b}
+
+The ET4000/W32i internal CRT Controller provides a 20-bit linear
+doubleword address, cursor control, and Vertical Sync and Horizontal
+Sync controls to external raster-scan CRT displays. Internally, the
+CRTC derives all reference timing in two dimensions: the horizontal
+display/blanking/sync and vertical display/blanking/sync.
+
+Each cycle in horizontal and vertical is evolved around the
+ET4000/W32i's CHARACTER and LINE reference logic. Each character is
+based on a multiple of 8 or 9 MCLK periods. Both CHARACTER and LINE
+reference logic can be asynchronously initialized via the SYNR input
+pin.
+
+The diagram below displays the role that the CRTC registers play to
+effect the horizontal and vertical timings of the CRT.
+
+Figure 2.1-1: CRTC Video Timing Control Registers
+
+
+                         Horizontal Sync
+               ---------------------------------------
+                     HSS                HSE
+                     |                  |
+                     v                  v
+               ______|__________________|______
+
+        HDE       HBS                HBE           HTOT
+         |         |                  |              |
+         v         v                  v              v
+    +-----------------------------------------------------+
+    |                                                     |
+    |        Actively Displayed Area                      |
+    |                                                     |
+    |                                                     |
+    |                Border                               |
+    |                                                     |
+    |                     Horizontal Blanking             |
+    |                                                     |
+    |                              Border                 |
+    |                                                     |
+    +-----------------------------------------------------+
+
+Vertical Sync
+     ^
+     |
+     |
+     | VDE
+     |------------------------+
+     |                        |
+     |                        |
+     |                        |
+     |                        |
+     | VBS                    |
+     |--------------------+   |
+     |                    |   |
+VSS -+                    |   |
+                         Vertical Blanking
+VSE -+                    |   |
+                          ---+
+VBE -+ Border
+
+VTOT -+-----------------------------------------------
+
+
+HDE  : Horizontal Display Enable
+HBS  : Horizontal Blank Start
+HBE  : Horizontal Blank End
+HSS  : Horizontal Sync Start
+HSE  : Horizontal Sync End
+HTOT : Horizontal Total
+
+VDE  : Vertical Display Enable
+VBS  : Vertical Blank Start
+VBE  : Vertical Blank End
+VSS  : Vertical Sync Start
+VSE  : Vertical Sync End
+VTOT : Vertical Total
+
+@endnode
+
+
+@node "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.2 Secondary CRT Controller (CRTCB)/Sprite@{b}
+
+2.2.1 CRTCB Overview
+2.2.3 CRTCB Data Format
+2.2.4 Sprite Overview
+2.2.5 Positioning the Sprite
+2.2.6 Sprite Data Format
+
+This module of the ET4000/W32i may be programmed as a hardware cursor
+(Sprite) or as a secondary display window (CRTCB). The two features
+cannot, however, be used at the same time. A control bit is provided
+in the CRTCB/Sprite Control Register (Index: EF) to select between the
+CRTCB and Sprite functions.
+
+The ET4000/W32i can be programmed to inform the host processor when the
+last scan line of the CRTC, or CRTCB/Sprite has been displayed on each
+frame using a system interrupt. See Section 5.2.33, CRTC Index Register
+35, bit 6.
+
+@endnode
+
+@node "2.2.1 CRTCB Overview"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.1 CRTCB Overview@{b}
+
+The CRTCB is a secondary CRTC display window. Its X/Y position, X/Y
+size, starting address, width, and color depth can be programmed via
+the CRTCB registers (see Section 5.6).
+
+The main differences between CRTC and CRTCB are:
+
+1. CRTCB is programmed relative to the CRTC's X/Y display window in
+   terms of X/Y position and width in pixel (X) and line (Y) resolution.
+   The size of the CRTCB display can be programmed from 1 pixel x
+   1 line, to the entire CRTC display size.
+
+2. The color attributes displayed are not subject to internal "ATC"
+   processing; i.e., the CRTCB display is packed pixel (linear graphics)
+   format only.
+
+3. The CRTCB display must be overlayed when the CRTC display is in
+   timing state "1" (8 dots per character); i.e., CRTCB is always in
+   8 dots per character mode regardless of the CRTC's timing state.
+@endnode
+
+@node "2.2.2 Positioning the CRTCB Window"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.2 Positioning the CRTCB Window@{b}
+
+The CRTCB position on the screen is defined by the Pixel Position
+Registers. These registers indicate the point on the screen, relative
+to the actively displayed area of the CRTC, where the upper left-hand
+corner of the CRTCB window is displayed.
+
+The Width and Height Registers are used to control the pixel size of
+the CRTCB window.
+
+Figure 2.2.2-1 illustrates these registers.
+
+                +-------------------------------------+
+                | Actively Displayed Area (CRTC)      |
+                |                                     |
+                |        +-------------------+        |
+                |        | Actively Displayed|        |
+                |        | Area (CRTCB)      |        |
+                |        +-------------------+        |
+                |                                     |
+                +-------------------------------------+
+
+HPP : Horizontal Pixel Position
+VPP : Vertical Pixel Position
+WID : Width
+HGT : Height
+@endnode
+
+@node "2.2.3 CRTCB Data Format"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.3 CRTCB Data Format@{b}
+
+The data for the CRTCB window is stored in the display memory. The exact
+location of the beginning of the data in display memory is programmed into
+the Starting Address Registers, and the number of doublewords from one row
+of data to the next is programmed into the Row Offset Registers.
+
+The Color Depth Register controls the formatting of the pixel data in
+memory.
+
+bit w/in dword Byte 3,2: 31 30 29 28 27 26 25 24 | 23 22 21 20 19 18 17 16
+               Byte 1,0: 15 14 13 12 11 10  9  8 |  7  6  5  4  3  2  1  0
+bit w/in byte  Byte 3,2:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+               Byte 1,0:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+
+@{U}1 bpp@{u}
+pixel number   Byte 3,2: 24 25 26 27 28 29 30 31 | 16 17 18 19 20 21 22 23
+               Byte 1,0:  8  9 10 11 12 13 14 15 |  0  1  2  3  4  5  6  7
+bit signific   Byte 3,2:  0  0  0  0  0  0  0  0 |  0  0  0  0  0  0  0  0
+               Byte 1,0:  0  0  0  0  0  0  0  0 |  0  0  0  0  0  0  0  0
+
+@{U}2 bpp@{u}
+pixel number   Byte 3,2: 12 12 13 13 14 14 15 15 |  8  8  9  9 10 10 11 11
+               Byte 1,0:  4  4  5  5  6  6  7  7 |  0  0  1  1  2  2  3  3
+bit signific   Byte 3,2:  1  0  1  0  1  0  1  0 |  1  0  1  0  1  0  1  0
+               Byte 1,0:  1  0  1  0  1  0  1  0 |  1  0  1  0  1  0  1  0
+
+@{U}4 bpp@{u}
+pixel number   Byte 3,2:  6  6  6  6  7  7  7  7 |  4  4  4  4  5  5  5  5
+               Byte 1,0:  2  2  2  2  3  3  3  3 |  0  0  0  0  1  1  1  1
+bit signifc    Byte 3,2:  3  2  1  0  3  2  1  0 |  3  2  1  0  3  2  1  0
+               Byte 1,0:  3  2  1  0  3  2  1  0 |  3  2  1  0  3  2  1  0
+
+@{U}8 bpp@{u}
+pixel number   Byte 3,2:  3  3  3  3  3  3  3  3 |  2  2  2  2  2  2  2  2
+               Byte 1,0:  1  1  1  1  1  1  1  1 |  0  0  0  0  0  0  0  0
+bit signific   Byte 3,2:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+               Byte 1,0:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+
+@{U}16 bpp@{u}
+pixel number   Byte 3,2:  1  1  1  1  1  1  1  1 |  1  1  1  1  1  1  1  1
+               Byte 1,0:  0  0  0  0  0  0  0  0 |  0  0  0  0  0  0  0  0
+bit signific   Byte 3,2: 15 14 13 12 11 10  9  8 |  7  6  5  4  3  2  1  0
+               Byte 1,0: 15 14 13 12 11 10  9  8 |  7  6  5  4  3  2  1  0
+
+@endnode
+
+
+@node "2.2.4 Sprite Overview"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.4 Sprite Overview@{b}
+
+The Sprite is a 64x64-pixel image. When active, it overlays the picture
+that is being displayed in CRTC. Each Sprite pixel is 2 bits, encoded
+to have the following effect on the display:
+
+Bits<1:0>      Sprite Effect
+00             Sprite Color 0 (defined as 00)
+01             Sprite Color 1 (defined as FF)
+10             Transparent (allow CRTC pixel pass through)
+11             Invert (allow CRTC pixel invert through)
+@endnode
+
+@node "2.2.5 Positioning the Sprite"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.5 Positioning the Sprite@{b}
+
+The Sprite position on the screen is defined by two types of registers:
+Pixel Position and Preset.
+
+The Pixel Position registers specify where the first displayed Sprite
+pixel (upper left-hand corner) appears on the screen, and the Preset
+registers specify the offset into the 64x64 Sprite buffer as well as
+the X/Y size of the visible portion of the Sprite.
+
+The main use of the Sprite Preset registers is to allow displaying
+sprites which are less than 64x64 pixels in size.
+
+                +-------------------------------------+
+                | Actively Displayed Area (CRTC)      |
+                |                                     |
+                |        +---------------+            |
+                |        | 64x64 Sprite  |            |
+                |        | Outline       |            |
+                |        |   +-------+   |            |
+                |        |   |Visible|   |            |
+                |        |   |Sprite |   |            |
+                |        |   +-------+   |            |
+                |        +---------------+            |
+                |                                     |
+                +-------------------------------------+
+
+HPP : Horizontal Pixel Position
+HP  : Horizontal Preset
+VPP : Vertical Pixel Position
+VP  : Vertical Preset
+
+@endnode
+
+@node "2.2.6 Sprite Data Format"
+@toc "2.2 Secondary CRT Controller (CRTCB)/Sprite"
+@{B}2.2.6 Sprite Data Format@{b}
+
+The data for the Sprite is stored in the display memory. The exact
+location of the beginning of the data in display memory is programmed
+into the Starting Address Registers. The data is stored in a
+contiguous 1024 byte area, arranged in the following linear "packed"
+format:
+
+bit w/in dword  Byte 3,2: 31 30 29 28 27 26 25 24 | 23 22 21 20 19 18 17 16 
+                Byte 1,0: 15 14 13 12 11 10  9  8 |  7  6  5  4  3  2  1  0
+bit w/in byte   Byte 3,2:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+                Byte 1,0:  7  6  5  4  3  2  1  0 |  7  6  5  4  3  2  1  0
+
+pixel number    Byte 3,2: 15 15 14 14 13 13 12 12 | 11 11 10 10  9  9  8  8
+                Byte 1,0:  7  7  6  6  5  5  4  4 |  3  3  2  2  1  1  0  0
+bit signific    Byte 3,2:  1  0  1  0  1  0  1  0 |  1  0  1  0  1  0  1  0
+                Byte 1,0:  1  0  1  0  1  0  1  0 |  1  0  1  0  1  0  1  0
+
+A single row of the Sprite thus occupies 4 contiguous doublewords.
+The second row occupies the next 4 contiguous doublewords after the
+first row, and so on in increasing fashion.
+
+@endnode
+
+
+@node "2.3 Memory Control Unit (MCU)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.3 Memory Control Unit (MCU)@{b}
+
+The Memory Control Unit provides programmable control of several
+aspects of the DRAM memory operation:
+
+Memory control: RAS/CAS/MW timing/sequence control; the trp (RAS
+pre-charge), trcd (RAS to CAS delay), tcas (CAS pulse width), and
+tcp (CAS pre-charge) are programmable via CRTC Indexed Register 32.
+
+Memory address: provides up to 4 megabyte addressing space via
+multiplexed AB<9:0> and AA<9:0> address interface.
+
+Memory data: provides from 16-bit display memory data width to
+32-bit data width via MD<31:0> data interface.
+
+Memory refresh: programmable refresh frequency via CRTC Indexed
+Register 36.
+
+@{B}2.3.1 Memory Interleave@{b}
+
+Memory interleaving is done to increase DRAM bandwidth without
+doubling the DRAM data bus pin count. The ET4000/W32i provides the
+capability to interleave data from two banks of DRAM that share
+common RAS, address, write enable, and data signals, which are
+unique via the CAS signals.
+
+Through use of memory interleaving, the W32i delivers the
+performance of VRAM while using low-cost DRAM. Unlike CPU
+interleaving that may increase system performance overall by only
+twenty or thirty percent, the sequential nature of video accesses
+allows the W32i memory manager to leverage an additional seventy
+percent from its RAM.
+
+With VRAM, the resource allocated to the CPU and internal
+accelerator, or to the CRTC for screen refresh, is fixed at fifty
+percent for each. Demand on the memory may be higher than fifty
+percent on one side or the other, creating inefficiency.
+
+The W32i, however, can dynamically allocate its resource to the
+CPU, the graphics accelerator, the CRTC, or data being input
+through the IMA port.
+
+@endnode
+
+@node "2.4 System Priority Controller (SPC)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.4 System Priority Controller (SPC)@{b}
+
+The SPC's main task is to maximize performance by orchestrating the
+ET4000/W32i's internal resource requests including: the Display FIFOs,
+Graphics Data Controller, Multiport Cache Controller, Accelerator,
+Image Port, and RAM refresh. The available memory bandwidth for system
+performance is based on two major factors: the CRTC's demand (i.e.,
+the display resolution and color), and the memory bandwidth (i.e.,
+the memory bus width and access time). Use of the Graphics Accelerator
+and/or the Image Port can substantially increase performance by
+reducing the number of host accesses.
+
+Other factors also can contribute to the overall performance. For
+example, the cache controller provides optimum performance for
+sequential access rather than random, and host write operations are
+generally faster than host read operations. The 32-bit Local Bus
+interface also results in faster data transfer, particularly in the
+plane graphics mode (a 32-bit CPU write equals up to a 128-bit data
+transfer). For further discussion of performance aspects, refer to
+Display Memory Design Considerations, Section 6.3.
+
+@endnode
+
+
+@node "2.5 Multiport Cache"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.5 Multiport Cache@{b}
+
+The internal Multiport Cache(TM), an exclusive feature of the ET4000/W32i,
+allows access of multiple masters to the display memory cache
+simultaneously. Multiport Cache provides the ET4000/W32i with the
+ability to parallel-process tasks. Even if the IMA port is updating
+an active second display window while the CPU and Accelerator
+processor are updating the primary active display, the ET4000/W32i
+will allow all three masters to read/write into the display memory,
+while operating concurrently.
+
+@endnode
+
+
+@node "2.6 Timing Sequencer (TS)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.6 Timing Sequencer (TS)@{b}
+
+The Timing Sequencer module is responsible for providing basic timing
+control for both the CRTCs and ATC. Timings controlled by the TS
+registers include:
+
+  - Horizontal count resolution: 8 or 9 dots/character
+  - MCLK/2, MCLK/4, and DCLK/2 (dotclock)
+
+@endnode
+
+
+@node "2.7 Graphics Display Controller (GDC)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.7 Graphics Display Controller (GDC)@{b}
+
+The GDC assists the CPU in manipulating pixel data that is in planar
+format in display memory. This includes rotate/mask/z-plane, with
+any of four boolean functions-in response to a single CPU write.
+By putting basic bit map operations in high-speed hardware, the
+ET4000/W32i dramatically increases graphics processing throughput
+over software-driven solutions.
+
+The data manipulation capability implemented in the GDC is, however,
+applicable only for Plane systems and not for Linear Byte systems.
+This is because all the processing functions are designed to manipulate
+pixel data with one bit sourced from each plane. For example, the color
+compare function allows four bits across four planes (one pixel) to be
+compared to a pre-defined color, thereby allowing eight pixels to be
+color-compared simultaneously by processing 32 bits of video data
+(one byte from each plane).
+
+@endnode
+
+
+@node "2.8 Attribute Controller (ATC)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.8 Attribute Controller (ATC)@{b}
+
+The internal Attribute Controller (ATC) provides flexible high-speed
+video shifting and attribute processing, and video load control every
+8, 16, or 32 dot clocks, designed for both text and graphics video
+display applications. The ATC can process up to 16 bits of display
+data at the rate of 50 MHz or 8-bit pixel data at a rate of 86 MHz.
+
+In graphics modes, memory bits are reformatted into pixel color data
+in groups of 16, 8, 2, or 1 adjacent bits, translated through an
+internal 16-element color look-up table, and sent out serially to
+the video display. Through this pixel mapper, the ATC supports
+"PLANE" (for 16 colors), "BYTE" (256 colors) and "WORD"
+(65,536 colors) oriented pixel structures.
+
+In text mode, eight bits of character code data and eight bits of
+attribute data are loaded; the character code is used as a lookup
+into a font table that is then loaded as the 16 bits of font data.
+The attribute is then applied to the font/cursor data, translated
+through the color lookup table, and sent out serially to produce
+16 colors of text pixel data at speeds of up to 56 MHz.
+
+@endnode
+
+
+@node "2.9 Image Port (IMA)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.9 Image Port (IMA)@{b}
+
+The Image Port is an 8-bit asynchronous input port capable of
+accepting CPU or image data directly into the display memory,
+and the ET4000/W32i will keep track of linear addresses being
+transferred as well as data transfer counts per line.
+
+The input data scan sequence can be interlaced, or non-interlaced,
+and may be sent along with a bit mask so that only the differential
+motion data is transferred. Once in display memory, the IMA data
+may be displayed through either the primary display (CRTC), or the
+secondary display (CRTCB).
+
+The combination of the internal bandwidth of the W32i chip, along
+with the IMA port, make possible 640?480, 16.7 million-color,
+full-motion (30 frame/second) digital video on desktop computer
+systems. The ET4000/W32i integrates Multimedia and Imaging
+capabilities beyond any SuperVGA class graphics controller.
+
+The IMA port is a physical interface between an asynchronous
+processor such as an image processor for motion video, or simply
+a dedicated microprocessor high-speed direct connection, and the
+ET4000/W32i controller. The main mechanisms of this high-speed
+direct connection are:
+
+  1. Sustained asynchronous throughput rate up to 40 MB/sec.
+
+  2. The address generation is two-dimensional and sequential and
+     is fully specified via IMA Registers E0-E6 prior to the data
+     transfer.
+
+  3. The synchronization of address generation is by way of
+     Frame/Line and odd/even interface signals.
+
+  4. The range of data transfer per line is specified by
+     programming the image transfer length registers (IMA F3-F4).
+
+  5. A byte mask input can be used to specify only the changing
+     motion video data to be transferred to the ET4000/W32i's
+     frame buffer. The masked data transferred can be used to
+     reduce the bandwidth requirement.
+
+@{B}2.9.1 Image Port Interface Protocol@{b}
+
+1. External Image Processor produces IXFS and IXLS pulses signaling
+   initialization of linear address.
+
+2. ET4000/W32i loads the image start address to the linear address
+   generator.
+
+If the interlace bit (IMA Indexed Register F7, bit 1) is set to:
+
+0, then loads the image start address to the linear address generator.
+
+1, then (If IXOF = 1) loads image start address + image row offset
+   to the linear address generator.
+   (If IXOF = 0) loads image start address to the linear address
+   generator.
+
+3. After the trailing edge of IXLS and sensing IXRD ready
+   acknowledgment, the image processor can begin to toggle the
+   IXWQ* write request and place the 8-bit IM<7:0> and IDMK byte
+   mask at each transfer.
+
+   NOTE: IDMK, when equal to 0, can be used to "walk" the address
+   generator's pointer without data being transferred.
+
+4. The image processor continues to sample the IXRD ready (by
+   clocking IXRD with the image processor's internal clock).
+   If IXRD is asserted, the IXWQ* can be toggled, else IXWQ*
+   is held at the high state.
+
+5. If the number of doubleword count transfers has occurred,
+   then IXRD will become inactive and wait for the IXLS input.
+
+6. The image processor sends an IXLS line synchronization. If the
+   IXLS input occurs before the doubleword count transfer is
+   complete, the transfer counter is re-initialized to zero,
+   and the remaining data will not be transferred.
+
+7. Upon the leading edge of IXLS, the ET4000/W32i will advance the
+   linear address pointer to the beginning edge of the next line
+   by adding the image row offset, and return the IXRD,
+   indicating that the IMA Port is ready for data transfers.
+
+If the interlace bit (IMA Indexed Register F7, bit 1) is set to:
+
+0, then image row offset value is added.
+
+1, then twice image row offset value is added.
+
+This process is repeated.
+
+@endnode
+
+
+@node "2.10 Memory Management Unit (MMU)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.10 Memory Management Unit (MMU)@{b}
+
+2.10.1 Software Considerations
+2.10.1-1 MMU Aperture Mapping
+2.10.1-2 MMU Address Translation
+2.10.2 Hardware Considerations
+
+The ET4000/W32i Memory Management Unit (MMU) provides a mechanism to
+access the full 4 MB range of display memory even though the display
+memory may occupy a much smaller region in the system's memory space.
+This is accomplished by providing a fixed-size "aperture" through
+which the display memory may be accessed.
+
+The aperture varies in size depending upon the system configuration;
+for typical VGA-compatible systems the aperture size is 8 KB. See
+the Video Memory Map table in Section 7.3 to see how aperture size
+is related to system configuration. The aperture may be relocated to
+begin on any byte boundary in the 4 MB display memory space.
+
+@endnode
+
+
+@node "2.10.1 Software Considerations"
+@toc "2.10 Memory Management Unit (MMU)"
+@{B}2.10.1 Software Considerations@{b}
+
+Each aperture has a Memory Base Pointer Register (MBP) which is
+22 bits wide. The MBP Register specifies the starting address of
+the aperture in the linear display memory.
+
+The MMU provides three independent apertures. The host implicitly
+selects which aperture to use by virtue of the address the host is
+accessing. As an example, consider the case of the MMU buffer space
+occupying the address region from B8000 through BDFFF (line six of
+the Video Memory Map table in Section 7.3).
+
+All accesses in the range of B8000 through B9FFF will be directed
+through aperture number 0, BA000 through BBFFF use aperture number
+1, and BC000 through BDFFF use aperture number 2. Figure 2.10.1-1
+illustrates this address translation.
+
+Associated with each MMU aperture are two control bits:
+
+  - Linear Address Control (LAC)
+  - Aperture Type (APT)
+
+The LAC bit controls the organization of data in display memory
+for the given aperture. (See Section 5.8 MMU Register Descriptions,
+MMU Control Register for a description of the LAC bits.)
+
+The LAC bit allows the programmer to access memory in a linear
+fashion, independent of the current display mode.
+
+The APT bit indicates that accesses through this aperture should
+be directed to the accelerator. Namely, if the APT bit is a "1",
+an access through this aperture will be passed to the accelerator;
+otherwise the access will go through the GDC to the display memory.
+
+When the APT bit of an aperture is set to "0", the MBP for that
+aperture must be doubleword-aligned. This alignment restriction
+arises from the fact that the internal GDC cannot perform a
+multiple-cycle operation to memory, which would be required if
+an access crossed a doubleword boundary.
+
+The accelerator does not have any such restriction; so when the
+APT bit is set to "1", the MBP can point to any byte boundary.
+
+@{I}Important Note:@{i} A read through an aperture with the APT bit set
+to "1" will return an undefined result. The chip does not allow
+data to be read from the accelerator.
+
+The actual address translation that the MMU performs is quite
+simple. It adds bits <12:0> of the host address to the Memory
+Base Pointer for the selected aperture. If the Aperture Type bit
+is "1" and the host is supplying Mix Map data to the Graphics
+Accelerator, then the 13-bit host address is multiplied by 8
+before being added to the Memory Base Pointer.
+
+This is done to compensate for the 8-to-1 ratio of "bytes
+processed" to "bits in the Mix Map". Figure 2.10.1-2 depicts
+the address translation process.
+
+@endnode
+
+@node "2.10.1-1 MMU Aperture Mapping"
+@toc "2.10 Memory Management Unit (MMU)"
+@{B}2.10.1-1 MMU Aperture Mapping@{b}
+
+Host Address                            4 MByte Display Memory Space
+------------                            ----------------------------
+
+                                                           3FFFFF -+ 
+                                                                   |
+BDEFF --+   +------------------+ --                                |
+        |   |   Aperture #2    |   \                               |
+        |   |     8 KBytes     |    \                              |
+BC000 --+   +------------------+ -\  \                             |
+                                   \  \         MBP2 + 8K - 1      |
+                                    \  \------  +------------------+
+                                     \          |      8 KBytes    |
+                                      \-------  +------------------+
+                                                MBP2               |    
+                                                                   |
+BBFFF --+   +------------------+ --                                |
+        |   |   Aperture #1    |   \                               |
+        |   |     8 KBytes     |    \                              |
+BA000 --+   +------------------+ -\  \                             |
+                                   \  \         MBP1 + 8K - 1      |
+                                    \  \------  +------------------+
+                                     \          |      8 KBytes    |
+                                      \-------  +------------------+
+                                                MBP1               | 
+                                                                   |
+B9FFF --+   +------------------+ --                                |
+        |   |   Aperture #0    |   \                               |
+        |   |     8 KBytes     |    \                              |
+B8000 --+   +------------------+ -\  \                             |
+                                   \  \         MBP0 + 8K - 1      |
+                                    \  \------  +------------------+
+                                     \          |      8 KBytes    |
+                                      \-------  +------------------+
+                                                MBP0               | 
+                                                                   |
+                                                           000000 -+
+
+
+@endnode
+
+
+
+@node "2.10.1-2 MMU Address Translation"
+@toc "2.10 Memory Management Unit (MMU)"
+@{B}2.10.1-2 MMU Address Translation@{b}
+
+
+CPU Address
+-----------
+
+19            15 14 13 12
++---------------+-----+---------------------------------------------+
+|               |     |                                             |
++---------------+-----+---------------------------------------------+
+                      
+                +-----+---------------------------------------------+
+                   |                                       |
+   +---------------+                                       v
+   |                                          +---------------------+
+   |                                          | x8 if aperture type |
+   |                                          | = "accelerated"     |
+   |                                          | and CPU Data Route  |
+   |                                          | = "Mix Data"        |
+   |                                          +---------------------+
+   |                                                       |   
+   |                                                       |
+   |                                                       |
+   |                                                       |
+   |                                                       |
+   |    +----------------------+                           |
+   |--  | MMU Base Pointer 2   |   (10)                    |
+   |    +----------------------+                           |
+   |--  | MMU Base Pointer 1   |   (01)                    |
+   |    +----------------------+                           |
+   |--  | MMU Base Pointer 0   |   (00)                    |
+        +----------------------+                           |
+                   |                                       |
+                   |                                       |
+                   |                                       |
+                   |                                       |
+                   +--------------------------------------(+)
+                                                           |
+                                                           v
+
+                    Physical Linear Address to Display Memory
+
+@endnode
+
+@node "2.10.2 Hardware Considerations"
+@toc "2.10 Memory Management Unit (MMU)"
+@{B}2.10.2 Hardware Considerations@{b}
+
+As mentioned earlier, the size of the aperture depends upon the system
+configuration. For example, if the image port is being used in a system
+linear-mapped configuration, only 20 bits of the host address can be
+wired to the chip (since the Image Port uses some pins normally used by
+the host address bus). In this configuration, bits 19 and 18 are used
+to select the aperture, while bits <17:0> are added to the Memory Base
+Pointer. The Video Memory Map in Section 7.3 summarizes the effects of
+system configuration on the aperture size.
+
+@endnode
+
+
+
+@node "2.11 Graphics Accelerator (ACL)"
+@toc "2. ET4000/W32i Functional Description"
+@{B}2.11 Graphics Accelerator (ACL)@{b}
+
+2.11.1 Overview
+2.11.2 Starting an Accelerator Operation
+2.11.3 The Accelerator's Queue
+2.11.4 Accelerator Operation
+2.11.5 Passing Map Data to the Accelerator
+2.11.6 Support for Common Graphics Operations
+2.11.7 Accelerator Interrupts
+2.11.8 Accelerator State Save/Restore
+
+The ET4000/W32i Graphics Accelerator is the most cost-efficient method
+to expedite functions used in common applications such as Microsoft
+Windows and other graphical user interface (GUI) software. Typically,
+personal computer architecture and processor performance limit the
+performance of operations such as BitBLT or Raster Operations. The
+ET4000/W32i allows the CPU to distribute these tasks to its Graphics
+Accelerator. The Accelerator is mapped to unused areas of the display
+memory address space, and reconfigures itself automatically when
+multiple adapters are present, or if the VGA switches from graphics
+into text mode.
+
+The ET4000/W32i Graphics Accelerator provides a simple, yet powerful
+mechanism to accelerate the movement and processing of graphics data.
+The accelerator architecture adheres to the RISC philosophy of
+providing the basic building block for manipulation of graphics data
+at a high rate of performance, while allowing the software to manage
+the complexity of higher-level drawing algorithms. The accelerator has
+the capability to operate without CPU intervention on graphics data in
+the display memory, or it may take data from the CPU and mix it with
+data from the display memory.
+
+Inside the accelerator are two primary functional blocks:
+
+  - An address sequencer, and
+  - A graphics data processor.
+
+By using these two functions, much of the CPU-processing required to
+perform a Bit Block Transfer ("BitBLT") can be off-loaded from the host
+CPU to the Graphics Accelerator. The Address Sequencer maintains
+address pointers to locate data in display memory, and the Graphics
+Data Processor combines data from a Source Map, a Pattern Map, and a
+Destination Map, and writes it back to the Destination Map under the
+control of parameters programmed into the chip.
+
+Maximum performance is achieved by:
+
+  - Minimizing the amount of information that must be passed across the
+    host bus between the ET4000/W32i and the host processor.
+
+  - The CPU need not perform any combinatorial functions on the graphics
+    data; all Raster Operations are performed by the Graphics
+    Accelerator.
+
+  - For most rectangular BitBLT's, the CPU need not maintain address
+    pointers.
+
+  - Accesses to the display memory are localized within the ET4000/W32i,
+    allowing the best possible utilization of display memory bandwidth.
+
+  - The CPU always has the option to maintain more control over a
+    graphics operation, but still use the accelerator to assist in
+    certain aspects of the operation. For example, the programmer may
+    wish to have the CPU provide control of addressing the memory, but
+    allow the accelerator to take care of applying the Raster Operation
+    to the data.
+
+@endnode
+
+
+@node "2.11.1 Overview"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.1 Overview@{b}
+
+The accelerator supports the notion of a "Pixel Map," which is defined
+by two things:
+
+  - A starting address in display memory, and
+  - A byte-offset from one scan line of the map to the next scan line.
+
+The accelerator operates on four "Pixel Maps":
+
+  1. Source Map
+  2. Pattern Map
+  3. Destination Map
+  4. Mix Map
+
+Data from these maps are combined according to the following rule:
+
+  D = FgdRop(S,P,D)  if MixMap bit is 1
+  D = BgdRop(S,P,D)  if MixMap bit is 0
+
+The Foreground Raster Operation (FgdRop) and Background Raster
+Operation (BgdRop) are 8-bit values which cover any possible
+combinational mix of the three maps (Pattern, Source, and Destination).
+The encoding of these 256 ROP's is 100% compatible with the Microsoft
+Windows specification.
+
+The Destination and Pattern maps must reside in the display memory.
+The Source map data may reside in display memory or be supplied by the
+CPU during an accelerated graphics operation. The Mix Map data may be
+supplied by the CPU, or it may be fixed to "1" (always use Foreground
+ROP). For a given graphics operation, the CPU can provide either Source
+data or Mix data (or neither), but not both.
+
+The Mix Map differs from the other three maps in that it is a
+"monochrome" map; that is, for each bit processed in the Mix Map, a
+byte is processed from the other three maps.
+
+The following figure shows the path of one byte through the accelerator's
+Graphics Data Processor; in reality more than one byte is processed at
+a time.
+
+
+                        +----------------------+
+ Src --------8--------> |S                     |
+                        |                      |
+ Pat --------8--------> |P    256-ROP ALU     O| ----8----> new Dst
+                        |                      |
+ Dst --------8--------> |D        ROP          |
+                        +----------+-----------+
+                                   ^
+                                   |
+                                   |
+                                   8
+                                   |
+                                   |
+                                +-----+
+ FgdRop -----8------------------| 1   |
+                                |     |
+ BgdRop -----8------------------| 0   |
+                                +-----+
+                                   ^
+                                   |
+ Mix --------1---------------------+
+
+@endnode
+
+
+@node "2.11.2 Starting an Accelerator Operation"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.2 Starting an Accelerator Operation@{b}
+
+After loading all the necessary accelerator control registers
+(e.g., X/Y Count Registers, Map Starting Addresses, Y Offsets,
+X/Y Wrap values, Raster Operations, etc.), a graphics operation is
+initiated in one of two ways:
+
+1. The host performs a write to the display memory, using the MMU
+   Buffer Space. If the APT bit for the MMU aperture is "1", then an
+   accelerator operation will begin. The address which is generated
+   by the MMU translation is implicitly loaded into the Destination
+   Address Register in the Accelerator Queue, and the accelerator
+   operation is begun.
+
+   Thus, the act of writing to the display memory using an MMU
+   aperture which is in "accelerated mode" implicitly specifies that
+   area of memory to be the Destination Map.
+
+   ...OR...
+
+2. The starting address of the Destination Map can be explicitly
+   loaded into the Destination Address Register, and then a write to
+   the Accelerator Operation State Register can be performed with
+   both the "Resume" and "Restore" control bits set to "1."
+
+An accelerated graphics operation is defined as a two-dimensional
+"walk" through display memory. The X Count Register and Y Count
+Register specify the limits of each dimension.
+
+Sequential bytes are processed until the programmed limit of the
+X Count Register has been reached. At that time, each map's Y Offset
+is added to that map's starting address, and the X-walk is repeated.
+This sequence repeats until the programmed limit of the Y Count
+Register has been reached.
+
+The accelerator always operates on pixel maps as if they are in
+linear format in display memory. The accelerator uses the MMU
+only to translate the starting Destination Address. The accelerator
+does not use the MMU to perform any address translations while it
+is performing a graphics operation. In other words, the MMU only
+operates on addresses from the host, and never on internal addresses
+generated by the accelerator. This means that the programmer has
+complete freedom to alter any MMU-related registers while the
+accelerator is in the middle of a graphics operation.
+
+@endnode
+
+
+
+@node "2.11.3 The Accelerator's Queue"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.3 The Accelerator's Queue@{b}
+
+The ET4000/W32i has a one-level queue of registers for the Graphics
+Accelerator. In addition to the queue, there are registers internal
+to the accelerator that it uses as a "working set" while it is
+performing a graphics operation. This configuration allows the host
+to be modifying the registers in the queue while the accelerator is
+running. The figure below shows the data path between the host,
+queued registers, and accelerator registers.
+
+For most graphics operations, the queue starts out as being "empty"
+and the host will load the registers in the queue to set-up the
+operation. Then the host will initiate the operation by one of the
+two methods outlined previously. At the time when the operation is
+initiated, the queue becomes "full" and all of the values stored in
+the registers in the queue are transferred into the accelerator's
+internal state. After the transfer, the queue becomes "empty" again,
+waiting for the host to set-up the next operation.
+
+
+Host Write                          Host Read
+Queued Registers                    Accelerator Internal State
++----------------------------+      +----------------------------+
+| X Position                 |----->| X Position                 |
+| Y Position                 |      | Y Position                 |
+| Dst Address                |      | Dst Address                |
++----------------------------+      +----------------------------+
+| Pat Address                |----->| Internal Pat Address       |
+| Src Address                |      | Internal Src Address       |
++----------------------------+      +----------------------------+
+| Pat Y Offset               |----->| Pat Y Offset               |
+| Src Y Offset               |      | Src Y Offset               |
+| Dst Y Offset               |      | Dst Y Offset               |
+| Virtual Bus Size           |      | Virtual Bus Size           |
+| X/Y Direction              |      | X/Y Direction              |
+| Pat Wrap                   |      | Pat Wrap                   |
+| Src Wrap                   |      | Src Wrap                   |
+| X Count                    |      | X Count                    |
+| Y Count                    |      | Y Count                    |
+| Routing Control            |      | Routing Control            |
+| Reload Control             |      | Reload Control             |
+| Background ROP             |      | Background ROP             |
+| Foreground ROP             |      | Foreground ROP             |
++----------------------------+      +----------------------------+
+
+
+The queued registers retain their values after the transfer takes
+place, so the programmer need not load the entire queue for each
+graphics operation.
+
+Since only the internal state of the accelerator is readable by the
+host, the host cannot simply read back a value that it has just written
+to a register in the queue. If the host wishes to read the contents of
+the queue, it must first cause a "transfer" to take place to move the
+data from the queue into the accelerator's internal state. This
+transfer is achieved by writing to the ACL Operation State Register
+with bit 0 (the "Restore") bit set to "1". Naturally, the host must
+ensure that the accelerator is idle when the Restore is performed.
+
+There is a slight difference in the storage of the Source and Pattern
+Address Registers; the Restore operation shifts the data from the
+queue into the Initial Source, Pattern Registers, while the data in
+the Initial Source, Pattern Registers is moved into the internal
+Source, Pattern Address Registers of the accelerator. In other words,
+the Source and Pattern Address Registers are configured as a
+three-stage shift register, with the Restore operation triggering a
+shift by one. Conversely, all of the other registers are configured as
+a two-stage shift register.
+
+@endnode
+
+
+@node "2.11.4 Accelerator Operation"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.4 Accelerator Operation@{b}
+
+The accelerator maintains internal copies of the Source Address,
+Pattern Address, and Destination Address Registers which it increments
+as an accelerator operation progresses. The CPU may use the internal
+Source and Pattern Address Registers as the starting point of a
+subsequent accelerator operation by setting the appropriate bits in
+the ACL Reload Control Register (see Section 5.9.21).
+
+After an accelerator operation has completed, the internal Source
+Address Register (and/or Pattern Address Register) will point to the
+first byte of the next scan line to be processed. For example, if a
+BitBLT is initiated from (0,0) with a width of 4 (XCNT=3), a height
+of 2 (YCNT=1), and a Direction of X/Y Increasing (DIR=00), then the
+final Source Address will be the linear address that corresponds to
+the byte at an X/Y-position of (0,2).
+
+The accelerator also maintains an internal copy of the X Position and
+Y Position as an accelerator operation progresses. These position
+registers serve as a "reference" pointer into each of the maps to
+indicate how far the operation has progressed.
+
+The X Position and Y Position Registers should be initialized to zero
+when the system is powered-up, and if they need to be loaded with
+non-zero values for a State-Save, they should subsequently be loaded
+with zero before resuming operation.
+
+In other words, the programmer should ensure that the X Position and
+Y Position Registers in the queue are zero before any graphics
+operation is begun; but it is not necessary to spend time loading the
+registers before every operation.
+
+The internal address register for a map is only updated if that map is
+needed to perform the programmed Raster Operation. If the host is
+supplying Source data, the Internal Source Address Register (ISA)
+will not be altered. Basically, by using Address-Route (ADRO) and
+Data-Route (DARO) control fields in the ACL Routing Control Register
+(see Section 5.9.20), the programmer can perform the following types
+of operations:
+
+ADRO  DARO  Data Movement            Address Step        Notes
+----  ----  -----------------------  ------------------  -------------------------------------------
+00    000   Screen-to-Screen         BLT                 No host involvement, all maps in display mem.
+00    001   Host-to-Screen           BLT                 Src data from host
+00    010   Host-to-Screen           BLT                 Mix data from host (e.g., Color Expansion)
+01    000   Screen-to-Screen         host controls       e.g., draw circle, line, etc., pixel-by-pixel
+01    001   Host-to-Screen           host controls       host provides Src data
+01    010   Host-to-Screen           host controls       host provides Mix data
+0x    100   Screen-to-Screen BLT     host provides       X Count (e.g., draw line segment)
+0x    101   Screen-to-Screen BLT     host provides       Y Count (e.g., draw line segment)
+
+NOTE: All functions feature 3-way ROP between Src, Pat, Dst, with ROP
+selected by the MixMap. Pattern is always assumed to be in the display
+memory. The MixMap data can be fixed to "1", or be provided by the
+host; it cannot originate from the display memory.
+
+@endnode
+
+
+@node "2.11.5 Passing Map Data to the Accelerator"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.5 Passing Map Data to the Accelerator@{b}
+
+@{B}2.11.5.1 Virtual Bus Size@{b}
+
+To specify the passing of data from the host to the accelerator, the
+concept of "Virtual Bus Size" has been developed. The Virtual Bus Size
+is used to eliminate the effects of different physical system buses
+on the way data is transferred to the accelerator. The Virtual Bus
+Size allows the chip to be programmed and to function in the exact
+same manner whether it is connected to an 8-bit system bus or a
+32-bit system bus, for example.
+
+The Virtual Bus Size can be programmed to 1-byte, 2-bytes, or
+4-bytes. Internally, the Host Interface of the ET4000/W32i "waits"
+for the specified number of bytes, then releases the data to the
+accelerator.
+
+The Virtual Bus Size is only enforced when the CPU is passing Source
+or Mix Map data to an accelerated operation; all other writes to the
+chip operate normally. If the Virtual Bus Size is programmed to match
+the size of data transfer that is being done in the host assembly
+language, the accelerator will always give correct results no matter
+how many bus cycles are required to transfer the data, and no matter
+what address-order the bus cycles are in.
+
+Several important restrictions arise from this approach:
+
+1. All CPU double-word writes to the accelerator must be doubleword
+   aligned.
+2. All CPU word writes to the accelerator must be word aligned.
+3. No restrictions on byte writes.
+
+Once again, it is important to understand that these restrictions are
+only for writes of Source or Mix Map data to the accelerator; there
+are no restrictions on ordinary reads/writes to registers or to the
+display memory.
+
+To handle word or doubleword writes to an unaligned Destination map,
+the MMU Memory Base Pointer Register can be set to any byte boundary.
+This permits the ET4000/W32i to manage all unaligned data, while the
+CPU acts as if the map is aligned. This also maximizes performance by
+eliminating double or triple bus cycles on the host bus.
+
+If the host is supplying Source or Mix data and the XCNT is not a
+multiple of the number of bytes specified by the Virtual Bus Size,
+then the "extra" bytes at the end of the line will be ignored.
+
+Note that the Address Registers contain byte addresses, so if a BLT
+is moving in the "Decreasing-X" and "Decreasing-Y" direction, the
+initial Pattern Address, for example, should point to the last byte
+of the Pattern map. This is independent of the programmed Virtual
+Bus Size.
+
+The Destination Address, however, is dependent on Virtual Bus Size.
+If a write through an MMU aperture is initiating the operation, the
+write should address the last "Virtual-Bus-Sized" element of the
+Destination Map. For example, if VBS is 4-bytes, the initiating
+write should address the last doubleword of the Destination Map.
+The Accelerator internally takes care of pointing to the correct
+starting byte.
+
+@{B}2.11.5.2 Synchronization@{b}
+
+Another important issue when passing data from the host to the
+accelerator is synchronization. What we have here is two processors
+(the host and the accelerator) working in concert to perform a
+BitBLT. The transfer of data must be throttled so that the two
+processors remain in sync. This throttling can be done at one of
+two levels, the software level or the hardware level.
+
+At the software level, the host can poll the Write-Status bit
+before each write to determine if there is room in the queue for
+another data write. Of course, this can add overhead to the inner
+loop for writing data to the accelerator, and is not generally
+recommended.
+
+At the hardware level, the host bus WAIT (aka Ready) line can be
+used for synchronization. Programming the Sync Enable bit to "1"
+forces the ET4000/W32i to insert wait-states into a host data
+transfer when the queue is full.
+
+The primary concern when operating in this fashion is to limit the
+amount of time that the host bus is held waiting, since
+inordinately long wait times can crash some PC systems as the
+main memory cannot be refreshed. For this reason it is important
+to try to match the speed of the accelerator to that of the host
+processor.
+
+A general rule of thumb is to set the Virtual Bus Size to the
+largest value possible (usually 4 bytes) when passing Source Map
+data; and set to one byte when passing Mix Map data.
+
+@{B}2.11.5.3 Data Alignment@{b}
+
+When the host is supplying the Mix Map for a graphics operation,
+the processing order of bits in the Mix Map varies depending on
+the programmed X Direction:
+
+* If the X Direction is increasing ("0"), the least-significant
+  bit of the Mix data is processed first. In other words the
+  least-significant bit of the Mix Map is anchored to the
+  left-most edge of the Destination Map.
+
+* If the X Direction is decreasing ("1"), the most-significant
+  bit of the Mix data is processed first. In other words the
+  most-significant bit of the Mix Map is anchored to the
+  right-most edge of the Destination Map.
+
+@endnode
+
+
+@node "2.11.6 Support for Common Graphics Operations"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.6 Support for Common Graphics Operations@{b}
+
+2.11.6.1 Line Drawing
+2.11.6.2 Tiled and Fixed-Color Fills
+2.11.6.3 Color Expansion
+2.11.6.4 Clipping
+
+This section offers programming suggestions to perform some common
+graphics operations. This is by no means an exhaustive discussion;
+the programmer is encouraged to gain an understanding of the core
+functions that the Graphics Accelerator provides and decide how to
+best put them to use for specific operations.
+
+@endnode
+
+
+@node "2.11.6.1 Line Drawing"
+@toc "2.11.6 Support for Common Graphics Operations"
+@{B}2.11.6.1 Line Drawing@{b}
+
+The Graphics Accelerator can draw vertical, horizontal, and
+diagonal (slope of +1 or -1) lines by appropriate programming
+of certain registers:
+
+XCNT    YCNT    Y OFFSET      TYPE OF LINE
+----    ----    --------      ------------
+n-1     0       don't care    Horizontal
+0       n-1     w-1           Vertical
+0       n-1     (w-1) +/- 1   Diagonal
+
+where:
+    n = length of line (in bytes)
+    w = width of pixel map (in bytes)
+
+Any line drawn using Bresenham's algorithm is made up of smaller
+line segments which are all horizontal, all vertical, or all
+diagonal. The only difference among these smaller line segments
+is the length of the segment.
+
+The accelerator allows the programmer to specify a destination
+starting address and the length (XCNT or YCNT) with a single bus
+write cycle to the chip. Thus, the inner loop of a line drawing
+routine need only contain a single write to the chip (plus
+whatever algorithmic processing must be done), thereby minimizing
+the number of bus transfers required to the chip.
+
+It is important to note that these write cycles must be a size
+of one byte, so the upper 4 bits (bits <11:8>) of the Count
+register must be previously loaded with the necessary value.
+
+This type of accelerator operation is achieved by programming
+the DARO field in the ACL Routing Control Register (see Section
+5.9.20) to be 4 (to load the X Count Register), or 5 (to load
+the Y Count Register).
+
+For simplicity, the table shown above is for 1 byte per pixel.
+It is a simple task to adapt the table to other pixel depths.
+Below is the same table, generalized to allow different pixel
+depths:
+
+XCNT        YCNT        Y OFFSET        TYPE OF LINE
+----        ----        --------        ------------
+n*b - 1     0           don't care      Horizontal
+b - 1       n - 1       (w*b) - 1       Vertical
+b - 1       n - 1       (w*b) - 1 +/- b Diagonal
+
+where:
+    n = length of line (in pixels)
+    w = width of pixel map (in pixels)
+    b = bytes per pixel
+
+@endnode
+
+
+@node "2.11.6.2 Tiled and Fixed-Color Fills"
+@toc "2.11.6 Support for Common Graphics Operations"
+@{B}2.11.6.2 Tiled and Fixed-Color Fills@{b}
+
+Both the Source and Pattern Maps can be programmed to "wrap" or
+"tile" as the graphics operation progresses. The programmed
+starting address for the map indicates the corner of the tile
+which will be repeated through the operation.
+
+The Source and Pattern Maps can be configured as fixed-color
+maps by programming the X/Y Wrap values to 4-by-1. If the
+Destination is 8 bit-per-pixel, the 8-bit fixed color must be
+written into all four bytes of the Source (Pattern) maps.
+
+This can be thought of as an X Wrap value of one byte. Similarly,
+an X Wrap of two bytes can be achieved by duplicating the two
+bytes to fill the four bytes of the map.
+
+@endnode
+
+
+@node "2.11.6.3 Color Expansion"
+@toc "2.11.6 Support for Common Graphics Operations"
+@{B}2.11.6.3 Color Expansion@{b}
+
+The accelerator is capable of expanding a 1 bit-per-pixel
+(monochrome) pixel map into an 8 bit-per-pixel map. This is
+accomplished by setting the Foreground ROP to "Src", and the
+Background ROP to "Pat", and supplying the 1 bit-per-pixel map
+as the Mix Map.
+
+A "0" in the Mix Map will result in the fixed color in the
+Pattern map to be written to the Destination, and a "1" in the
+Mix Map will draw the Source color into the Destination.
+
+Of course, it is also possible to make the Foreground ROP a
+function of the Source and Destination, and the Background ROP
+a function of the Pattern and Destination if this is required.
+
+@endnode
+
+
+@node "2.11.6.4 Clipping"
+@toc "2.11.6 Support for Common Graphics Operations"
+@{B}2.11.6.4 Clipping@{b}
+
+For the most part, rectangular clipping must be done by the
+software; however, clipping with a data mask can be accomplished
+by using the Mix Map and programming the Background ROP to
+"Dest" and the Foreground ROP as desired.
+
+This allows each bit in the Mix Map to control whether the
+corresponding byte is processed or left alone.
+
+@endnode
+
+@node "2.11.7 Accelerator Interrupts"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.7 Accelerator Interrupts@{b}
+
+The ET4000/W32i is capable of generating a system interrupt on
+three possible conditions:
+
+1. Write Interrupt - This interrupt is generated while the queue
+   is in the state of being "not-full." This status indicates
+   that the queue is ready for another write to it. This is a
+   state-triggered interrupt; i.e., the interrupt line is asserted
+   while the queue is in the state of being "not-full." The
+   interrupt is cleared by disabling it (writing a "0" to bit 0
+   of the ACL Interrupt Mask Register).
+
+2. Read Interrupt - This interrupt is generated when the queue is
+   empty and the accelerator goes from busy to idle, indicating
+   that the accelerator is no longer performing a graphics
+   operation, and will not start to perform another operation
+   without a command from the host.
+
+   The terminology of "read interrupt" conveys the fact that the
+   host is ensured of reading correct results from the display
+   memory and from any of the accelerator registers that are
+   modified during the course of an accelerated graphics
+   operation.
+
+   This is an event-triggered interrupt; i.e., the interrupt line
+   asserts when the accelerator goes from busy to idle, and stays
+   asserted until the interrupt is cleared (by a write of "1" to
+   the corresponding bit in the ACL Interrupt Status Register).
+
+3. Write Fault Interrupt - This interrupt is generated when the
+   host writes to the queue when it is full and the Sync Enable
+   bit is "0." Under these conditions, the write is ignored. This
+   is an event-triggered interrupt; i.e., the interrupt line
+   asserts when the host write occurs, and stays asserted until
+   the interrupt is cleared (by a write of "1" to the corresponding
+   bit in the ACL Interrupt Status Register).
+
+@endnode
+
+
+@node "2.11.8 Accelerator State Save/Restore"
+@toc "2.11 Graphics Accelerator (ACL)"
+@{B}2.11.8 Accelerator State Save/Restore@{b}
+
+The ET4000/W32i provides a mechanism for suspending an active
+graphics operation, saving the state of the operation, restoring
+the state of the operation, and resuming the operation. This type
+of feature is often required by multi-tasking operating systems
+to allow several tasks to share the display hardware.
+
+Generally, the host will take an interrupt when a task-switch is
+required; the pseudo-code below outlines the steps required to
+save and restore the state of the Graphics Accelerator.
+
+@{B}2.11.8.1 State-Save Interrupt Handler@{b}
+
+while (STAT.WRST == 1)          /* wait for queue to be emptied */
+    ;
+
+Write "1" to bit 0 (SO) of ACL Suspend/Terminate Register;
+                                /* suspend operation */
+
+while (STAT.RDST == 1)          /* wait for accel op to complete */
+    ;
+
+Write "0" to bit 0 (SO) of ACL Suspend/Terminate Register;
+                                /* accelerator now idle */
+
+Read all accelerator registers (including STAT)
+and store them in local array SAVE1;
+
+Write "1" to bit 0 (RSO) of ACL Operation State Register;
+                                /* shift state from queue */
+
+Read Source Address and Pattern Address registers
+and store them as ISA and IPA;
+
+Write "1" to bit 0 (RSO) of ACL Operation State Register;
+                                /* shift state from queue */
+
+Read all accelerator registers again
+and store them in local array SAVE2;
+
+Write "1" to bit 4 (TO) of ACL Suspend/Terminate Register;
+                                /* terminate operation
+                                   and reset accelerator */
+
+while (STAT.RDST == 1)          /* wait for Read-status OK */
+    ;
+
+Write "0" to bit 4 (TO) of ACL Suspend/Terminate Register;
+
+Done with State Save.
+
+@{B}2.11.8.2 State-Restore Interrupt Handler@{b}
+
+Load array SAVE1 back into the chip (including STAT);
+
+Write "1" to bit 0 (RSO) of ACL Operation State Register;
+                                /* shift state from queue */
+
+Load ISA and IPA into
+Source Address and Pattern Address registers;
+
+Write "1" to bit 0 (RSO) of ACL Operation State Register;
+                                /* shift state from queue */
+
+Load array SAVE2 back into the chip;
+
+Write (SAVE1.STAT & 8)
+to ACL Operation State Register;
+                                /* resume screen-to-screen
+                                   operation if necessary */
+
+Done with State Restore.
+
+@endnode

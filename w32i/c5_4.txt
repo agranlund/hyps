@@ -1,0 +1,390 @@
+@node "5.4 GDC Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.4 GDC Register Descriptions@{b}
+
+The CPU interface to the ET4000/W32i internal Graphics Data Controller
+(GDC) consists of 11 read/write registers. Of these registers, two are
+accessed by separate independent I/O addresses. The remaining 9
+registers are internally indexed, which means that they are accessed
+via a common I/O address (3CF), with one of the 9 registers that is
+actually accessed selected by the GDC Index register.
+
+@{B}Table 5.4-1 GDC Registers and Addresses@{b}
+
+Register Name                 Port Address    Indexed Address
+@{"Segment Select 1" link "5.4.1 GDC Segment Select"}              R/W : 3CD
+@{"Segment Select 2" link "5.4.1 GDC Segment Select"}              R/W : 3CB
+@{"GDC Index register" link "5.4.2 GDC Index"}            R/W : 3CE
+
+Indexed Register Name
+@{"Set/Reset" link "5.4.4 GDC Indexed Register 0: Set/Reset"}                     R/W : 3CF       0
+@{"Enable Set/Reset" link "5.4.5 GDC Indexed Register 1: Enable Set/Reset"}              R/W : 3CF       1
+@{"Color Compare" link "5.4.6 GDC Indexed Register 2: Color Compare"}                 R/W : 3CF       2
+@{"Data Rotate" link "5.4.7 GDC Indexed Register 3: Data Rotate and Function Select"}                   R/W : 3CF       3
+@{"Read Plane Select" link "5.4.8 GDC Indexed Register 4: Read Plane Select"}             R/W : 3CF       4
+@{"GDC Mode" link "5.4.9 GDC Indexed Register 5: GDC Mode"}                      R/W : 3CF       5
+@{"Miscellaneous" link "5.4.10 GDC Indexed Register 6: Miscellaneous"}                 R/W : 3CF       6
+@{"Color Care" link "5.4.11 GDC Indexed Register 7: Color Care"}                    R/W : 3CF       7
+@{"Bit Mask" link "5.4.12 GDC Indexed Register 8: Bit Mask"}                      R/W : 3CF       8
+@endnode
+
+@node "5.4.1 GDC Segment Select"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.1 GDC Segment Select@{b}
+I/O address = 3CB,3CD
+
+Bit      Bit
+3CB      3CD      Description                               Access
+5:4      7:4      Read segment pointer (RSP<5:0>).          RW
+1:0      3:0      Write segment pointer (WSP<5:0>).         RW
+
+Bit      Description
+         When CRTC Indexed Register 36 (Video System Configuration 1)
+         bit 4 is set to 0, then:
+
+Bits
+5:4 3CB  A 6-bit segment pointer selects one of 64 segments
+7:4 3CD  (segment 0 to 3F) for CPU read operations.
+
+Bits
+1:0 3CB  A 6-bit segment pointer selects one of 64 segments
+3:0 3CD  (segment 0 to 3F) for CPU write operations.
+
+         Note: This register is reset to 0 when a synchronous reset
+         is done (by setting TS Indexed Register 1, bit 1 equal to 0).
+@endnode
+@node "5.4.2 GDC Index"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.2 GDC Index@{b}
+I/O address = 3CE
+
+Bit      Description                                    Access
+7:4      Reserved.
+3:0      Current index.                                 RW
+
+Bit      Description
+Bits 3:0 Provide the index of the currently selected internally
+         indexed register. The GDC Index register determines which
+         GDC indexed register will be accessed when a read/write is
+         performed using port address 3CF.
+@endnode
+
+@node "5.4.3 GDC Indexed Registers"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.3 GDC Indexed Registers@{b}
+
+The remaining GDC registers are indexed registers, accessed by first
+writing the index value into the GDC Index register, and then
+accessing the indexed register using port address 3CF.
+@endnode
+
+@node "5.4.4 GDC Indexed Register 0: Set/Reset"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.4 GDC Indexed Register 0: Set/Reset@{b}
+I/O address = 3CF
+
+Bit      Description                                    Access
+7:4      Reserved.
+3        Set/reset value for map 3.                      RW
+2        Set/reset value for map 2.                      RW
+1        Set/reset value for map 1.                      RW
+0        Set/reset value for map 0.                      RW
+
+Bit      Description
+Bits 3:0 Each set/reset bit specifies the value to be written to all
+         bits of the addressed byte of the corresponding memory map
+         (or plane), 0 through 3, when the set/reset function is
+         enabled for that map. (See Section 5.4.5, GDC Indexed
+         Register 1.)
+@endnode
+
+@node "5.4.5 GDC Indexed Register 1: Enable Set/Reset"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.5 GDC Indexed Register 1: Enable Set/Reset@{b}
+I/O address = 3CF
+
+Bit      Description                                    Access
+7:4      Reserved.
+3        Enable set/reset value for map 3.               RW
+2        Enable set/reset value for map 2.               RW
+1        Enable set/reset value for map 1.               RW
+0        Enable set/reset value for map 0.               RW
+
+Bit      Description
+Bits 3:0 Each enable set/reset bit enables or disables the set/reset
+         function for the corresponding memory map (or plane), 0-3.
+         When any of bits 3:0 are set to 0, the set/reset function in
+         the corresponding plane will be disabled. When set to 1, the
+         set/reset function will be enabled. When enabled, the
+         set/reset function stores either a 0 or FF value in the
+         addressed byte of a given plane, depending on the set/reset
+         value (see Section 5.4.4, GDC Indexed Register 0). When
+         set/reset is enabled for a plane, the logical functions (see
+         Section 5.4.7, GDC Indexed Register 3) operate on the
+         set/reset value for each plane and the latched data for that
+         plane; the bit mask (see Section 5.4.12, GDC Indexed Register
+         8) is also in effect. When the set/reset function is
+         disabled, the addressed byte in a given plane is written as
+         a combination of latched and CPU data, according to the
+         write mode in effect and the bit mask, and the set/reset
+         value has no effect. The set/reset function has no effect in
+         write mode 1.
+@endnode
+
+@node "5.4.6 GDC Indexed Register 2: Color Compare"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.6 GDC Indexed Register 2: Color Compare@{b}
+I/O address = 3CF
+
+Bit      Description                                    Access
+7:4      Reserved.
+3        Color compare value for plane 3 bits.          RW
+2        Color compare value for plane 2 bits.          RW
+1        Color compare value for plane 1 bits.          RW
+0        Color compare value for plane 0 bits.          RW
+
+Bit      Description
+Bits 3:0 The Color Compare register is used in read mode 1 to determine
+         which pixels from the display memory location, read by the
+         CPU, match a specified color. The 4-bit color value in the
+         color compare register is compared to the 4-bit color value
+         of each of the eight pixels, spread across the four planes.
+
+         From this comparison, a bit value of 1 is returned in the
+         data byte to the CPU, at the position corresponding to each
+         pixel that matches the Color Compare register, and 0 is
+         returned for each pixel that does not match the Color
+         Compare register. In other words, an 8-bit value is returned
+         to identify the comparison for all eight pixels.
+
+         NOTE: Both the Color Compare and Color Care registers are
+         useful only in the "PLANE" (16 colors) systems. In the
+         "LINEAR BYTE" (256 colors) systems, the color compare
+         operation should be performed at the CPU level.
+@endnode
+
+@node "5.4.7 GDC Indexed Register 3: Data Rotate and Function Select"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.7 GDC Indexed Register 3: Data Rotate and Function Select@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7:5      Reserved.
+4:3      Function select.                                  RW
+2:0      Rotate count.                                     RW
+
+Bit      Description
+Bits 4:3 Select the logical operation to be performed by the ALU on
+         incoming CPUdata and latched data. The logical operation is
+         performed on only those bits that are enabled by the bit
+         mask register; mask-disabled bits are written as the latched
+         value (resulting from previous memory reads) only. For those
+         bits that are mask-enabled, one of four logical operations
+         may be performed between CPU data and latched data by
+         setting the function select as follows:
+
+                  Bit
+                  4  3     Logical operation
+                  0  0     MOVE CPU data through unchanged.
+                  0  1     AND CPU data with latched data.
+                  1  0     OR CPU data with latched data.
+                  1  1     XOR CPU data with latched data.
+
+         Note that write mode 1 may be used to write latched data
+         unmodified; the same effect could be obtained by ANDing a
+         CPU data byte of FF, ORing or XORing a CPU data byte of 0,
+         or by setting the bit mask register to 0. The logical
+         functions operate in write modes 0, 2 and 3 only; they are
+         ignored in write mode 1.
+
+Bits 2:0 These bits set the number of bits (0-7) by which CPU data
+         should be rotated to the right before it is sent to the ALU
+         for bit masking and logical functions. Rotation is
+         circular, with bit 0 feeding back to bit 7.
+@endnode
+
+@node "5.4.8 GDC Indexed Register 4: Read Plane Select"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.8 GDC Indexed Register 4: Read Plane Select@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7:2      Reserved.
+1:0      Plane select.                                     RW
+
+Bit      Description
+Bits 1:0 Select the memory plane 0-3 from which the addressed byte is
+         to be read and returned on the CPU data bus, in the "PLANE"
+         (16 colors) configurations. Only one plane can be read at
+         any one time.
+@endnode
+
+
+@node "5.4.9 GDC Indexed Register 5: GDC Mode"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.9 GDC Indexed Register 5: GDC Mode@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7        Reserved.
+6        Enable 256 color mode.                            RW
+5        Reserved.
+4        Odd/even mode.                                    RW
+3        Read mode.                                        RW
+2        Reserved.
+1:0      Write mode.                                       RW
+
+Bit      Description
+Bit 6    When set to 0, permits the loading of the ATC's shift
+         registers to be controlled by bit 5. When set to one, the
+         registers are loaded to support the 256-color mode.
+
+Bit 4    When set to 1, selects odd/even addressing mode, in which
+         even maps are accessed with even addresses and odd maps are
+         accessed with odd addresses. The function of this bit is to
+         determine from which display map data is to be routed to the
+         CPU data bus on a CPU read in odd/even mode. If bit 4 is 1
+         and the Read Map Select register selects either of two maps
+         in a given pair, then the even map is selected if address
+         line 0 is 0, and the odd map is selected if address line 0
+         is 1. Bit 2 of CRTC Timing Sequencer Indexed Register 4
+         should be set to 0 to select odd/even mode, to generate all
+         address control other than the read data selection in
+         odd/even addressing mode. Odd/even addressing mode is useful
+         for text modes.
+
+Bit 3    Selects the read mode. When bit 3 is 0 (Read Mode 0), the
+         data read from the map indicated by the read map select
+         register (see Section 5.4.8, GDC Indexed Register 4) is
+         returned on the CPU data bus. This is the normal read mode
+         of operation. When bit 3 is 1, the color compare operation
+         is enabled on a CPU read. (See Section 5.4.6, Color
+         Compare Register).
+
+Bits 1:0 These bits select the mode in which data bytes are to be
+         written to screen memory. The write modes are:
+
+Bit
+(1:0)    Write Mode Selected
+0 0      Write mode 0. Each CPU data byte written to display memory,
+         as modified by the current rotation setting (see Section
+         5.4.7, GDC Indexed Register 3), is combined with the
+         latched data for each map according to the current logical
+         function (see Section 5.4.7, GDC Indexed Register 3) and
+         written to each memory map. The byte written by the CPU is
+         passed identically to the ALU for each map; differences in
+         the byte actually written to the screen may occur due to
+         differences in the latch contents for different maps. If
+         the set/reset function is enabled for any map (see Section
+         5.4.5, GDC Indexed Register 1), then the set/reset bit
+         value for that map (see Section 5.4.4, GDC Indexed Register
+         0) is written to every bit of the addressed byte of that
+         map regardless of the CPU data. The bit mask (see Section
+         5.4.12, GDC Indexed Register 8) applies in write mode 0,
+         and causes the latch data alone to be written to each bit
+         that is mask-disabled.
+
+0 1      Write mode 1. The data contained in the latches is written
+         unmodified to the addressed byte in screen memory. All maps
+         are written. This is useful for rapid data movement from
+         display memory to display memory, as all maps can be
+         latched with a single read and then written with a single
+         write mode 1 operation. The bit mask is ignored, as is the
+         selected logical function. The set/reset function is also
+         ignored.
+
+1 0      Write mode 2. Each bit, 0-3, of the data written by the CPU
+         is extended to a byte and written to the four
+         corresponding planes. Bit 0 of the data byte is extended to
+         a byte and written to the addressed byte of map 0, bit 1 is
+         extended to a byte and written to map 1, and so on up to
+         bit 3, which is extended to a byte and written to map 3.
+         The bit mask applies to the data byte for each map; that
+         is, after the bit for each map from the CPU data written is
+         extended to a byte, the byte for each map is masked as if
+         it were the CPU data byte. The selected logical function
+         operates normally on the byte for each map and the latched
+         data for that map. The set/reset operation functions
+         normally, overriding the write mode 2 bit for a given map
+         when enabled. The data rotate register has no effect in
+         write mode 2.
+
+1 1      Write mode 3. Eight bits of the value contained in the
+         Set/Reset register are written for each map. Rotated CPU
+         data are ANDed with data from the bit mask register (see
+         Section 5.4.12, GDC Indexed Register 8) to produce an
+         8-bit value that functions as the bit mask register does
+         in write modes 0 and 2.
+@endnode
+
+@node "5.4.10 GDC Indexed Register 6: Miscellaneous"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.10 GDC Indexed Register 6: Miscellaneous@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7:4      Reserved (= 0).
+3:2      Memory map.                                       RW
+1        Enable odd/even mode.                             RW
+0        Graphics mode enable.                             RW
+
+Bit      Description
+Bits 3:2 Memory Map--Control mapping of the Frame Buffer into CPU
+         address space. NOTE: Bits 2&3 should be set to 0 when bit 4
+         of CRTC Indexed Register 36 is set to 1 (linear system).
+
+         See Section 7.3 for the effect this bit has on the Video
+         Memory Map.
+
+Bit 1    When set to 1, enables odd/even mode, will cause the
+         replacement of the CPU address bit 0 with a high-order bit,
+         and the odd/even maps are "chained" via the CPU A0 bit.
+
+Bit 0    When set to 1, enables graphics mode.
+@endnode
+
+@node "5.4.11 GDC Indexed Register 7: Color Care"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.11 GDC Indexed Register 7: Color Care@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7:4      Reserved.
+3        Enable color compare color output 3.              RW
+2        Enable color compare color output 2.              RW
+1        Enable color compare color output 1.              RW
+0        Enable color compare color output 0.              RW
+
+Bit      Description
+Bits 3:0 Each bit enables or disables the participation of the
+         corresponding plane in a read mode 1 color comparison. When
+         set to 1, the color compare is enabled for that plane (see
+         Section 5.4.6, GDC Indexed Register 2: Color Compare).
+
+         When set to 0, then the value in that plane has no effect on
+         the value returned by the color comparison.
+@endnode
+
+@node "5.4.12 GDC Indexed Register 8: Bit Mask"
+@toc "5.4 GDC Register Descriptions"
+@{B}5.4.12 GDC Indexed Register 8: Bit Mask@{b}
+I/O address = 3CF
+
+Bit      Description                                       Access
+7:0      Controls CPU data routing for corresponding       RW
+         bits of addressed screen map byte.
+
+Bit      Description
+Bits 7:0 Each bit of the Bit Mask register either blocks the
+         corresponding CPU data bit from affecting the value written
+         to the screen or allows the CPU data bit through. A zero (0)
+         value blocks and a 1 value passes CPU data. If a given bit
+         is blocked, the value stored in that bit of each data latch
+         (one for each plane) is sent to the corresponding screen
+         plane. If a given bit is enabled, the value in that bit
+         position of the CPU data is passed to the ALU, where it can
+         be mixed with latched data via the selected logical
+         function. The data will be rotated (see Section 5.4.7, GDC
+         Indexed Register 3) before it is masked.
+@endnode
+

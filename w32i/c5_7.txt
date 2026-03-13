@@ -1,0 +1,164 @@
+@node "5.7 IMA Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.7 IMA Register Descriptions@{b}
+
+@{B}IMA Indexed Registers@{b}
+
+Index   Register
+F0      @{"Image Starting Address Low" link "5.7.2 IMA Indexed Register F0: Image Starting Address Low"}
+F1      @{"Image Starting Address Middle" link "5.7.3 IMA Indexed Register F1: Image Starting Address Middle"}
+F2      @{"Image Starting Address High" link "5.7.4 IMA Indexed Register F2: Image Starting Address High"}
+F3      @{"Image Transfer Length Low" link "5.7.5 IMA Indexed Register F3: Image Transfer Length Low"}
+F4      @{"Image Transfer Length High" link "5.7.6 IMA Indexed Register F4: Image Transfer Length High"}
+F5      @{"Image Row Offset Low" link "5.7.7 IMA Indexed Register F5: Image Row Offset Low"}
+F6      @{"Image Row Offset High" link "5.7.8 IMA Indexed Register F6: Image Row Offset High"}
+F7      @{"Image Port Control" link "5.7.9 IMA Indexed Register F7: Image Port Control"}
+
+The IMA registers are accessed using an indexed addressing scheme 
+whereby a number selecting a register is first written to address 
+21xA (Index) and then the register can be read from or written to 
+at address 21xB. The IMA registers use indices F0 through F7.
+
+The @{"Index Register" link "5.6.1 CRTCB Index Register"} at address 21xA is also used to address the 
+CRTCB/Sprite Indexed Registers, see @{"Section 5.6" link "5.6 CRTCB/Sprite Register Descriptions"}for details.
+
+The value of 'x' in the addresses 21xA and 21xB is determined by 
+the logical value on the IOD<2:0> pins of the chip at power-up 
+reset; see Section 3 for details.
+@endnode
+
+@node "5.7.2 IMA Indexed Register F0: Image Starting Address Low"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.2 IMA Indexed Register F0: Image Starting Address Low@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Image starting address, bits <7:0>.             RW
+@endnode
+
+@node "5.7.3 IMA Indexed Register F1: Image Starting Address Middle"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.3 IMA Indexed Register F1: Image Starting Address Middle@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Image starting address, bits <15:8>.            RW
+@endnode
+
+@node "5.7.4 IMA Indexed Register F2: Image Starting Address High"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.4 IMA Indexed Register F2: Image Starting Address High@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:4     Reserved.
+3:0     Image starting address, bits <19:16>.           RW
+
+Bit     Description
+Bits 19:0 These three registers define a 20-bit offset into display 
+        memory at which the image data is to be stored. The starting 
+        address is measured in doublewords, so if the data is to be 
+        stored at byte address 256, then a value of 64 (i.e., 256/4) 
+        should be programmed into these registers.
+@endnode
+
+@node "5.7.5 IMA Indexed Register F3: Image Transfer Length Low"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.5 IMA Indexed Register F3: Image Transfer Length Low@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Image width, bits <7:0>.                        RW
+@endnode
+
+@node "5.7.6 IMA Indexed Register F4: Image Transfer Length High"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.6 IMA Indexed Register F4: Image Transfer Length High@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:4     Reserved.
+3:0     Image width, bits <11:8>.                       RW
+
+Bit     Description
+Bits 11:0 These two registers define a 12-bit value which is the 
+        number of doublewords to be transferred per scan line. The 
+        value loaded should be one less than the desired number 
+        of doublewords.
+@endnode
+
+@node "5.7.7 IMA Indexed Register F5: Image Row Offset Low"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.7 IMA Indexed Register F5: Image Row Offset Low@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Memory address offset, bits <7:0>.              RW
+@endnode
+
+@node "5.7.8 IMA Indexed Register F6: Image Row Offset High"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.8 IMA Indexed Register F6: Image Row Offset High@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:4     Reserved.
+3:0     Memory address offset, bits <11:8>.             RW
+
+Bit     Description
+Bits 11:0 These two registers specify the number of doublewords 
+        between the start of one row of the stored image data 
+        and the start of the next row.
+@endnode
+
+@node "5.7.9 IMA Indexed Register F7: Image Port Control"
+@toc "5.7 IMA Register Descriptions"
+@{B}5.7.9 IMA Indexed Register F7: Image Port Control@{b}
+I/O Address = 21xB
+
+Bit     Description                                     Access
+7       CRTCB/Sprite enable.                            RW
+6       Token outputs/External Sprite enable.           RW
+5:2     Reserved.
+1       Interlace Image Port address.                   RW
+0       Image Port enable.                              RW
+
+Bit     Description
+Bit 7   When set to 1, enables the CRTCB or the Sprite, whichever 
+        is selected in CRTCB/Sprite Indexed Register EF, bit 0. 
+        This bit, in combination with CRTC Indexed Register 37 <3> 
+        redefines the BDE output. This is illustrated as follows:
+
+                CRTC I37        IMA F7
+                <3>             <7>             BDE
+                1               1               BDE
+                1               0               CS4
+                0               x               AB<9>
+
+        At reset, this bit has a value of 0. See section 3, Pin 
+        Descriptions (BDE, XR16, CS<4>, AA<9:0>, AB<9:0> for more 
+        information.
+
+Bit 6   When set to 1, enables the token status outputs or external 
+        sprite on pins 98 and 18.
+
+        When set to 0, token status bits or external sprite are 
+        disabled, and enables pins 98 and 18 for either SYNR and 
+        SWSE signals, or IDMK and IXWQ* signals depending on bit 0 
+        of this register.
+
+Bit 1   When set to 1, enables odd/even interlace transfer.
+
+        When set to 0, enables linear interlace transfer. See 
+        Section 2.2.7 for additional information. At reset, this 
+        bit has a value of 0.
+
+Bit 0   When set to 1, enables the Image Port. (See Section 3.8 
+        Image Port Interface for shared pin information.) This bit 
+        is valid only if IMA Indexed Register F7 <6> = 0.
+
+        When set to 0, disables the Image Port, meaning that all 
+        the inputs to the Image Port are ignored and the pins 
+        assume their alternate functions. At reset, this bit has 
+        a value of 0.
+@endnode

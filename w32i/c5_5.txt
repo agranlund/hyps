@@ -1,0 +1,419 @@
+@node "5.5 ATC Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.5 ATC Register Descriptions@{b}
+
+The CPU interface to the ET4000/W32i internal Attribute Controller (ATC)
+consists of 23 read/write registers, and a separate flip-flop (1-bit
+register) which can be toggled between index/data mode. Two I/O
+addresses are used in conjunction with the index/data mode flip-flop to
+access the 23 registers as follows: An I/O read to the Input Status 1
+register (3BA or 3DA depending on monochrome or color mode
+respectively, as controlled by bit 0 in the Miscellaneous Output
+Register) will reset the index/data flip-flop to index mode. Every I/O
+write with port address 3C0 will also toggle the index/data flip-flop
+between index and data mode. The index value in the ATC index register
+can be read with I/O address 3C0. While in index mode, the index value
+can be written to the ATC index register with I/O address 3C0, with the
+index/data mode flip-flop toggled to the data mode.
+
+If the 16-bit I/O is enabled, an I/O WORD access to port 3C0 will
+automatically reset the index/data flip-flop. All of the 23 indexed
+registers can be read with I/O address 3C1. While in data mode, all of
+these indexed registers can be written to with I/O address 3C0, with the
+index/data mode flip-flop toggled to the index mode.
+
+@{B}Table 5.5-1 ATC Index Register@{b}
+                                                      Indexed
+Register Name          Port Address                   Address
+@{"ATC Index register" link "5.5.1 ATC Index"}     R : 3C0 W : 3C0 (INDEX)
+
+@{B}Table 5.5-2 ATC Indexed Registers@{b}
+                                                      Indexed
+Indexed Register Name  Port Address                   Address
+@{"Palette" link "5.5.3 ATC Indexed Registers 0-F: Palette RAM"}                R : 3C1 W : 3C0 (DATA)         0-F
+@{"ATC Mode" link "5.5.4 ATC Indexed Register 10: Mode Control"}               R : 3C1 W : 3C0 (DATA)         10
+@{"Overscan" link "5.5.5 ATC Indexed Register 11: Overscan Color"}               R : 3C1 W : 3C0 (DATA)         11
+@{"Color Plane Enable" link "5.5.6 ATC Indexed Register 12: Color Plane Enable"}     R : 3C1 W : 3C0 (DATA)         12
+@{"Horizontal Pixel Pan" link "5.5.7 ATC Indexed Register 13: Horizontal Pixel Panning"}   R : 3C1 W : 3C0 (DATA)         13
+@{"Color Reset" link "5.5.8 ATC Indexed Register 14: Color Select"}            R : 3C1 W : 3C0 (DATA)         14
+@{"Miscellaneous" link "5.5.9 ATC Indexed Register 16: Miscellaneous"}          R : 3C1 W : 3C0 (DATA)         16
+@{"Miscellaneous 1" link "5.5.10 ATC Indexed Register 17: Miscellaneous 1"}        R : 3C1 W : 3C0 (DATA)         17
+@endnode
+
+@node "5.5.1 ATC Index"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.1 ATC Index@{b}
+R : Port address = 3C0
+W : Port address = 3C0 (index/data flip-flop in INDEX mode)
+
+Bit      Description                                       Access
+7:6      Reserved.
+5        Palette RAM address source.                       RW
+4:0      Current ATC index.                                RW
+
+Bit      Description
+Bit 5    When set to 1, disables CPU write access to palette RAM and
+         allows ATC access of RAM. This bit must be set to 0 before
+         the CPU can update any palette RAM location. After the
+         palette RAM is updated, this bit must be set to 1 so the ATC
+         can access the palette RAM for video information.
+
+         When set to 0, enables CPU write access to palette RAM, and
+         replaces all video outputs with the contents of the overscan
+         register. A value of 1
+
+Bits 4:0 Provide the index of the currently selected internally
+         indexed register.
+@endnode
+
+@node "5.5.2 ATC Indexed Registers"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.2 ATC Indexed Registers@{b}
+
+The following registers are the ATC indexed registers. These registers
+are accessed by writing the index of the desired register to the ATC
+Index register when the index/data flip-flop is in INDEX mode. They are
+then accessed using the index value in the ATC Index Register. See
+details under previous paragraphs under ATC Register Descriptions.
+@endnode
+
+@node "5.5.3 ATC Indexed Registers 0-F: Palette RAM"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.3 ATC Indexed Registers 0-F: Palette RAM@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit      Description                                       Access
+7        Reserved.
+6        Reserved.
+5        Secondary red video.                              RW
+4        Secondary green/intensity video.                  RW
+3        Secondary blue/mono video.                        RW
+2        Primary red video.                                RW
+1        Primary green video.                              RW
+0        Primary blue video.                               RW
+
+These 16 internal palette registers define a dynamic remapping between
+colors as defined by text attributes and graphics bit maps and the
+colors actually generated by the video circuitry. Each palette
+register 0-15 corresponds to an attribute, 0-15, in the "PLANE" (16
+colors) configuration. Four bits (1 bit from each plane) of video data
+for a given pixel enters the palette RAM and addresses one of the 16
+palette registers. The 6-bit value stored in the corresponding palette
+register is then transferred to the output latch of the ATC to provide
+the actual pixel data. In "linear byte" (256 colors) configuration,
+these registers should be programmed to have contents the same as the
+indexed address to "pass through" the internal display data.
+
+Bit      Description
+Bits 5:0 When set to 1, select the appropriate color attribute. When
+         set to 0, indicate the appropriate color is not present.
+@endnode
+
+@node "5.5.4 ATC Indexed Register 10: Mode Control"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.4 ATC Indexed Register 10: Mode Control@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7       SB/SG select.                                   RW
+6       PELCLOCK/2.                                     RW
+5       Enable pixel panning.                           RW
+4       Reserved.
+3       Background intensity/blink.                      RW
+2       Line graphics enable.                           RW
+1       Mono/color select.                              RW
+0       Graphics/text select.                           RW
+
+Bit     Description
+Bit 7   Used to select for the SB and SG video bits. When set to 1, SB
+        and SG are bits 0 and 1, respectively, of the Color Select
+        Register.
+
+        When set to 0, SB and SG are bits 4 and 5 of the internal
+        palette register. This is not applicable to linear graphics
+        (256-color) modes, for which SB and SG always come from
+        memory data.
+
+Bit 6   When set to 1, halves the rate of pixel output to the screen
+        such that only 4, as opposed to the usual 8, pixels are output
+        in a character clock time. This is normally used only for the
+        320x200 256-color graphics mode. For all other 256-color modes,
+        this bit should be set to 0.
+
+Bit 5   When set to 1, disables pixel panning while in split screen.
+
+        When set to 0, enables panning. NOTE: pixel panning is not
+        supported in the A window if the B window (CRTCB) overlays
+        the A window.
+
+Bit 3   When set to 1, enables blinking in both text and graphics
+        modes. When enabled in text mode, blinking occurs whenever
+        bit 7 of the attribute byte for a given character is 1; when
+        enabled in graphics mode, blinking occurs for all bits that
+        have a 1 in the intensity plane. Blinking is performed by
+        toggling the most significant address line (bit 3) into the
+        palette RAM, thus toggling the video data between the lower
+        eight and upper eight palette RAM registers. This means that
+        the effect of the blink (for example, reverse video to video,
+        video to high-intensity video, dark to dark) is completely
+        programmable. Bit-mapped graphics modes can be programmed to
+        support all the attributes of text modes, for instance.
+
+        NOTE: The non-blinking bits will use the upper eight palette
+        registers.
+
+        When set to 0, disables blinking; in this case bit 3 of the
+        palette RAM address is multiplexed directly from the video
+        data to the palette RAM. When bit 3 is 0, all 16 simultaneous
+        colors are enabled in graphics mode; in text mode, all 16
+        background colors are available simultaneously.
+
+Bit 2   When set to 1, specifies that in the 9 dots/character state
+        (controlled by the CRTC), the ninth (and last) dot produced
+        horizontally per character should replicate the eighth dot
+        for character codes C0 hex through DF hex. The ninth dot of
+        all other character codes is always 0 when line graphics is
+        enabled. This is normally used to allow the text mode line
+        graphics characters supported on the IBM Monochrome Display,
+        which are 8-dot-wide characters in a 9-dot-wide character
+        box, to connect. If this bit is 0 and the CRTC is set to the
+        9 dots/character state, then the 9th dot will display bit 7
+        of Intensity Memory plane (plane 3).
+
+        For states greater than 9 dots, this bit should be set to 0.
+        The 9th and subsequent dots are taken from bits 7,6, etc. of
+        Intensity Memory plane (plane 3).
+
+Bit 1   When set to 1, selects a monochrome display attribute; when
+        set to 0, enables a color display attribute.
+
+Bit 0   When set to 1, enables the ATC to process the pixel data in
+        graphics mode; when set to 0, enables the ATC to process the
+        pixel data in text mode.
+@endnode
+
+@node "5.5.5 ATC Indexed Register 11: Overscan Color"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.5 ATC Indexed Register 11: Overscan Color@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7       Secondary Intensity border color.               RW
+6       Secondary Red border color.                     RW
+5       Secondary Green border color.                   RW
+4       Secondary Blue border color.                    RW
+3       Intensity border color.                         RW
+2       Red border color.                               RW
+1       Green border color.                             RW
+0       Blue border color.                              RW
+
+This register defines the color to be displayed around the perimeter
+of the working screen area (the border or overscan color).
+
+Bit     Description
+Bits 7:0 When set to 1, select the appropriate border color/attribute,
+        each bit corresponding to one of the output pins. This value
+        is a 0 for the monochrome display.
+@endnode
+
+@node "5.5.6 ATC Indexed Register 12: Color Plane Enable"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.6 ATC Indexed Register 12: Color Plane Enable@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7:6     Reserved.
+5:4     Video status select.                            RW
+3:0     Enable plane.                                   RW
+
+Bit     Description
+Bits 5:4 These bits select two of eight color outputs to be returned
+        by the Status register, as follows:
+
+        Input Status Register 1
+            Bit             Bit
+        5       4       5       4
+        0       0       PR      PB
+        0       1       SG      SB
+        1       0       PI      PG
+        1       1       SI      SR
+
+Bits 3:0 In "PLANE" (16 colors) configuration, the color plane
+        relative to each of bits 0-3 is enabled when the appropriate
+        individual bits are set to one. Bits 0,1,2,3 control the
+        enabling of planes 0,1,2,3, respectively.
+@endnode
+
+@node "5.5.7 ATC Indexed Register 13: Horizontal Pixel Panning"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.7 ATC Indexed Register 13: Horizontal Pixel Panning@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7:4     Reserved.
+3:0     Horizontal pixel panning.                       RW
+
+Bit     Description
+Bits 3:0 These bits specify the number of pixels by which the video
+        data should be shifted to the left. Shifts of up to nine
+        pixels are supported. Note that in 9-dot modes, a value of 8
+        signifies no shift, and the values of 0-7 signify shifts of
+        1-8 pixels, respectively.
+
+        NOTE: In 6- and 7-dot modes, values of 2 and 1, respectively,
+        signify no shift.
+@endnode
+
+@node "5.5.8 ATC Indexed Register 14: Color Select"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.8 ATC Indexed Register 14: Color Select@{b}
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7:4     Reserved.
+3       S_color 7.                                      RW
+2       S_color 6.                                      RW
+1       S_color 5.                                      RW
+0       S_color 4.                                      RW
+
+Bit     Description
+Bits 3:2 Provide the two high-order bits of the exported digital color
+        value in plane systems. With 256-color graphic modes, the 
+        8-bit attribute value becomes the 8-bit digital value 
+        exported from the chip.
+
+Bits 1:0 Available for replacement use of bits 5 and 4 of the 
+        attribute palette registers, forming an 8-bit value for color 
+        to be exported from the chip. When bit 7 of the ATC Mode 
+        register is set to 1, bits 1 and 0 are selected as SG and SB 
+        outputs of the plane system.
+@endnode
+
+@node "5.5.9 ATC Indexed Register 16: Miscellaneous"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.9 ATC Indexed Register 16: Miscellaneous@{b}
+(protected by key)
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7       Bypass the internal palette.                    RW
+6       Reserved.
+5:4     Select High Resolution/color mode.              RW
+3:2     Reserved.
+1       Protect external DAC.                           RW
+0       Protect border.                                 RW
+
+Bit     Description
+Bit 7   When set to 1, causes the internal palette to be bypassed 
+        (effectively, the output value equals the input value).
+
+Bits 5:4 These bits, in combination, select normal power-up 8-bit per 
+        PCLK or else 16-bit per PCLK (AP<15:0>) output. Note that to 
+        support ET4000 Rev. G's high color mode, configure CRTC and 
+        ATC to 8-bit per pixel (256 color mode) and clock AP<7:0> 
+        with double-clocking.
+
+                Bit
+                5 4
+                0 0     Normal power-up default (8-bit/clock)
+                1 0     16 bit per clock mode
+                0 1     Reserved
+                1 1     Reserved
+
+Bit 1   When set to 1, disables I/O writes to External/Internal 
+        Palette RAM. Normal power-up default is set to 0.
+
+Bit 0   When set to 1, disables I/O writes to Overscan Color register 
+        bits <3:0>. Normal power-up default is set to 0.
+@endnode
+
+@node "5.5.10 ATC Indexed Register 17: Miscellaneous 1"
+@toc "5.5 ATC Register Descriptions"
+@{B}5.5.10 ATC Indexed Register 17: Miscellaneous 1@{b}
+(protected by key)
+R : Port address = 3C1
+W : Port address = 3C0 (index/data flip-flop in DATA mode)
+
+Bit     Description                                     Access
+7       Redefine attribute (SMAE).                      RW
+6:0     Reserved.
+
+Bit     Description
+Bit 7   When set to 1, protects the internal palette RAM and is used 
+        to redefine the attribute bits as follows:
+
+                        Monochrome
+
+                Attribute
+                Bit             Description
+                7               Normal/reverse video
+                6               Full/half intensity
+                5               Character visible/invisible
+                4               Underline off/on
+                3               Blinking off/on
+                2:0             Font select
+
+Bit 7   When set to 1, enables the reverse video attribute.
+        When set to 0, displays normal video.
+
+Bit 6   When set to 1, changes the character intensity to half.
+        When set to 0, displays full intensity.
+
+Bit 5   When set to 1, disables characters from being displayed.
+        When set to 0, enables normal character display.
+
+Bit 4   When set to 1, turns the underline attribute on.
+        When set to 0, enables normal character display.
+
+Bit 3   When set to 1, turns the blinking attribute on.
+        When set to 0, enables normal character display.
+
+Bits 2:0 Used to select up to eight simultaneous soft fonts and up to 
+        eight simultaneous character sets for display. See Table 7.3-1 
+        CPU/CRTC Addressing Modes, note 4; bits <2:0> here correspond 
+        to FS<1:0,2> in the table. (When ATC Indexed Register 17 bit 7 
+        is set to 1 @{"TS Indexed Register 3: Font Select" link "5.3.6 TS Indexed Register 3: Font Select"} is not used.)
+
+        NOTE: To get the attributes indicated here the @{"ATC Palette" link "5.5.3 ATC Indexed Registers 0-F: Palette RAM"}
+        RAM registers 0-7 must be programmed to 0,0,0,0,18,0,8,0
+        where 0=off, 8=half intensity, and 18=full intensity, and
+        blinking should be enabled (via @{"ATC Indexed Register 10" link "5.5.4 ATC Indexed Register 10: Mode Control"} bit 3).
+
+                        Color
+
+                Attribute
+                bit             Description
+                7               Background red
+                6               Background green
+                5               Background blue
+                4               Foreground red
+                3               Foreground green
+                2               Foreground blue
+                1:0             Font select
+
+Bits 7:5 When set to 1, are used to select background colors of red, 
+        green, and blue, respectively.
+
+Bits 4:2 When set to 1, are used to select foreground colors of red, 
+        green, and blue, respectively.
+
+Bits 1:0 Used to select up to four simultaneous soft fonts and up to 
+        four simultaneous character sets for display. Bit 2 is not 
+        used for font select for color operation. See Table 7.3-1 
+        CPU/CRTC Addressing Modes, note 4. (When ATC I<7> is set to 1 
+        @{"TS Indexed Register 3: Font Select" link "5.3.6 TS Indexed Register 3: Font Select"} is not used.)
+
+        NOTE: To get the attributes indicated here, the @{"ATC Palette" link "5.5.3 ATC Indexed Registers 0-F: Palette RAM"}
+        RAM registers 8-F should be set equal to register 0-7 
+        (registers 0-7 containing the normal range of colors), and 
+        blinking should be disabled (via @{"ATC Indexed Register 10" link "5.5.4 ATC Indexed Register 10: Mode Control"} bit 
+        3). Also, the underline register (@{"CRTC Indexed Register 14" link "5.2.23 CRTC Indexed Register 14: Underline Row Address"}) 
+        should be set equal to or greater than the character height.
+@endnode

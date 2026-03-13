@@ -1,0 +1,679 @@
+@node "5.9 ACL Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.9 ACL Register Descriptions@{b}
+
+See @{"Section 7.3" link "7.3 Video Memory Map"} for the memory base address for the MMU registers. The offset
+in the table below is added to the base address to calculate the actual
+address of the register.
+
+Memory
+Offset      Register
+            @{I}Non-Queued Registers@{i}
+30          @{"ACL Suspend/Terminate Register" link "5.9.1 ACL Suspend/Terminate Register"}
+31          @{"ACL Operation State Register" link "5.9.2 ACL Operation State Register"}
+32          @{"ACL Sync Enable Register" link "5.9.3 ACL Sync Enable Register"}
+34          @{"ACL Interrupt Mask Register" link "5.9.4 ACL Interrupt Mask Register"}
+35          @{"ACL Interrupt Status Register" link "5.9.5 ACL Interrupt Status Register"}
+36          @{"ACL Accelerator Status Register" link "5.9.6 ACL Accelerator Status Register"}
+            @{I}Queued Registers@{i}
+80          @{"ACL Pattern Address Register" link "5.9.7 ACL Pattern Address Register"}
+84          @{"ACL Source Address Register" link "5.9.8 ACL Source Address Register"}
+88          @{"ACL Pattern Y Offset Register" link "5.9.9 ACL Pattern Y Offset Register"}
+8A          @{"ACL Source Y Offset Register" link "5.9.10 ACL Source Y Offset Register"}
+8C          @{"ACL Destination Y Offset Register" link "5.9.11 ACL Destination Y Offset Register"}
+8E          @{"ACL Virtual Bus Size Register" link "5.9.12 ACL Virtual Bus Size Register"}
+8F          @{"ACL X/Y Direction Register" link "5.9.13 ACL X/Y Direction Register"}
+90          @{"ACL Pattern Wrap Register" link "5.9.14 ACL Pattern Wrap Register"}
+92          @{"ACL Source Wrap Register" link "5.9.15 ACL Source Wrap Register"}
+94          @{"ACL X Position Register" link "5.9.16 ACL X Position Register"}
+96          @{"ACL Y Position Register" link "5.9.17 ACL Y Position Register"}
+98          @{"ACL X Count Register" link "5.9.18 ACL X Count Register"}
+9A          @{"ACL Y Count Register" link "5.9.19 ACL Y Count Register"}
+9C          @{"ACL Routing Control Register" link "5.9.20 ACL Routing Control Register"}
+9D          @{"ACL Reload Control Register" link "5.9.21 ACL Reload Control Register"}
+9E          @{"ACL Background Raster Operation Register" link "5.9.22 ACL Background Raster Operation Register"}
+9F          @{"ACL Foreground Raster Operation Register" link "5.9.23 ACL Foreground Raster Operation Register"}
+A0          @{"ACL Destination Address Register" link "5.9.24 ACL Destination Address Register"}
+@endnode
+
+@node "5.9.1 ACL Suspend/Terminate Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.1 ACL Suspend/Terminate Register@{b}
+This is a non-queued register
+Memory offset = 30
+
+Bit      Description                                        Access
+7:4      Reserved.
+4        Terminate Accelerator Operation (TO).              RW
+3:1      Reserved.
+0        Suspend Accelerator Operation (SO).                RW
+
+Bit      Description
+Bit 4    Used to terminate an Accelerator operation. To terminate an
+         Accelerator operation, the programmer should write a 1 to this
+         bit, wait for RDST (ACL Status Register, bit 0) to be 0, then
+         write a 0 to this bit.
+
+         Termination returns the accelerator to its initial power-on
+         state, with the ACL registers returned to the values that they
+         contain after a reset of the chip. The programmer is advised to
+         treat all accelerator registers as having undefined values
+         after a termination, and reprogram all registers before
+         initiating another accelerator operation.
+
+Bit 0    Used to suspend an Accelerator operation. To suspend an
+         Accelerator operation, the programmer should write a 1 to this
+         bit, wait for RDST (ACL Status Register, bit 0) to be 0, then
+         write a 0 to this bit.
+@endnode
+
+@node "5.9.2 ACL Operation State Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.2 ACL Operation State Register@{b}
+This is a non-queued register
+Memory offset = 31
+
+Bit      Description                                        Access
+7:4      Reserved.
+3        Resume Accelerator Operation (RMO).                WO
+2:1      Reserved.
+0        Restore Accelerator Operation State (RSO).         WO
+
+Bit      Description
+Bit 3    When set to 1, a paused screen-to-screen accelerator operation
+         is resumed.
+
+         When set to 0, no action is taken.
+
+Bit 0    When set to 1, the state in the accelerator's queue is
+         transferred to the internal registers of the accelerator. When
+         set to 0, no action is taken.
+
+         It is possible to set both of the above bits to 1 in a single
+         write access in order to transfer the queued state into the
+         accelerator and resume (or initiate) an accelerator operation.
+@endnode
+
+@node "5.9.3 ACL Sync Enable Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.3 ACL Sync Enable Register@{b}
+This is a non-queued register
+Memory offset = 32
+
+Bit      Description                                        Access
+7:2      Reserved.
+0        Sync Enable.                                       RW
+
+Bit      Description
+Bit 0    When set to 1, indicates that a write to a full queue will be
+         "wait-stated" until the queue becomes not full.
+
+         When set to 0, indicates that a write to a full queue will be
+         ignored. It is possible to generate an interrupt when such a
+         write is ignored, see Section 2.11.7.
+@endnode
+
+@node "5.9.4 ACL Interrupt Mask Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.4 ACL Interrupt Mask Register@{b}
+This is a non-queued register
+Memory offset = 34
+
+Bit      Description                                        Access
+7:3      Reserved.
+2        Write Fault Interrupt Enable.                      RW
+1        Read Interrupt Enable.                             RW
+0        Write Interrupt Enable.                            RW
+
+Bit      Description
+Bit 2    When set to 1, enables a Write Fault Interrupt when a write to
+         a full queue occurs (and ACL Sync Enable Register, bit 0 is 0).
+         This is an EVENT-triggered interrupt; i.e., the interrupt line
+         asserts when the faulting write occurs. The interrupt is
+         cleared by a write of 1 to the Write Fault Interrupt Status
+         bit (ACL Interrupt Status Register, bit 2).
+
+         When set to 0, this interrupt is disabled.
+
+Bit 1    When set to 1, enables a Read Interrupt when the queue is empty
+         and the Accelerator goes from busy to idle. This is an
+         EVENT-triggered interrupt; i.e., the interrupt line asserts
+         when the accelerator goes from busy to idle. The interrupt is
+         cleared by a write of 1 to the Read Interrupt Status bit
+         (ACL Interrupt Status Register, bit 1).
+
+         When set to 0, this interrupt is disabled.
+
+Bit 0    When set to 1, enables a Write Interrupt when the queue is not
+         full. This is a STATE-triggered interrupt; i.e., the interrupt
+         line is asserted while the queue is in the state of being
+         "not-full." This interrupt is cleared by disabling it.
+
+         When set to 0, this interrupt is disabled.
+@endnode
+
+@node "5.9.5 ACL Interrupt Status Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.5 ACL Interrupt Status Register@{b}
+This is a non-queued register
+Memory offset = 35
+
+Bit      Description                                        Access
+7:3      Reserved.
+2        Write Fault Interrupt Status.                      RW
+1        Read Interrupt Status.                             RW
+0        Write Interrupt Status.                            RO
+
+Bit      Description
+Bit 2    A value of 1 indicates that the current interrupt condition was
+         caused by a Write Fault.
+
+         When set to 1, clears the Write Fault Interrupt condition.
+
+         When set to 0, the value of this bit is unaffected.
+
+Bit 1    A value of 1 indicates that the current interrupt condition was
+         caused by a Read Interrupt.
+
+         When set to 1, clears the Read Interrupt condition.
+
+         When set to 0, the value of this bit is unaffected.
+
+Bit 0    A value of 1 indicates that the current interrupt condition was
+         caused by a Write Interrupt. To clear the Write Interrupt,
+         disable by setting bit 0 of the ACL Interrupt Mask Register to
+         0 (See Section 5.9.4).
+@endnode
+
+@node "5.9.6 ACL Accelerator Status Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.6 ACL Accelerator Status Register@{b}
+This is a non-queued register
+Memory offset = 36
+
+Bit      Description                                        Access
+7:4      Reserved.
+3        Screen-to-Screen Status (SSO).                     RO
+2        XY Status (XYST).                                  RW
+1        Read Status (RDST).                                RO
+0        Write Status (WRST).                               RO
+
+Bit      Description
+Bit 3    A value of 1 indicates that the current Accelerator operation
+         is a screen-to-screen operation. This bit is only valid when
+         bit 2 is 1. It is used by State-Restore software to determine
+         if a write to the RMO bit (ACL Operation State Register, bit 3)
+         is necessary.
+
+Bit 2    When set to 1, indicates that the Accelerator is processing an
+         X/Y block. An "X/Y Block" means that the accelerator's internal
+         XPOS, YPOS have not yet reached the terminal XCNT, YCNT for a
+         given operation. Note that this bit must be restored when the
+         state is restored for a suspended operation.
+
+Bit 1    A value of 1 indicates that the Accelerator is busy (i.e., may
+         be modifying display memory) or the queue is not empty.
+
+         A value of 0 indicates that the Accelerator is idle and the
+         queue is empty, or the Accelerator is suspended. In other
+         words, when this bit is 0, the host is guaranteed to read
+         correct results from the display memory and from the
+         accelerator's internal registers.
+
+Bit 0    A value of 1 indicates that the accelerator's queue is full,
+         and cannot accept any more host writes.
+
+         A value of 0 indicates that the accelerator's queue is not full
+         and hence it is okay to write to a queued register or to an
+         accelerated MMU aperture.
+@endnode
+
+@node "5.9.7 ACL Pattern Address Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.7 ACL Pattern Address Register@{b}
+This is a queued register
+Memory offset = 80
+
+Bit       Description                                        Access
+31:22     Reserved.
+21:0      Pattern Address.                                   RW
+
+Bit       Description
+Bits 21:0 This value is the absolute address in display memory for the
+          Pattern Map. It should be programmed to point to the first byte
+          to be processed by a given accelerated graphics operation.
+@endnode
+
+@node "5.9.8 ACL Source Address Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.8 ACL Source Address Register@{b}
+This is a queued register
+Memory offset = 84
+
+Bit       Description                                        Access
+31:22     Reserved.
+21:0      Source Address.                                    RW
+
+Bit       Description
+Bits 21:0 This value is the absolute address in display memory for the
+          Source Map. It should be programmed to point to the first byte
+          to be processed by a given accelerated graphics operation. If
+          the host is providing data for the Source Map, the value in
+          this register is not used by the accelerator.
+@endnode
+
+@node "5.9.9 ACL Pattern Y Offset Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.9 ACL Pattern Y Offset Register@{b}
+This is a queued register
+Memory offset = 88
+
+Bit       Description                                        Access
+15:12     Reserved.
+11:0      Pattern Y Offset.                                  RW
+
+Bit       Description
+Bits 11:0 This value is the amount to be added to the accelerator's
+          internal Pattern address pointer when going from one line to
+          the next during Accelerator operations. The actual value
+          programmed is one less than the desired number of bytes to be
+          added. For example, if the Pattern Map is 8 pixels wide, a
+          value of 7 should be programmed into this register.
+@endnode
+
+@node "5.9.10 ACL Source Y Offset Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.10 ACL Source Y Offset Register@{b}
+This is a queued register
+Memory offset = 8A
+
+Bit       Description                                        Access
+15:12     Reserved.
+11:0      Source Y Offset.                                   RW
+
+Bit       Description
+Bits 11:0 This value is the amount to be added to the accelerator's
+          internal Source address pointer when going from one line to
+          the next during Accelerator operations. The actual value
+          programmed is one less than the desired number of bytes to be
+          added. For example, if the Source Map is 640 pixels wide, a
+          value of 639 should be programmed into this register.
+@endnode
+
+@node "5.9.11 ACL Destination Y Offset Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.11 ACL Destination Y Offset Register@{b}
+This is a queued register
+Memory offset = 8C
+
+Bit       Description                                        Access
+15:12     Reserved.
+11:0      Destination Y Offset.                              RW
+
+Bit       Description
+Bits 11:0 This value is the amount to be added to the accelerator's
+          internal Destination address pointer when going from one line
+          to the next during Accelerator operations. The actual value
+          programmed is one less than the desired number of bytes to be
+          added. For example, if the Destination Map is 640 pixels wide,
+          a value of 639 should be programmed into this register.
+@endnode
+
+@node "5.9.12 ACL Virtual Bus Size Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.12 ACL Virtual Bus Size Register@{b}
+This is a queued register
+Memory offset = 8E
+
+Bit      Description                                    Access
+7:2      Reserved.
+1:0      Virtual Bus Size (VBS).                        RW
+
+Bit      Description
+Bits 1:0 The Virtual Bus Size is only enforced when the host is providing
+         Source Map data or Mix Map data to an accelerated operation. It
+         is encoded as follows:
+
+         VBS
+         00     1-byte
+         01     2-byte
+         10     4-byte
+         11     Reserved
+
+         The Host Interface of the ET4000/W32i waits for this many bytes
+         and then releases the data to the accelerator. The Virtual Bus
+         Size also controls the amount addresses are to be incremented
+         for each host data transfer to the accelerator. The increment
+         value also depends on the ADRO and DARO values (see Section
+         5.9.20, ACL Routing Control Register):
+
+         VBS    ADRO   DARO   Increment
+         xx     00     000    N/A (No CPU data transfer)
+         xx     01     000    1-byte
+         00     xx     001    1-byte
+         01     xx     001    2-bytes
+         10     xx     001    4-bytes
+         00     xx     010    8-bytes
+         01     xx     010    16-bytes
+         10     xx     010    32-bytes
+         11     xx     xxx    Reserved
+@endnode
+
+@node "5.9.13 ACL X/Y Direction Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.13 ACL X/Y Direction Register@{b}
+This is a queued register
+Memory offset = 8F
+
+Bit      Description                                    Access
+7:2      Reserved.
+1        Y Direction.                                   RW
+0        X Direction.                                   RW
+
+Bit      Description
+Bits 1:0 These bits indicate in which direction the accelerated
+         operation will proceed.
+
+         When set to 0, the Accelerator operates from the lowest address
+         to highest address (increasing direction).
+
+         When set to 1, the Accelerator operates from highest address to
+         lowest address (decreasing direction). The figure below
+         summarizes the effect of various programmed values:
+
+                  ^               ^
+              <-- |               | -->
+               00 |               | 01
+                  V               V
+                +-------------------+
+                |                   |
+                |      BitBLT       |
+                |       Area        |
+                |                   |
+                +-------------------+
+                  ^               ^
+              <-- |               | -->
+               10 |               | 11
+                  V               V
+@endnode
+
+@node "5.9.14 ACL Pattern Wrap Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.14 ACL Pattern Wrap Register@{b}
+This is a queued register
+Memory offset = 90
+
+Bit      Description                                    Access
+7        Reserved.
+6:4      Pattern Y Wrap (PYWR).                         RW
+3        Reserved.
+2:0      Pattern X Wrap (PXWR).                         RW
+
+Bit      Description
+Bits 6:4 The Pattern X Wrap and Pattern Y Wrap fields define an x-by-y
+Bits 2:0 tile size for the Pattern Map. After the Accelerator operates
+         on the wrap-length number of bytes (horizontally) or lines
+         (vertically), the Pattern pointer is set back wrap-length
+         number of bytes or lines. The Source map has wrap control
+         registers that are identical to the Pattern.
+
+         Pattern X      Horizontal
+         Wrap           Wrap Length
+         000            Reserved
+         001            Reserved
+         010            4-byte
+         011            8-byte
+         100            16-byte
+         101            32-byte
+         110            64-byte
+         111            No wrap
+
+         Pattern Y      Vertical
+         Wrap           Wrap Length
+         000            1-line
+         001            2-line
+         010            4-line
+         011            8-line
+         100            Reserved
+         101            Reserved
+         110            Reserved
+         111            No wrap
+@endnode
+
+@node "5.9.15 ACL Source Wrap Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.15 ACL Source Wrap Register@{b}
+This is a queued register
+Memory offset = 92
+
+Bit      Description                                    Access
+7        Reserved.
+6:4      Source Y Wrap (SYWR).                          RW
+3        Reserved.
+2:0      Source X Wrap (SXWR).                          RW
+
+Bit      Description
+Bits 6:4 See Section 5.9.14, ACL Pattern Wrap Register for an
+Bits 2:0 explanation of this register.
+@endnode
+
+@node "5.9.16 ACL X Position Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.16 ACL X Position Register@{b}
+This is a queued register
+Memory offset = 94
+
+Bit       Description                                    Access
+15:12     Reserved.
+11:0      X Position.                                    RW
+
+Bit       Description
+Bits 11:0 Reading this register returns the accelerator's internal X
+          Position, indicating how far it has progressed through a given
+          graphics operation. As the accelerator is running, this
+          register is constantly changing; starting from the value
+          written into this register and approaching the terminal value
+          as programmed in the ACL X Count Register. Writing to this
+          register will load the X Position Register in the queue, but
+          will not affect the accelerator's internal copy of this
+          register; thus if the host attempts to read back a value just
+          written, the values will not match. The X and Y Position
+          registers are used only for saving and restoring the
+          Accelerator's current position when it is suspended in the
+          middle of an operation. They should normally be initialized to
+          zero at power-up, the software should ensure that they are zero
+          when any accelerated operation is initiated.
+@endnode
+
+@node "5.9.17 ACL Y Position Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.17 ACL Y Position Register@{b}
+This is a queued register
+Memory offset = 96
+
+Bit      Description                                    Access
+15:12    Reserved.
+11:0     Y Position.                                    RW
+
+Bit      Description
+Bits 11:0 See Section 5.9.16, ACL X Position Register for an
+         explanation of this register.
+@endnode
+
+@node "5.9.18 ACL X Count Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.18 ACL X Count Register@{b}
+This is a queued register
+Memory offset = 98
+
+Bit       Description                                    Access
+15:12     Reserved.
+11:0      X Count.                                       RW
+
+Bit       Description
+Bits 11:0 This value specifies the number of bytes in the X dimension on
+          which the accelerator should operate. The X Count should be
+          programmed to one less than the desired number of bytes to be
+          operated on.
+@endnode
+
+@node "5.9.19 ACL Y Count Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.19 ACL Y Count Register@{b}
+This is a queued register
+Memory offset = 9A
+
+Bit       Description                                    Access
+15:12     Reserved.
+11:0      Y Count.                                       RW
+
+Bit       Description
+Bits 11:0 This value specifies the number of lines in the Y dimension on
+          which the accelerator should operate. The Y Count should be
+          programmed to one less than the desired number of lines to be
+          operated on.
+@endnode
+
+@node "5.9.20 ACL Routing Control Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.20 ACL Routing Control Register@{b}
+This is a queued register
+Memory offset = 9C
+
+Bit      Description                                    Access
+7        Invalidate disable.                            RW
+6        Reserved.
+5:4      Routing of CPU address (ADRO).                 RW
+3        Reserved.
+2:0      Routing of CPU data (DARO).                    RW
+
+Bit      Description
+Bit 7    When set to 1, multiport cache is not invalidated at the end of
+         the accelerator operation.
+
+         When set to 0, multiport cache is invalidated at the end of the
+         accelerator operation. It is recommended that this bit always
+         be programmed to 0.
+
+Bits 5:4 Routing of CPU address;
+
+         ADRO
+         00     CPU address not used
+         01     CPU address is Destination address
+         10     Reserved
+         11     Reserved
+
+         "CPU address not used" means only the first write to an
+         accelerated MMU aperture is used to determine the destination
+         address. Then, as the accelerated operation progresses, the
+         destination pointer is updated automatically.
+
+Bits 2:0 Routing of CPU data:
+
+         DARO
+         000    CPU data not used
+         001    CPU data is Source data
+         010    CPU data is Mix Data
+         011    Reserved
+         100    CPU data is X Count
+         101    CPU data is Y Count
+         11x    Reserved
+
+         When the CPU data is X Count or Y Count, the initial write to
+         start the accelerator operation stores the low-order 8 bits of
+         the corresponding internal X Count or Y Count register (the
+         high-order bits come from the X Count or Y Count in the queue
+         as normal). Note that the Virtual Bus size must be 1 byte in
+         this case.
+@endnode
+
+@node "5.9.21 ACL Reload Control Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.21 ACL Reload Control Register@{b}
+This is a queued register
+Memory offset = 9D
+
+Bit      Description                                    Access
+7:2      Reserved.
+1        Enable Reload of Pattern Address.               RW
+0        Enable Reload of Source Address.                RW
+
+Bit      Description
+Bit 1    When set to 1, the accelerator's Internal Pattern Address value
+         (resulting from the previous accelerator operation) will be the
+         starting Pattern address for the next accelerator operation.
+
+         When set to 0, the programmed ACL Pattern Address value will be
+         used as the starting Pattern address.
+
+Bit 0    When set to 1, the accelerator's Internal Source Address value
+         (resulting from the previous accelerator operation) will be the
+         starting Source address for the next accelerator operation.
+
+         When set to 0, the programmed ACL Source Address value will be
+         used as the starting Source address.
+
+         NOTE: Undefined results occur if either of these bits is set to
+         1 when the @{I}very first@{i} accelerator operation is initiated, since
+         the accelerator's internal address pointers are not
+         initialized.
+@endnode
+
+@node "5.9.22 ACL Background Raster Operation Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.22 ACL Background Raster Operation Register@{b}
+This is a queued register
+Memory offset = 9E
+
+Bit      Description                                    Access
+7:0      Background Raster Operation (BGR).             RW
+
+Bit      Description
+Bits 7:0 This is the logical operation between Source, Pattern, and
+         Destination Maps used when CPU data routing is Mix Data, and
+         the Mix Data bit is a 0 (see Section 5.9.20, ACL Routing
+         Control Register). See also Appendix A, ET4000/W32i
+         (Microsoft) Raster Operations Codes and Definitions.
+@endnode
+
+@node "5.9.23 ACL Foreground Raster Operation Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.23 ACL Foreground Raster Operation Register@{b}
+This is a queued register
+Memory offset = 9F
+
+Bit      Description                                    Access
+7:0      Foreground Raster Operation (FGR).             RW
+
+Bit      Description
+Bits 7:0 This is the logical operation between Source, Pattern, and
+         Destination Maps used when CPU data routing is Mix Data, and
+         the Mix data bit is a 1, or else when the CPU is not
+         providing Mix Map data (see ACL Routing Control Register).
+         See also Appendix A, ET4000/W32i (Microsoft) Raster Operations
+         Codes and Definitions.
+@endnode
+
+@node "5.9.24 ACL Destination Address Register"
+@toc "5.9 ACL Register Descriptions"
+@{B}5.9.24 ACL Destination Address Register@{b}
+This is a queued register
+Memory offset = A0
+
+Bit       Description                                    Access
+31:22     Reserved.
+21:0      Destination Address (DA).                      RW
+
+Bit       Description
+Bits 21:0 This value is the absolute address in display memory for the
+          Destination Map. There are two methods of loading this
+          register, explicit and implicit. An explicit load is
+          accomplished by simply writing to this memory address, similar
+          to any other ACL queued register. An implicit load occurs when
+          a write is performed through an accelerated MMU aperture.
+          When such a write is performed, the address after MMU
+          translation (which is an absolute address into display
+          memory) is loaded into this register.
+@endnode
+
+

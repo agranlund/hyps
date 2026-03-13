@@ -1,0 +1,24 @@
+@lang en
+@database "ET4000/W32i"
+@subject "Datasheets"
+
+@node Main
+@{B}ET4000/W32i@{b}
+
+1   @{"Introduction" link "1. Introduction"}
+1.1 @{"Specifications" link "1.1 ET4000/W32i Specifications"}
+1.2 @{"Overview" link "1.2 ET4000/W32i Overview"}
+1.3 @{"Notational Conventions" link "1.3 Notational Conventions"}
+
+2   @{"Functional Description" link "2. ET4000/W32i Functional Description"}
+3   @{"Pin Descriptions" link "3. ET4000/W32i Pin Descriptions"}
+4   @{"Timing Specifications" link "4. ET4000/W32i Timing Specifications"}
+5   @{"Register Descriptions" link "5. ET4000/W32i Register Descriptions"}
+6   @{"Board-Level Design Considerations" link "6. Board-Level Design Considerations"}
+7   @{"Programming Considerations" link "7. Programming Considerations"}
+8   @{"Programming Interface" link "8. Programming Interface"}
+A   @{"RasterOp Codes and Definitions" link "Appendix A. ET4000/W32i (Microsoft) Raster Operations Codes and Definitions"}
+
+    @{"Mechanical Specifications" link "Appendix Q. Mechanical Specifications"}
+    @{"References" link "Appendix Q. References"}
+@endnode

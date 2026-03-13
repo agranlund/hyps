@@ -1,0 +1,295 @@
+@node "5.3 TS Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.3 TS Register Descriptions@{b}
+
+The CPU interface to the ET4000/W32i internal Timing Sequencer (TS)
+consists of eight read/write registers. Of these registers, one
+register, the TS Index Register, is accessed by a separate
+independent I/O address (3C4). The remaining seven registers are
+internally indexed, which means that they are accessed via a common
+I/O address (3C5), with one of the seven registers that is actually
+selected by the TS Index Register.
+
+@{B}Table 5.3-1 TS Index Register@{b}
+                                                    Port
+Register Name                                       Address
+@{"TS Index Register" link "5.3.1 TS Index"}                       (Read/Write)  3C4
+
+
+@{B}Table 5.3-2 TS Indexed Registers@{b}
+                                                    Port
+TS Indexed Register Name        TS Indexed Address  Address
+@{"Synchronous Reset" link "5.3.3 TS Indexed Register 0: Synchronous Reset"}               0       (Read/Write)  3C5
+@{"TS Mode" link "5.3.4 TS Indexed Register 1: TS Mode"}                         1       (Read/Write)  3C5
+@{"Write Plane Mask" link "5.3.5 TS Indexed Register 2: Write Plane Mask"}                2       (Read/Write)  3C5
+@{"Font Select" link "5.3.6 TS Indexed Register 3: Font Select"}                     3       (Read/Write)  3C5
+@{"Memory Mode" link "5.3.7 TS Indexed Register 4: Memory Mode"}                     4       (Read/Write)  3C5
+@{I}Reserved@{i}                        5
+@{"TS State Control" link "5.3.8 TS Indexed Register 6: TS State Control"}                6       (Read/Write)  3C5
+@{"TS Auxiliary Mode" link "5.3.9 TS Indexed Register 7: TS Auxiliary Mode"}               7       (Read/Write)  3C5
+@endnode
+
+
+@node "5.3.1 TS Index"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.1 TS Index@{b}
+I/O address = 3C4
+
+@{B}Bit     Description                                         Access@{b}
+7:3     Reserved.
+2:0     Current TS index.                                   RW
+
+@{B}Bit     Description@{b}
+Bits 2:0 Provide the index of the currently selected internally
+         indexed register. The TS Index register determines which TS
+         indexed register will be accessed when a read/write is
+         performed using port address 3C5.
+@endnode
+
+@node "5.3.2 TS Indexed Registers"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.2 TS Indexed Registers@{b}
+
+The following registers are TS indexed registers. These registers are
+accessed by first writing the index of the desired register to the TS
+Index Register and then accessing the register using address 3C5.
+@endnode
+
+@node "5.3.3 TS Indexed Register 0: Synchronous Reset"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.3 TS Indexed Register 0: Synchronous Reset@{b}
+I/O address = 3C5
+
+@{B}Bit     Description                                         Access@{b}
+7:2     Reserved.
+1       Synchronous reset control.                          RW
+0       Asynchronous reset control.                         RW
+
+@{B}Bit     Description@{b}
+Bit 1   When set to 0, commands the timing sequencer to synchronously
+        clear and halt. Both bits 0 and 1 must be set to 1 for the
+        timing sequencer to run.
+
+        For compatibility, a synchronous reset should be in effect
+        whenever changing the Timing Sequencer or clock state. In
+        general, synchronous reset periods should be kept as short as
+        possible to prevent possible loss of display memory data.
+
+Bit 0   When set to 0, commands the timing sequencer to synchronously
+        clear and halt.
+
+        When set to 1, the sequencer will run unless bit 1 is set to 0.
+@endnode
+
+@node "5.3.4 TS Indexed Register 1: TS Mode"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.4 TS Indexed Register 1: TS Mode@{b}
+I/O address = 3C5
+
+@{B}Bit     Description                                         Access@{b}
+7:6     Reserved.
+5       Screen off (fast mode).                             RW
+4       Shift 4.                                            RW
+3       Dot clocks/2.                                       RW
+2       Video load/2.                                       RW
+1       Reserved.
+0       Timing sequencer state (bit 0).                     RW
+
+@{B}Bit     Description@{b}
+Bit 5   When set to 1, will force blanking on the screen, allowing CPU
+        access of video memory to go into a fast mode.
+
+Bit 4   When set to 1, will allow the video shifter input latches to be
+        loaded at quarter rate.
+
+Bit 3   When set to 1, provides sequencer clocking at half the MCLK
+        rate, known as dot clock/2 mode. This generates the dot clock
+        signal at half the normal rate, effectively halving the pixel
+        rate provided by the master clock. In VGA/EGA compatible
+        operation, dot clock/2 mode is used in all display modes that
+        have 320, rather than 640, pixels per scan line.
+
+Bit 2   When set to 1, loads the video shifter (such as the ATC) input
+        latches at half the video load rate.
+
+Bit 0   This bit is used to set the timing sequencer state value. When
+        set to a 0, the TS is set to State 0, or the 9-dot character
+        clock; when set to a 1, the TS is set to State 1, or the 8-
+        dot character clock.
+@endnode
+
+
+@node "5.3.5 TS Indexed Register 2: Write Plane Mask"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.5 TS Indexed Register 2: Write Plane Mask@{b}
+I/O address = 3C5
+
+Bit      Description                                    Access
+7:4      Reserved.
+3        Write enable display memory plane 3.           RW
+2        Write enable display memory plane 2.           RW
+1        Write enable display memory plane 1.           RW
+0        Write enable display memory plane 0.           RW
+
+Bit      Description
+Bits 3:0 The Write Plane Mask register enables or disables CPU write
+         access to display memory planes on a plane-by-plane basis,
+         and is only useful for 16-color (plane) systems. In 256
+         color mode, this register should be set to "0F" hex.
+@endnode
+
+
+@node "5.3.6 TS Indexed Register 3: Font Select"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.6 TS Indexed Register 3: Font Select@{b}
+I/O address = 3C5
+
+Bit      Description                                    Access
+7:6      Reserved.
+5,3,2    Font Select B (FSB<2:0>).                      RW
+4,1,0    Font Select A (FSA<2:0>).                      RW
+
+Bit      Description
+Bits 5:0 FSA or FSB (as selected by Attribute bit 3) is used to
+         select one of eight possible soft fonts, providing two
+         simultaneous character sets for display.
+
+         Based on the Selection bits derived, the font memories are
+         selected as follows:
+
+         Selection Bits    Selected       Offset in
+         (SEL<2:0>)        Segment        Font Memory
+         0 0 0             0              0
+         0 0 1             1              16K
+         0 1 0             2              32K
+         0 1 1             3              48K
+         1 0 0             4              8K
+         1 0 1             5              24K
+         1 1 0             6              40K
+         1 1 1             7              56K
+
+NOTE: When ATC Indexed Register, bit 7 is set to 1, this register is
+not used. By using FS<2:0>, CC<7:0>, and RA<4:0> as listed in Table
+7.3-1, 8 simultaneous fonts and character sets are available (B/W),
+and 4 and 4 respectively for Color. A total of 2048 character codes
+are available from which one could define 8 sets of 256 cc's each. 256
+is a standard, albeit arbitrary number. The FS, CC, and RA pointers
+define which of the fonts and character sets are being used at a given
+time. If ATC Indexed Register 7, bit 7 is 0, this register is used as
+is.
+@endnode
+
+@node "5.3.7 TS Indexed Register 4: Memory Mode"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.7 TS Indexed Register 4: Memory Mode@{b}
+I/O address = 3C5
+
+Bit      Description                                    Access
+7:4      Reserved.
+3        Enable Chain 4.                                RW
+2        Odd/even mode.                                 RW
+1        Extended memory.                               RW
+0        Reserved.
+
+Bit      Description
+Bit 3    When set to a 1, will enable Chain 4 (linear graphics) mode,
+         where all four memories are chained linearly into a byte-
+         oriented memory array whereby each byte will provide the
+         eight bits (256-color) for each pixel. When set to 1, causes
+         the two low-order bits of the address (A1 and A0) to select
+         the plane that is accessed:
+
+         A<1:0>  Plane
+         0 0     0
+         0 1     1
+         1 0     2
+         1 1     3
+
+         When set to 0, the processor will access data sequentially
+         in the bit plane.
+
+Bit 2    When set to 0, selects odd/even mode, in which even display
+         memory planes (0 and 2) are active on display CPU accesses
+         to even memory addresses (A0=0), while odd memory planes
+         (1 and 3) are active on accesses to odd memory addresses
+         (A0=1). When set to 1, causes the processor addresses to
+         write to display memory planes according to the Write Map
+         mask register.
+
+Bit 1    When set to 1, enables selection among multiple fonts,
+         where one of up to eight fonts can be selected (See
+         Section 5.3.6, Font Select Register).
+@endnode
+
+@node "5.3.8 TS Indexed Register 6: TS State Control"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.8 TS Indexed Register 6: TS State Control@{b}
+(protected by key)
+I/O address = 3C5
+
+Bit      Description                                    Access
+7:3      Reserved.
+2:1      Timing sequencer state (bits 1 & 2).           RW
+0        Reserved.
+
+Bit      Description
+Bits 2:1 These bits are used to set the extended timing sequencer
+         state value. In conjunction with bit 0 of the TS Mode
+         register, the additional states are used to define the
+         number of dots per character in text mode:
+
+         TS
+         Bit      Mode
+         <2:1>    0        dots/char
+         1 1      1        16
+         1 0      0        12
+         0 1      1        11
+         0 1      0        10
+         0 0      1        8
+         0 0      0        9
+         1 0      1        7
+         1 1      0        6
+
+IMPORTANT: All CRTC "character" timing calculations are based on
+programmed number dots/char.
+@endnode
+
+@node "5.3.9 TS Indexed Register 7: TS Auxiliary Mode"
+@toc "5.3 TS Register Descriptions"
+@{B}5.3.9 TS Indexed Register 7: TS Auxiliary Mode@{b}
+(protected by key)
+I/O address = 3C5
+
+Bit      Description                                    Access
+7        VGA mode.                                      RW
+6        Select MCLK/2 (if bit 0 is set to 0).           RW
+5        BIOS ROM Address Map 2.                        RW
+4        Reserved (Set to 1 always).                    RW
+3        BIOS ROM Address Map 1.                        RW
+2        Reserved (Set to 1 always).                    RW
+1        Reserved.
+0        Select MCLK/4.                                 RW
+
+Bit      Description
+Bit 7    When set to 1, enables VGA compatibility. A value of 0 will
+         enable EGA compatibility. NOTE: The ET4000/W32i is set to
+         default on power-up to VGA mode.
+
+Bit 6    When set to 1, will divide the MCLK input clock frequency
+         by two if bit 0 is equal to 0.
+
+Bits 5,3 These bits are used for selection of ROM BIOS address space.
+
+         Bit       ROM BIOS Address
+         3 5       Map Space Allocation           Total Memory Used
+         0 0       C0000-C3FFF                    16KB
+         0 1       disabled                       0KB
+         1 0       C0000-C5FFF; C6800-C7FFF       30KB
+         1 1       C0000-C7FFF* 32KB
+                   * Power-up default
+
+Bit 0    When set to 1, will divide the MCLK input clock frequency
+         by 4.
+@endnode
+
+

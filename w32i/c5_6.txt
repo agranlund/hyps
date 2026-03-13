@@ -1,0 +1,388 @@
+@node "5.6 CRTCB/Sprite Register Descriptions"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.6 CRTCB/Sprite Register Descriptions@{b}
+
+Index   Register
+E0      @{"CRTCB/Sprite Horizontal Pixel Position Low" link "5.6.2 CRTCB/Sprite Horizontal Pixel Position Low (Index: E0)"}
+E1      @{"CRTCB/Sprite Horizontal Pixel Position High" link "5.6.3 CRTCB/Sprite Horizontal Pixel Position High (Index: E1)"}
+E2      @{"CRTCB/Width Low/Sprite Horizontal Preset" link "5.6.4 CRTCB Width Low/Sprite Horizontal Preset (Index: E2)"}
+E3      @{"CRTCB Width High" link "5.6.5 CRTCB Width High (Index: E3)"}
+E4      @{"CRTCB/Sprite Vertical Pixel Position Low" link "5.6.6 CRTCB/Sprite Vertical Pixel Position Low (Index: E4)"}
+E5      @{"CRTCB/Sprite Vertical Pixel Position High" link "5.6.7 CRTCB/Sprite Vertical Pixel Position High (Index: E5)"}
+E6      @{"CRTCB Height Low/Sprite Vertical Preset" link "5.6.8 CRTCB Height Low/Sprite Vertical Preset (Index: E6)"}
+E7      @{"CRTCB Height High" link "5.6.9 CRTCB Height High (Index: E7)"}
+E8      @{"CRTCB/Sprite Starting Address Low" link "5.6.10 CRTCB/Sprite Starting Address Low Register (Index: E8)"}
+E9      @{"CRTCB/Sprite Starting Address Middle" link "5.6.11 CRTCB/Sprite Starting Address Middle Register (Index: E9)"}
+EA      @{"CRTCB/Sprite Starting Address High" link "5.6.12 CRTCB/Sprite Starting Address High Register (Index: EA)"}
+EB      @{"CRTCB/Sprite Row Offset Low" link "5.6.13 CRTCB/Sprite Row Offset Low Register (Index: EB)"}
+EC      @{"CRTCB/Sprite Row Offset High" link "5.6.14 CRTCB/Sprite Row Offset High Register (Index: EC)"}
+ED      @{"CRTCB Pixel Panning" link "5.6.15 CRTCB Pixel Panning (Index: ED)"}
+EE      @{"CRTCB Color Depth" link "5.6.16 CRTCB Color Depth Register (Index: EE)"}
+EF      @{"CRTCB/Sprite Control" link "5.6.17 CRTCB/Sprite Control (Index: EF)"}
+
+The CRTCB/Sprite registers are accessed using an indexed addressing
+scheme whereby a number selecting a register is first written to
+address 21xA (Index) and then the register can be read from or written
+to at address 21xB. The CRTCB/Sprite registers use indices E0 through
+EF.
+
+The @{"Index Register" link "5.6.1 CRTCB Index Register"} at address 21xA is also used to address the IMA
+Indexed Registers, see @{"Section 5.7" link "5.7 IMA Register Descriptions"} for details.
+
+The value of 'x' in the addresses 21xA and 21xB is determined by the
+logical value on the IOD<2:0> pins of the chip at power-up reset;
+see Section 3 for details.
+@endnode
+
+@node "5.6.1 CRTCB Index Register"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.1 CRTCB Index Register@{b}
+I/O address = 21xA
+
+Bit     Description                                     Access
+7:0     Indexed register select.                        RW
+
+Bit     Description
+Bits 7:0 This register is used to select the CRTCB/Sprite indexed
+        register that is accessed when address 21xB is read or
+        written.
+@endnode
+
+@node "5.6.2 CRTCB/Sprite Horizontal Pixel Position Low (Index: E0)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.2 CRTCB/Sprite Horizontal Pixel Position Low (Index: E0)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Horizontal pixel position, bits <7:0>.          RW
+@endnode
+
+@node "5.6.3 CRTCB/Sprite Horizontal Pixel Position High (Index: E1)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.3 CRTCB/Sprite Horizontal Pixel Position High (Index: E1)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:3     Reserved.
+2:0     Horizontal pixel position, bits <10:8>.         RW
+
+Bit     Description
+Bits 11:0 The Horizontal Pixel Position is the position in pixels of
+        the leftmost edge of the actively displayed portion of the
+        CRTCB window or Sprite, relative to the leftmost edge of the
+        CRTC active picture area.
+@endnode
+
+@node "5.6.4 CRTCB Width Low/Sprite Horizontal Preset (Index: E2)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.4 CRTCB Width Low/Sprite Horizontal Preset (Index: E2)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     CRTCB width, bits <7:0>/Sprite horizontal preset. RW
+
+Bit     Description
+Bits 7:0 When the CRTCB is selected (with CRTCB/Sprite Indexed
+        Register EF, bit 0), this register contains bits <7:0> of the
+        12-bit value defining the width of the CRTCB window in
+        pixels. The value loaded should be 1 less than the desired
+        width.
+
+        When the Sprite is selected, bits <5:0> specify the Horizontal
+        Pixel Preset. That is, the horizontal position relative to the
+        beginning of the sprite area at which display of the sprite
+        starts. The sprite does not wrap and always ends at position
+        63. See also Section 2.2 Secondary CRTC/Sprite (CRTCB).
+@endnode
+
+@node "5.6.5 CRTCB Width High (Index: E3)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.5 CRTCB Width High (Index: E3)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:3     Reserved.
+2:0     CRTCB width, bits <10:8>.                       RW
+
+Bit     Description
+Bits 2:0 When the CRTCB is selected (with CRTCB/Sprite Indexed
+        Register EF, bit 0), this register contains bits <11:8> of
+        the 12-bit value defining the width of the CRTCB window in
+        pixels. The value loaded should be 1 less than the desired
+        width.
+
+        NOTE: Programming of the CRTCB display area must not exceed
+        the boundaries of the CRTC (primary) display area. This
+        restriction does not apply when the Sprite is enabled.
+@endnode
+
+@node "5.6.6 CRTCB/Sprite Vertical Pixel Position Low (Index: E4)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.6 CRTCB/Sprite Vertical Pixel Position Low (Index: E4)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Vertical pixel position, bits <7:0>.            RW
+@endnode
+
+@node "5.6.7 CRTCB/Sprite Vertical Pixel Position High (Index: E5)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.7 CRTCB/Sprite Vertical Pixel Position High (Index: E5)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:3     Reserved.
+2:0     Vertical pixel position, bits <10:8>.           RW
+
+Bit     Description
+Bits 11:0 The Vertical Pixel Position is the position in scan lines
+        of the topmost edge of the actively displayed portion of the
+        CRTCB window or Sprite, relative to the topmost edge of CRTC
+        active picture area.
+@endnode
+
+@node "5.6.8 CRTCB Height Low/Sprite Vertical Preset (Index: E6)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.8 CRTCB Height Low/Sprite Vertical Preset (Index: E6)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     CRTCB height, bits <7:0>/Sprite Vertical Preset. RW
+
+Bit     Description
+Bits 7:0 When the CRTCB is selected (with CRTCB/Sprite Indexed
+        Register EF, bit 0), this register contains bits <7:0> of the
+        12-bit value defining the height of the CRTCB window in scan
+        lines. The value loaded should be 1 less than the desired
+        height.
+
+        When the Sprite is selected, bits <5:0> specify the Vertical
+        Pixel Preset. That is, the vertical position relative to the
+        beginning of the 64x64 pixel sprite area at which display of
+        the sprite starts. The sprite does not wrap and always ends
+        at position 63. See also Section 2.2 Secondary CRTC/Sprite
+        (CRTCB).
+
+        NOTE: Programming of the CRTCB display area must not exceed
+        the boundaries of the CRTC (primary) display area. This
+        restriction does not apply when the Sprite is enabled.
+@endnode
+
+@node "5.6.9 CRTCB Height High (Index: E7)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.9 CRTCB Height High (Index: E7)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:3     Reserved.
+2:0     CRTCB height, bits <10:8>.                       RW
+
+Bit     Description
+Bits 2:0 When the CRTCB is selected (with CRTCB/Sprite Indexed
+        Register EF, bit 0), this register contains bits <10:8> of
+        the 12-bit value defining the height of the CRTCB window in
+        scan lines. The value loaded should be 1 less than the
+        desired height.
+
+        NOTE: Programming of the CRTCB display area must not exceed
+        the boundaries of the CRTC (primary) display area. This
+        restriction does not apply when the Sprite is enabled.
+@endnode
+
+@node "5.6.10 CRTCB/Sprite Starting Address Low Register (Index: E8)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.10 CRTCB/Sprite Starting Address Low Register (Index: E8)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     CRTCB/Sprite starting address, bits <7:0>.      RW
+@endnode
+
+@node "5.6.11 CRTCB/Sprite Starting Address Middle Register (Index: E9)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.11 CRTCB/Sprite Starting Address Middle Register (Index: E9)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     CRTCB/Sprite starting address, bits <15:8>.     RW
+@endnode
+
+@node "5.6.12 CRTCB/Sprite Starting Address High Register (Index: EA)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.12 CRTCB/Sprite Starting Address High Register (Index: EA)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:4     Reserved.
+3:0     CRTCB/Sprite starting address, bits <19:16>.    RW
+
+Bit     Description
+Bits 19:0 These three registers define a 20-bit offset into display
+        memory at which the CRTCB/Sprite pixel data is located. The
+        starting address is measured in doublewords, so if the data
+        resides at byte address 256, then a value of 64 (i.e., 256/4)
+        should be programmed into these registers.
+@endnode
+
+@node "5.6.13 CRTCB/Sprite Row Offset Low Register (Index: EB)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.13 CRTCB/Sprite Row Offset Low Register (Index: EB)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:0     Memory address offset, bits <7:0>.              RW
+@endnode
+
+@node "5.6.14 CRTCB/Sprite Row Offset High Register (Index: EC)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.14 CRTCB/Sprite Row Offset High Register (Index: EC)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:4     Revision ID.                                    RO
+0       Memory address offset bit <8>.                  RW
+
+Bit     Description
+Bits 7:4 These bits are used to indicate the chip and revision level.
+        The values are defined as follows:
+
+                Bit
+                7 6 5 4         Chip/Rev.
+                0 0 0 0         W32
+                0 0 0 1         W32i
+                0 0 1 0         W32p
+                0 0 1 1         W32i Rev. B
+                | | | |
+                1 1 1 1         Reserved
+
+Bit 0   This is the ninth bit of these two registers, CRTCB/Sprite
+        Row Offset Low and CRTCB/Sprite Row Offset High, which specify
+        the number of quadwords between the start of one row of the
+        CRTCB pixel map to the start of the next row. This field MUST
+        be programmed to "2" when the Sprite is enabled.
+@endnode
+
+@node "5.6.15 CRTCB Pixel Panning (Index: ED)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.15 CRTCB Pixel Panning (Index: ED)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7       CRTCB/Sprite last scan line.                    RO
+6       Display enable.                                 RO
+5:3     Reserved.
+2:0     CRTCB pixel panning.                            RW
+
+Bit     Description
+Bit 7   When high indicates the last scan line has been displayed for 
+        the CRTCB/Sprite.
+
+Bit 6   This bit reflects real time status of the BDE pin (See Section 
+        3.7.2) for CRTCB/Sprite.
+
+Bits 2:0 This value specifies the number of pixels by which the video 
+        data should be shifted to the left. Shifts of up to nine 
+        pixels are supported. Note that in 9-dot modes, a value of 8 
+        signifies no shift, and the values of 0-7 signify shifts of 
+        1-8 pixels, respectively.
+
+        +-----------------------------------------------+ ^
+        | Actively                                      | |
+        | displayed                                     | |
+        | area (CRTC)                                   | |
+        |      CRTCB/Sprite Last Scan Line              | VPP
+        |                                               | |
+        |             /-----------\                     | |
+        |            /             \                    | *
+        |           /Display Enable \                   | ^
+        |          /_______|_________\                  | |
+        |          | ############# |  |                 | |
+        |          | # Actively  # |  |                 | HGT
+        |          | # displayed # |  |                 | |
+        |          | # area(CRTCB)#|  |                 | |
+        |          | ############# |  |                 | V
+        +----------+---------------+--+-----------------+
+        <--- HPP --> <--- WID ---->
+
+        HPP: Horizontal Pixel Position    VPP: Vertical Pixel Position
+        WID: Width                        HGT: Height
+
+                    CRTCB Window Positioning
+@endnode
+
+@node "5.6.16 CRTCB Color Depth Register (Index: EE)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.16 CRTCB Color Depth Register (Index: EE)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7:6     Vertical zoom factor.                           RW
+5:4     Reserved.
+3:0     CRTCB bits/pixel select.                        RW
+
+Bit     Description
+Bits 7:6 The value of these two bits determine the number of times 
+        the line is repeated.
+
+                Bit     Times line
+                7 6     repeated (no. of times each line is replicated)
+                0 0     1
+                0 1     2
+                1 0     3
+                1 1     4
+
+Bits 3:0 This value selects the color depth for the CRTCB. 
+        Combinations for color depth beyond 16 bits/pixel are 
+        currently reserved.
+
+                Bit
+                3 2 1 0  Bit/pixel
+                0 0 0 0  1
+                0 0 0 1  2
+                0 0 1 0  4
+                0 0 1 1  8
+                0 1 0 0  16
+                | | | |
+                1 1 1 1  Reserved.
+@endnode
+
+@node "5.6.17 CRTCB/Sprite Control (Index: EF)"
+@toc "5.6 CRTCB/Sprite Register Descriptions"
+@{B}5.6.17 CRTCB/Sprite Control (Index: EF)@{b}
+I/O address = 21xB
+
+Bit     Description                                     Access
+7       Reserved.
+6:5     Bus select.                                     RO
+4:3     Reserved.
+2       Sprite size control.                            RW
+1       B pixel overlay/B pixel data output.            RW
+0       CRTCB/Sprite select.                            RW
+
+Bit     Description
+Bits 6:5 These bits are the PORI value of UCPC, and AEN* pins, 
+        respectively (see Section 3.2) and determine bus type.
+
+                Bits
+                6 5     Bus
+                0 0     ISA
+                0 1     ISA
+                1 0     MCA
+                1 1     Local Bus
+
+Bit 2   When set to 1, sets sprite size to 128x128.
+        When set to 0, specifies sprite size at 64x64.
+
+Bit 1   When set to 1, specifies that the CRTCB pixels overlay 
+        the CRTC (i.e., normally displayed) pixels.
+
+        When set to 0, the CRTCB pixel data (2-bit sprite) is 
+        output to the SP<1:0> pins.
+
+Bit 0   When set to 1, selects the CRTCB functioning.
+
+        When set to 0, selects the sprite. See also Section 5.7.9, 
+        IMA Indexed Register F7, and TKN, SP pin descriptions 
+        in section 3.7.2.
+@endnode
+

@@ -1,0 +1,330 @@
+@node "5.1 General Registers"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.1 General Registers@{b}
+
+The ET4000/W32i has five General Registers, each with its own port address 
+allowing direct programming access, and requiring no pairing of index and 
+data registers. The Input Status #1 and Feature Control registers have 
+separate addresses for monochrome and color modes.
+
+@{"5.1.1 Miscellaneous Output Register" link "5.1.1 Miscellaneous Output Register"}
+@{"5.1.2 Input Status Register Zero" link "5.1.2 Input Status Register Zero"}
+@{"5.1.3 Input Status Register One" link "5.1.3 Input Status Register One"}
+@{"5.1.4 Feature Control Register" link "5.1.4 Feature Control Register"}
+@{"5.1.5 Video Subsystem Enable Register" link "5.1.5 Video Subsystem Enable Register"}
+@{"5.1.6 Display Mode Control Register" link "5.1.6 Display Mode Control Register"}
+@{"5.1.7 Hercules Compatibility Register" link "5.1.7 Hercules Compatibility Register"}
+
+@endnode
+
+@node "5.1.1 Miscellaneous Output Register"
+@toc "5.1 General Registers"
+@{B}5.1.1 Miscellaneous Output Register@{b}
+I/O address = 3CC read; 3C2 write
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7        Vertical Retrace Polarity.                         RW
+6        Horizontal Retrace Polarity.                       RW
+5        Page Select for Odd/Even.                          RW
+4        Reserved.
+3        Clock Select 1.                                    RW
+2        Clock Select 0.                                    RW
+1        Enable RAM.                                        RW
+0        I/O Address Select.                                RW
+
+Hardware resets return all bits to zero.
+
+Bit      Description
+Bit 7    When set to 1, selects negative vertical retrace.
+
+         When set to 0, selects positive vertical retrace. The relationship
+         between vertical screen size and polarities is as follows:
+
+                  Vsync polarity   Hsync polarity   Vertical size
+                        +                +          768 lines
+                        +                -          400 lines
+                        -                +          350 lines
+                        -                -          480 lines
+
+Bit 6    When set to 1, selects negative horizontal retrace polarity.
+
+         When set to 0, selects positive horizontal retrace polarity.
+
+Bit 5    Selects between two 64K pages of memory when in the Odd/Even 
+         display modes (0,1,2,3,7).
+
+         When set to 1, it is the default for operation of the HiRes 
+         text mode.
+
+         When set to 0, selects the high page of memory.
+
+Bit      Description
+Bits 3:2 Used to select the clock rate according to the following table:
+         Bits
+         3 2
+         0 0- Selects MCLK clock 1
+         0 1- Selects MCLK clock 2
+         1 0- Selects MCLK clock 3
+         1 1- Selects MCLK clock 4
+
+See Section 5.2.29 CRTC Indexed Register 31: General Purpose for more
+information  regarding clock selects.
+
+Bits <3:2> of the MISCOUT register (CS<1:0>) can be translated to provide 
+compatibility between the EGA mode and the EGA monitor when the external 
+clock select circuit is connected as follows:
+
+                  CS1 CS0      Clock Frequency
+                   1   1       ---
+                   1   0       32.514MHz
+                   0   1       28.322MHz
+                   0   0       25.175MHz
+
+The clock select bits CS<1:0> can be translated by the ET4000/W32i 
+according to the following conditions:
+
+NOTES: 1. EMCK = @{"CRTC Index 34" link "5.2.32 CRTC Indexed Register 34: Auxiliary Control Register"} bit 0 and ENXL = CRTC Index bit 5.
+       2. If CS<1:0> are used to select the external switch setting, care 
+          must be taken to ensure proper selection of the switch setting 
+          after the translation of CS<1:0>.
+
+In VGA mode:
+       a. If EMCK bit is set to 0: CS<1:0> are equal to the programmed 
+          value.
+       b. If EMCK bit is set to 1: CS<1> is equal to the programmed 
+          value, and CS<0> is equal to inversion of programmed value.
+
+In EGA mode:
+       a. if ENXL = 0 then:
+                  programmed CS<1:0>; output CS<1:0>
+                            1 1              0 0
+                            1 0              1 1
+                            0 1              1 0
+                            0 0              0 1
+
+       b. if ENXL = 1 then:
+          1. If EMCK bit is set to 0: CS<1:0> are equal to the programmed 
+             value.
+          2. If EMCK bit is set to 1: CS<1> is equal to the programmed 
+             value, and CS<0> is equal to inversion of programmed value.
+
+Bit      Description
+Bit 1    When set to 1, enables access to display memory.
+
+         When set to 0, disables display memory access from the host.
+
+Bit 0    When set to 1, sets CRTC addresses to 3DX and Input Status 
+         Register 1's address to 3DA for Color/Graphics Monitor Adapter 
+         emulation.
+
+         When set to 0, sets CRTC addresses to 3BX and Input Status 
+         Register 1's address to 3BA for monochrome emulation.
+@endnode
+
+@node "5.1.2 Input Status Register Zero"
+@toc "5.1 General Registers"
+@{B}5.1.2 Input Status Register Zero@{b}
+I/O address = 3C2
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7        CRT Interrupt.                                     RO
+6        Feature code 1.                                    RO
+5        Feature code 0.                                    RO
+4        Switch Sense.                                      RO
+3        Reserved.
+2        Reserved.
+1        Reserved.
+0        Reserved.
+
+NOTE: the "KEY" must be set in order to read bits 5 and 6.
+
+@{I}To set the KEY:@{i}
+- Write 03 to @{"Hercules Compatibility Register" link "5.1.7 Hercules Compatibility Register"} (3BF);
+- Set bits 7 and 5 of the @{"Mode Control Register" link "5.1.6 Display Mode Control Register"} (3#8) to 1,1,
+  e.g. A0 (other bits are don't care).
+
+Example:
+mov      dx,3BFh
+mov      al,3
+out      dx,al
+mov      dx,3D8h ;3B8h in mono mode
+mov      al,0A0h
+out      dx,al
+
+@{I}To turn OFF the KEY:@{i}
+- Set 3D8 (or 3B8) bits 7 and 5 to a value not equal to 1,1
+
+Example: set 3D8 (or 3B8) = 29h.
+Also 3BF should be set = 1 to restore to normal.
+
+Bit      Description
+Bit 7    A value of 1 indicates a pending vertical retrace interrupt.
+
+         A value of 0 means that the vertical retrace interrupt has 
+         been cleared.
+
+Bit 6:5  Inputs can be used to determine the type of monitor connected 
+         to the system. Input status is from external feature input.
+
+         NOTE: The external feature input bits 6 & 5 are DB<1:0> bus 
+               status at the last REST low-to-high transition. If the 
+               DB<1:0> are not "pull-down" by a 1K resistor, then a 
+               "11" status will be the default value.
+
+Bit 4    Input can be used to determine the default video mode upon 
+         power-up, or the type of monitor connected to the system. 
+         The Clock Select field setting (bits 2,3 in the 
+         @{"Miscellaneous Output Register" link "5.1.1 Miscellaneous Output Register"}) determines the switch to read.
+@endnode
+
+@node "5.1.3 Input Status Register One"
+@toc "5.1 General Registers"
+@{B}5.1.3 Input Status Register One@{b}
+I/O address = 3BA (mono)/3DA (color)
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7        Vertical retrace complement.                       RO
+6        CRTCB vertical display enable.                     RO
+5:4      Video display feedback test.                       RO
+3        Vertical retrace.                                  RO
+2        CRTCB display enable.                              RO
+1        CRTC Horizontal Display Enable complement.         RO
+0        Display enable complement.                         RO
+
+Bit      Description
+Bit 7    A value of 1 indicates that video data is currently being 
+         displayed.
+
+         A value of 0 indicates the vertical blanking or vertical 
+         border time. (See Figure 2.1-1)
+
+Bit 6    A value of 1 indicates that the CRTCB window is active within 
+         the current scan line.
+
+Bits 5:4 Used for diagnostic purposes. They are selectively connected 
+         to two of the eight color outputs of the Attribute 
+         Controller. The @{"Color Plane Enable" link "5.5.6 ATC Indexed Register 12: Color Plane Enable"} register (ATC Indexed 
+         Register 12) controls the multiplexer for the video wiring. 
+         Available combinations are:
+
+                  Color Plane Register       Input Status Register One
+                          Bits                         Bits
+                   @{U}5@{u}            @{U}4@{u}               @{U}5@{u}            @{U}4@{u}
+                   0            0               P2           AP0
+                   0            1               P5           AP4
+                   1            0               P3           AP1
+                   1            1               P7           AP6
+
+Bit 3    A value of 0 indicates that video data is currently being 
+         displayed.
+
+         A value of 1 indicates a vertical retrace interval during 
+         the vertical sync pulse.
+
+Bit 2    A value of 1 indicates that the CRTCB window is active.
+
+Bit 1    A value of 0 indicates CRTC horizontal display enabled.
+
+Bit 0    A value of 1 indicates a vertical or horizontal retrace 
+         interval and is the real-time status of the inverted 
+         display enable signal.
+@endnode
+
+@node "5.1.4 Feature Control Register"
+@toc "5.1 General Registers"
+@{B}5.1.4 Feature Control Register@{b}
+I/O address = 3CA read; 3BA/3DA write
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7        Reserved.
+6        Reserved.
+5:2      Monitor ID.                                        RO
+1        Feat (1).                                          RW
+0        Feat (0).                                          RW
+
+NOTE: The "KEY" must be set in order to read bits 5:2, and 7. See 
+Section 5.1.2, Input Status Register Zero for definition of "KEY".
+
+Bit      Description
+Bits 5:2 Used to read back the MONID<5:2> pins (MONID<3:2> for 
+         Local Bus) for monitor identification. See also Section 
+         5.1.2 Input Status Register Zero, bit 4 for monitor ID.
+
+Bits 1:0 General purpose read/write bits. In previous designs these 
+         bits were output to the Feature Connector.
+@endnode
+
+@node "5.1.5 Video Subsystem Enable Register"
+@toc "5.1 General Registers"
+@{B}5.1.5 Video Subsystem Enable Register@{b}
+I/O address = 3C3/46E8
+
+The Video Subsystem Enable Register is accessible via one of two 
+locations (03C3 or 046E8), selected by bit 3 of
+@{"CRTC Indexed Register 34" link "5.2.32 CRTC Indexed Register 34: Auxiliary Control Register"}.
+If the Video Subsystem Enable Register is at 03C3, then bit 0
+is the "Enable Video Subsystem" bit.
+The power-up default has this register at 03C3.
+
+When the video subsystem is disabled, the chip does not respond to 
+any host read/writes, except to the Video Subsystem Enable Register.
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7:4      Reserved (=0).
+3        Enable video subsystem (address 46E8).             RW
+2:1      Reserved.
+0        Enable video subsystem (address 03C3).             RW
+
+Bit      Description
+Bit 3    When set to 1, enables the video subsystem when the port 
+         address is configured for 46E8.
+
+Bit 0    When set to 1, enables the video subsystem when the port 
+         address is configured for address 3C3.
+@endnode
+
+@node "5.1.6 Display Mode Control Register"
+@toc "5.1 General Registers"
+@{B}5.1.6 Display Mode Control Register@{b}
+I/O address = 3B8 (monochrome); 3D8 (color)
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7        Key bit.                                           RW
+6        Enable second page.                                RO
+5        Key bit.                                           RW
+4:0      Reserved.
+
+Bit      Description
+Bits 7,5 Bits used to set the KEY (See @{"Input Status Register Zero" link "5.1.2 Input Status Register Zero"}
+         for instructions to set KEY).
+
+Bit 6    Enable second page (bit 1 of the @{"Hercules Compatibility Register" link "5.1.7 Hercules Compatibility Register"})
+@endnode
+
+@node "5.1.7 Hercules Compatibility Register"
+@toc "5.1 General Registers"
+@{B}5.1.7 Hercules Compatibility Register@{b}
+I/O address = 3BF
+
+Bit      Description                                       Access
+---      -----------                                       ------
+7:2      Reserved.
+1        Enable second page.                                WO
+0        Reserved.
+
+Bit      Description
+Bit 1    When set to 1, enables the second page of display memory, 
+         starting at B8000, providing 64KB of display memory. 
+         This bit can be read from bit 6 of the Display Mode 
+         Control Register (3#8).
+
+NOTE: Bits <1:0> are used to set the KEY.
+See @{"Input Status Register Zero" link "5.1.2 Input Status Register Zero"} for instructions to set the KEY.
+@endnode
+

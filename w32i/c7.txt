@@ -1,0 +1,987 @@
+@node "7. Programming Considerations"
+@{B}7. Programming Considerations@{b}
+
+@{"7.1 Text Modes" link "7.1 Text Modes"}
+@{"7.2 Graphic Modes" link "7.2 Graphic Modes"}
+@{"7.3 Video Memory Map" link "7.3 Video Memory Map"}
+@{"7.4 Operation Mode Tables" link "7.4 Operation Mode Tables"}
+@endnode
+
+@node "7.1 Text Modes"
+@toc "7. Programming Considerations"
+@{B}7.1 Text Modes@{b}
+
+VGA/TLI compatible text modes supported by the ET4000/W32i's GENERIC BIOS
+are described on the following pages.
+
+@{"7.1.1  40x25 Text (Modes 0 and 1)" link "7.1.1 40x25 Text (Modes 0 and 1)"}
+@{"7.1.2  80x25 Text (Modes 2, 3, and 7)" link "7.1.2 80x25 Text (Modes 2, 3, and 7)"}
+@{"7.1.3 132x44 Text (Modes 18 and 22)" link "7.1.3 132x44 Text (Modes 18 and 22)"}
+@{"7.1.4 132x25 Text (Modes 19 and 23)" link "7.1.4 132x25 Text (Modes 19 and 23)"}
+@{"7.1.5 132x28 Text (Modes 1A and 24)" link "7.1.5 132x28 Text (Modes 1A and 24)"}
+@{"7.1.6  80x60 Text (Mode 26)" link "7.1.6 80x60 Text (Mode 26)"}
+@{"7.1.7 100x40 Text (Mode 2A)" link "7.1.7 100x40 Text (Mode 2A)"}
+
+Four bit planes are provided to allow more efficient use of video memory.
+The use of these planes depends on the mode being selected.
+
+When an alphanumeric mode is selected, four bit planes are divided into
+two pairs of odd/even planes. The BIOS transfers character patterns from
+the ROM to the upper plane pair---bit planes 2 and 3. The system
+microprocessor stores the character and attribute data in the lower plane
+pair---bit planes 0 and 1. The programmer can view bit planes 0 and 1 as a
+single buffer in alphanumeric modes. The CRTC generates sequential word
+addresses and fetches one character/attribute word at a time. This allows
+the execution of programs having the character code in even byte
+addresses and the attribute data for that character in the odd byte
+address that follows.
+
+Every display character position in the alphanumeric mode is defined by
+two bytes in the display buffer. Both the color/graphics and the
+monochrome emulation modes use the following 2-byte character/attribute
+format.
+
+Bit      Attributes
+ 7       Blink/background intensity
+ 6       Background color, red
+ 5       Background color, green
+ 4       Background color, blue
+ 3       Foreground intensity/character select
+ 2       Foreground color, red
+ 1       Foreground color, green
+ 0       Foreground color, blue
+
+NOTES:
+1. Bit 7 can be used for either Blink or Background Intensity characters.
+   See function "AH=10h, AL=3 (Toggle Intensity/Blinking Bit)" in
+   section 5.
+2. Bit 3 can be used for either Foreground Intensity or Character Set
+   Select.
+
+@endnode
+
+@node "7.1.1 40x25 Text (Modes 0 and 1)"
+@toc "7.1 Text Modes"
+@{B}7.1.1 40x25 Text (Modes 0 and 1)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+0,1      40      25      B8000   8       2KB
+
+Memory allocations for display pages:
+         Page    Start Address
+         1       B8000
+         2       B8800
+         3       B9000
+         4       B9800
+         5       BA000
+         6       BA800
+         7       BB000
+         8       BB800
+@endnode
+
+@node "7.1.2 80x25 Text (Modes 2, 3, and 7)"
+@toc "7.1 Text Modes"
+@{B}7.1.2 80x25 Text (Modes 2, 3, and 7)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+2,3      80      25      B8000   8       4KB
+7        80      25      B0000   8       4KB
+
+Memory allocations for display pages:
+
+                 Modes 2 and 3   Mode 7
+         Page    Start Address   Start Address
+         1       B8000           B0000
+         2       B9000           B1000
+         3       BA000           B2000
+         4       BB000           B3000
+         5       BC000           B4000
+         6       BD000           B5000
+         7       BE000           B6000
+         8       BF000           B7000
+@endnode
+
+@node "7.1.3 132x44 Text (Modes 18 and 22)"
+@toc "7.1 Text Modes"
+@{B}7.1.3 132x44 Text (Modes 18 and 22)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+18       132     44      B0000   2       11.6KB
+22       132     44      B8000   2       11.6KB
+
+Memory allocations for display pages:
+
+                 Modes 18        Mode 22
+         Page    Start Address   Start Address
+         1       B0000           B8000
+         2       B4000           BC000
+@endnode
+
+@node "7.1.4 132x25 Text (Modes 19 and 23)"
+@toc "7.1 Text Modes"
+@{B}7.1.4 132x25 Text (Modes 19 and 23)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+19       132     25      B0000   4       6.6KB
+23       132     25      B8000   4       6.6KB
+
+Memory allocations for display pages:
+
+                 Modes 19        Mode 23
+         Page    Start Address   Start Address
+         1       B0000           B8000
+         2       B2000           BA000
+         3       B4000           BC000
+         4       B6000           BE000
+@endnode
+
+@node "7.1.5 132x28 Text (Modes 1A and 24)"
+@toc "7.1 Text Modes"
+@{B}7.1.5 132x28 Text (Modes 1A and 24)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+1A       132     28      B0000   4       7.4KB
+24       132     28      B8000   4       7.4KB
+
+Memory allocations for display pages:
+
+                 Modes 1A        Mode 24
+         Page    Start Address   Start Address
+         1       B0000           B8000
+         2       B2000           BA000
+         3       B4000           BC000
+         4       B6000           BE000
+@endnode
+
+@node "7.1.6 80x60 Text (Mode 26)"
+@toc "7.1 Text Modes"
+@{B}7.1.6 80x60 Text (Mode 26)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+26       80      60      B8000   2       9.6KB
+
+Memory allocations for display pages:
+
+         Page    Start Address
+         1       B8000
+         2       BC000
+@endnode
+
+@node "7.1.7 100x40 Text (Mode 2A)"
+@toc "7.1 Text Modes"
+@{B}7.1.7 100x40 Text (Mode 2A)@{b}
+
+         Char/   No.     Buffer  Max.    Memory
+Mode     Row     Rows    Start   Pages   Required
+2A       100     40      B8000   4       8KB
+
+Memory allocations for display pages:
+
+         Page    Start Address
+         1       B8000
+         2       BA000
+         3       BC000
+         4       BE000
+@endnode
+
+
+@node "7.2 Graphic Modes"
+@toc "7. Programming Considerations"
+@{B}7.2 Graphic Modes@{b}
+
+VGA/TLI compatible graphics modes supported by the ET4000/W32i's
+GENERIC BIOS are described below:
+
+@{"7.2.1 320x200 Four Color (Modes 4 and 5)" link "7.2.1 320x200 Four Color (Modes 4 and 5)"}
+@{"7.2.2 640x200 Two Color (Mode 6)" link "7.2.2 640x200 Two Color (Mode 6)"}
+@{"7.2.3 16/256K Colors (Modes D, E, 10 and 12)" link "7.2.3 16/256K Colors (Modes D, E, 10 and 12)"}
+@{"7.2.4 640x350 Monochrome (Mode F)" link "7.2.4 640x350 Monochrome (Mode F)"}
+@{"7.2.5 640x480 Two Color (Mode 11)" link "7.2.5 640x480 Two Color (Mode 11)"}
+@{"7.2.6 256/256K Colors (Mode 13)" link "7.2.6 256/256K Colors (Mode 13)"}
+@{"7.2.7 16/256K Colors (Modes 25, 29, 37, 3D)" link "7.2.7 16/256K Colors (Modes 25, 29, 37, 3D)"}
+@{"7.2.8 256/256K Colors (Modes 2D, 2E, 2F, 30, 38)" link "7.2.8 256/256K Colors (Modes 2D, 2E, 2F, 30, 38)"}
+@endnode
+
+@node "7.2.1 320x200 Four Color (Modes 4 and 5)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.1 320x200 Four Color (Modes 4 and 5)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+4,5      4       4       320     200     B8000   1       16KB
+
+The ET4000/W32i should be programmed to be in IBM VGA mode in modes 4
+and 5.
+
+Each data byte contains two color bits for four PELs:
+
+         Bit
+         7,6     C1,C0 of first PEL
+         5,4     C1,C0 of second PEL
+         3,2     C1,C0 of third PEL
+         1,0     C1,C0 of fourth PEL
+
+where the color bits combine to give:
+
+         C1      C0
+         0       0       Black
+         0       1       Green or cyan
+         1       0       Red or magenta
+         1       1       Brown or intense white
+
+C0 is stored in bit plane 0; C1 is stored in bit plane 1.
+
+The display buffer is partitioned into two sections of 8000 bytes each.
+One section contains PELs for display on even scan lines (lines 0, 2, 4
+through 198), the other contains PELs for the odd scan lines:
+
+Section  Lines   Start Address   End Address
+0        Even    B8000           B9F3F
+1        Odd     BA000           BBF3F
+
+NOTES:
+1. Hex B8000 contains PEL data for the upper-left corner of the display
+   area.
+2. Odd scan lines are offset from even scan lines by 8K.
+@endnode
+
+@node "7.2.2 640x200 Two Color (Mode 6)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.2 640x200 Two Color (Mode 6)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+6        2       8       640     200     B8000   1       16KB
+
+Each data byte defines a row of eight PELs on the screen. Each bit
+defines 2 colors for each PEL as follows:
+
+         0       Black
+         1       Intensified white
+@endnode
+
+@node "7.2.3 16/256K Colors (Modes D, E, 10 and 12)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.3 16/256K Colors (Modes D, E, 10 and 12)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+D        16      1* 320     200     A0000   8       32KB
+E        16      1* 640     200     A0000   4       64KB
+10       16      1* 640     350     A0000   2       112KB
+12       16      1* 640     480     A0000   1       153.6KB
+
+Starting addresses for the display pages are:
+
+                         Mode D      Mode E      Mode 10     Mode 12
+Number of
+display pages:           8           4           2           1
+
+Starting addresses
+for each page:
+         Page
+         1               A0000       A0000       A0000       A0000
+         2               A2000       A4000       A8000
+         3               A4000       A8000
+         4               A6000       AC000
+         5               A8000
+         6               AA000
+         7               AC000
+         8               AE000
+
+* Four bit planes, each starting at location hex A0000, provide the four
+color bits required for each pixel as follows:
+
+         Plane 3 C3      Intensity
+         Plane 2 C2      Red
+         Plane 1 C1      Green
+         Plane 0 C0      Blue
+
+Within each bit plane, each data byte defines a row of eight pixels on
+the screen, for a specific color bit. The planes are accessed
+simultaneously and the color bits together address one register in a
+table of 16 color registers.
+
+If the values in the registers are the supplied default values, the
+colors will be:
+
+         C3      C2      C1      C0
+         0       0       0       0       Black
+         0       0       0       1       Blue
+         0       0       1       0       Green
+         0       0       1       1       Cyan
+         0       1       0       0       Red
+         0       1       0       1       Magenta
+         0       1       1       0       Brown
+         0       1       1       1       White
+         1       0       0       0       Gray
+         1       0       0       1       Light Blue
+         1       0       1       0       Light Green
+         1       0       1       1       Light Cyan
+         1       1       0       0       Light Red
+         1       1       0       1       Light Magenta
+         1       1       1       0       Yellow
+         1       1       1       1       Intense White
+
+The 16 colors are mapped to the supported monochrome monitor as 16 shades
+ranging from black to intense white.
+
+The graphics program interface to the bit planes is through the READ DOT
+and WRITE DOT functions; C0 through C3 are bits 0 through 3 of the color
+data.
+@endnode
+
+@node "7.2.4 640x350 Monochrome (Mode F)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.4 640x350 Monochrome (Mode F)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+F        4* 1** 640     350     A0000   2       56K
+
+* 4 monochrome attributes per pixel
+** 1 bit from each of plane 0 and 2 per pixel
+
+Memory allocation for the display pages are:
+
+         Page    Start Address
+         1       A0000
+         2       A8000
+
+Two bytes (one from plane 0 and one from plane 2) together define a row
+of eight PELs on the screen. Bit planes 2 and 0 are accessed
+simultaneously, to support graphics on displays that use the following
+attributes: black, video, blinking video, and intensified video. Bit
+plane 2 provides color bit C2 and plane 0 provides color bit C0,
+combining to give the attributes as follows:
+
+         C2      C0
+         0       0       Black
+         0       1       Video
+         1       0       Blink video
+         1       1       Intense video
+
+The graphics program interface to the bit planes is through the READ DOT
+and WRITE DOT functions; C0 and C2 are bits 0 and 2 of the color data.
+@endnode
+
+@node "7.2.5 640x480 Two Color (Mode 11)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.5 640x480 Two Color (Mode 11)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+11       2       8       640     480     A0000   * 38.4KB
+
+Each data byte defines a row of eight pixels on the screen. Each bit
+defines 2 colors for each PEL as follows:
+
+         0       Black
+         1       Intensified white
+
+* The data are stored in a linear display buffer (containing both odd
+  and even rows) starting at address hex A0000.
+@endnode
+
+@node "7.2.6 256/256K Colors (Mode 13)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.6 256/256K Colors (Mode 13)@{b}
+
+         Colors/ Pixels/ Pixels/ No.     Buffer  Max.    Memory
+Mode     Pixel   Byte    Row     Rows    Start   Pages   Required
+13       256     1       320     200     A0000   1       64KB
+
+The four memory planes are chained together to form a linear display
+buffer 256KB deep starting at address hex A0000. Each byte defines the
+8-bit color data for one PEL on the screen.
+
+Color data read from the display buffer is used as a pointer to address
+one register in a table of 256 color registers (the External Palette
+RAM). The default color mapping is:
+
+         Registers 0 through 15 map to the 16 EGA colors;
+         Registers 16 through 31 map to evenly spaced shades of gray;
+         Registers 32 through 247 map to a range of color shades
+         based on a Hue/Saturation/Intensity model that provides a
+         usable set of colors.
+
+NOTE: Changing the internal palette (that which is compatible with the
+Enhanced Graphics Adapter) from the default setting will produce
+unpredictable results. If you want to change the colors, change the
+values in the individual color registers.
+@endnode
+
+@node "7.2.7 16/256K Colors (Modes 25, 29, 37, 3D)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.7 16/256K Colors (Modes 25, 29, 37, 3D)@{b}
+
+These modes share the same 16-color data format as modes D, E, 10 and 12
+described previously. For a detailed description of the color format 
+and access to Palette RAM, refer to the prior description. The 
+resolution and display buffer map are, however, different and are 
+described below:
+
+        Colors/ Pixels/ Pixels/ No.    Buffer  Max.    Memory
+Mode    Pixel   Byte    Row     Rows   Start   Pages   Required
+25      16      1* 640     480    A0000   1       153.6KB
+29      16      1* 800     600    A0000   1       240KB
+37      16      1* 1024    768    A0000   1       393.2KB
+3D      16      1* 1280    1024   A0000   1       655.4KB
+
+* One bit from each bit plane per pixel.
+@endnode
+@node "7.2.8 256/256K Colors (Modes 2D, 2E, 2F, 30, 38)"
+@toc "7.2 Graphic Modes"
+@{B}7.2.8 256/256K Colors (Modes 2D, 2E, 2F, 30, 38)@{b}
+
+These modes share the same 256-color data format as mode 13. For a
+detailed description of the color format and access to External 
+Palette RAM, refer to the description following @{I}"256/256K 
+Colors (Mode 13):"@{i}
+
+The resolution and display buffer map are different, however, and 
+are described below:
+
+        Colors/ Pixels/ Pixels/ No.    Buffer  Max.    Memory
+Mode    Pixel   Byte    Row     Rows   Start   Pages   Required
+2D      256     1       640     350    A0000   1       224KB
+2E      256     1       640     480    A0000   1       307.2KB
+2F      256     1       640     400    A0000   1       256KB
+30      256     1       800     600    A0000   1       480KB
+38      256     1       1024    768    A0000   1       786.4KB
+@endnode
+
+@node "7.3 Video Memory Map"
+@toc "7. Programming Considerations"
+@{B}7.3 Video Memory Map@{b}
+
+AMC MAP VGA memory      MMU buffer    MMU    Memory       External
+2:0 1:0 (no MMU)        memory        Size   Mapped Regs  Mapped Regs
+--- --- --------------  ------------- ------ ------------- -----------
+000 00  xA0000-xBFFFF 
+000 01  xA0000-xAFFFF
+000 10  xB0000-xB7FFF
+000 11  xB8000-xBFFFF
+100 00  xA0000-xBFFFF   xB8000-xBFFFF
+100 01  xA0000-xAFFFF   xB8000-xBFFFF 8KB
+100 10  xB0000-xB7FFF   xA8000-xADFFF 8KB
+100 11  xB8000-xBFFFF   xA8000-xADFFF 8KB
+110 00  xA0000-xBFFFF   xB8000-xBFFFF
+110 01  xA0000-xAFFFF   xB8000-xBFFFF 8KB    xBFF00-xBFFFF xBE000-xBEFFF
+110 10  xB0000-xB7FFF   xA8000-xADFFF 8KB    xAFF00-xAFFFF xAE000-xAEFFF
+110 11  xB8000-xBFFFF   xA8000-xADFFF 8KB    xAFF00-xAFFFF xAE000-xAEFFF
+001 xx  x00000-xFFFFF* 
+001 xx  000000-3FFFFF**
+111 xx  x00000-x7FFFF*  x80000-xDFFFF 128KB  xFFF00-xFFFFF xFE000-xFEFFF
+111 xx  000000-1FFFFF** 200000-37FFFF 512KB  3FFF00-3FFFFF 380000-3BFFFF
+
+Notes:
+
+*  if IMA port enabled              xx = don't care
+** if IMA port disabled
+
+MAP 1:0 = GDC 6, bits 3:2           (VGA Memory Map)
+AMC 2 = CRTC 36, bit 3              (1 enables MMU)
+AMC 1 = CRTC 36, bit 5              (1 enables memory-mapped registers)
+AMC 0 = CRTC 36, bit 4              (1 enables system linear mapping)
+
+The following table describes the external memory address mapping
+relationship between the CRTC address and CPU address lines.
+
+@{B}Table 7.3-1 CPU/CRTC Addressing Modes@{b}
+
+      CPU                           CRTC
+MA    PG     OE     LG              S1     S0     SF
+=========================================================
+-     RW0    A0     A0              ##     ##     #
+-     RW1    RW1    A1              ##     ##     #
+---------------------------------------------------------
+A0    A0     PGS    A2              L0     L15    RA0
+A1    A1     A1     A3              L1     L0     RA1
+A2    A2     A2     A4              L2     L1     RA2
+A3    A3     A3     A5              L3     L2     RA3
+A4    A4     A4     A6              L4     L3     RA4
+A5    A5     A5     A7              L5     L4     CC0
+A6    A6     A6     A8              L6     L5     CC1
+A7    A7     A7     A9              L7     L6     CC2
+A8    A8     A8     A10             L8     L7     CC3
+A9    A9     A9     A11             L9     L8     CC4
+A10   A10    A10    A12             L10    L9     CC5
+A11   A11    A11    A13             L11    L10    CC6
+A12   A12    A12    A14             L12    L11    CC7
+A13   A13    A13    A15             L13    L12    FS2
+A14   A14    A14    SP0             L14    L13    FS0
+A15   A15    A15    SP1             L15    L14    FS1
+A16   SP0    SP0    SP2             L16    L16    -
+A17   SP1    SP1    SP3             L17    L17    -
+A18   SP2    SP2    SP4             L18    L18    -
+A19   SP3    SP3    SP5             L19    L19    -
+
+NOTES:
+1. A 21:0 = CPU Byte Address
+2. MA 19:0 = Video Memory Doubleword Address
+3. SP 7:0 = 8-Bit Read/Write Segment Pointer (GDC Segment Select)
+4. L 19:0 = Linear Counter Doubleword Address
+      RA 4:0 = Character Row Scan
+      CC 7:0 = Character Code
+      FS 2:0 = Character Font Select
+5. S0 = word CRTC address mode S1 = byte or doubleword CRTC mode
+6. # = In text mode, I/R lanes are font planes and G/B planes are
+   attribute/character code planes. In graphics modes all four 
+   planes are used as pixel data.
+7. RW 1:0 = read plane select (GDC Indexed Register 4) and write
+   plane mask (TS Indexed Register 2).
+8. PGS = /PSEL*CHAN*(CDS 1 |CDS 0 )
+         | A16 *CHAN*/(CDS 1 |CDS 0 )
+         | A0 */CHAN
+
+@{B}7.3.1 Two Major Types of Memory Organization@{b}
+
+From a programming viewpoint, the display data can be structured into 
+video bit-planes (under a Planar Organization), or into memory arrays 
+(under a Linear Byte Organization), depending on the particular video 
+mode to be supported. A discussion of these two types of systems along 
+with their addressing scheme and typical modes follows.
+
+@{B}7.3.1.1 Planar Organization@{b}
+
+In VGA-compatible 16-color modes, a "Plane" configuration is used, 
+where four independently addressable bit planes (I,R,G,B) are accessed 
+in parallel, and each pixel is represented by up to four bits from the 
+four planes, selecting up to 16 colors. The size of each plane depends 
+on the resolution supported.
+
+The CPU shall access the display buffer using the Read Plane Select 
+(RPS) (GDC Index Register 4) and Write Plane Mask (WPM) (TS Index 
+register 2), applicable only for Planar Organizations, with 16-bit 
+address lines addressing up to 64KB on each plane.
+
+For planes greater than 64KB, the Segment Select register is used.
+
+The major advantages of a Planar Organization include:
+
+1. Allows parallel access of all four color planes (32 bits or eight 
+   Pixels), through one CPU I/O operation, therefore minimizing the 
+   frequency of CPU accesses.
+
+2. By spreading four bits per pixel over four bit-planes, the total 
+   address space per plane is reduced by a factor of 4, therefore 
+   minimizing the need of crossing 64KB segment boundaries.
+
+3. The ET4000/W32i provides two types of read and four types of write 
+   operations, during which the display data can be processed, 
+   provided they are structured as four planes. These operations 
+   include "color compare" to expedite color-fill functions, block 
+   move operations, set/reset functions to facilitate initialization 
+   of the display buffer, and bit-masking facilities to allow 
+   modification of up to 32 pixels by a single CPU memory 
+   read/write operation.
+
+@{B}7.3.1.2 Linear Byte Organization@{b}
+
+To support either 256 or 65,536 colors, a @{I}Linear Byte@{i} organization
+is used, whereby all memory planes are chained together as a linear 
+byte-oriented memory. Each pixel is represented by 1 single byte in 
+256 colors or 2 adjacent bytes in 65,536 colors. The depth of the 
+linear array depends on the resolution or number of colors supported, 
+and therefore the amount of display buffer required.
+
+The CPU shall access the display buffer using address lines and the 
+segment select register, or in conjunction with the MMU's logical to 
+physical address translation, while the Read Plane Select (RPS) and 
+Write Plane Mask (WPM) are @{B}ignored@{b}.
+
+The major advantages of a Linear Byte organization include:
+
+1. Each pixel is represented by adjacent bytes (packed data), which 
+   eliminates the need to manipulate data across byte boundaries 
+   associated with Plane systems.
+
+2. Simplifies direct data manipulation such as the color shading 
+   function which adjusts the color of each pixel, since addressing a 
+   pixel does not require any I/O port access as does a plane system.
+
+3. W32i Accelerator can be used to greatly increase performance for 
+   many operations.
+@endnode
+
+
+@node "7.4 Operation Mode Tables"
+@toc "7. Programming Considerations"
+@{B}7.4 Operation Mode Tables@{b}
+
+The following tables summarize the values to be programmed into the
+ET4000/W32i registers for the various modes of operation.
+
+VGA MODES
+@{"Table 7.4.4-1 General Registers" link "Table 7.4.4-1 General Registers"}
+@{"Table 7.4.4-2 Timing Sequencer Registers" link "Table 7.4.4-2 Timing Sequencer Registers"}
+@{"Table 7.4.4-3 CRT Controller Registers" link "Table 7.4.4-3 CRT Controller Registers"}
+@{"Table 7.4.4-4 GDC Registers" link "Table 7.4.4-4 GDC Registers"}
+@{"Table 7.4.4-5 ATC Indexed Registers" link "Table 7.4.4-5 ATC Indexed Registers"}
+
+EGA MODES
+@{"Table 7.4.4-6 General Registers" link "Table 7.4.4-6 General Registers"}
+@{"Table 7.4.4-7 Timing Sequencer Registers" link "Table 7.4.4-7 Timing Sequencer Registers"}
+@{"Table 7.4.4-8 CRT Controller Registers" link "Table 7.4.4-8 CRT Controller Registers"}
+@{"Table 7.4.4-9 GDC Registers" link "Table 7.4.4-9 GDC Registers"}
+@{"Table 7.4.4-10 ATC Registers" link "Table 7.4.4-10 ATC Registers"}
+@endnode
+
+
+@node "Table 7.4.4-1 General Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-1 General Registers@{b}
+
+The following data represents the Misc Output register
+values (Port 3C2) and Clocks for each VGA mode.
+
+Mode  | Misc Output | Clock
+------|-------------|-------
+0/0*  | 63/A3       | 25/25
+0+/0+ | 63/63       | 28/28
+1/1*  | 63/A3       | 25/25
+1+/1+ | 63/63       | 28/28
+2/2*  | 63/A3       | 25/25
+2+/2+ | 63/63       | 28/28
+3/3*  | 63/A3       | 25/25
+3+/3+ | 63/63       | 28/28
+4     | 63          | 25
+5     | 63          | 25
+6     | 63          | 25
+7/7*  | A2/62       | 28/28
+D     | 63          | 25
+E     | 63          | 25
+F     | A2          | 25
+10    | E3          | 25
+11    | E3          | 25
+12    | E3          | 25
+13    | 63          | 25
+21    | E3          | 40
+22    | A7          | 40
+23    | A7          | 40
+24    | A7          | 25
+25    | E3          | 28
+26    | EF          | 40
+29    | EF          | 40
+2A    | EF          | 25
+2D    | A3          | 25
+2E    | EF          | 40
+30    | 2F          | 45
+37i   | EF          | 25
+37n   | 2F          | 63
+38i   | EF          | 45
+38n   | 2F          | 65
+3D    | EF          | 80
+@endnode
+
+@node "Table 7.4.4-2 Timing Sequencer Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-2 Timing Sequencer Registers@{b}
+
+The following data represents Timing Sequencer values for each mode.
+Register order:
+Index 00 (Synch Reset), 01 (TS Mode), 02 (Write Plane Mask), 
+03 (Font Select), 04 (Memory Mode), 05 (Reserved), 06 (TS STAT), 
+07 (TS Aux Mode).
+
+Mode  | 00 01 02 03 04 05 06 07
+------|------------------------
+0/0*  | 03 01 03 00 02 00 00 BC
+0+/0+ | 03 01 03 00 02 00 00 BC
+1/1*  | 03 01 03 00 02 00 00 BC
+1+/1+ | 03 01 03 00 02 00 00 BC
+2/2*  | 03 01 03 00 02 00 00 BC
+2+/2+ | 03 01 03 00 02 00 00 BC
+3/3*  | 03 01 03 00 02 00 00 BC
+3+/3+ | 03 01 03 00 02 00 00 BC
+4     | 03 01 03 00 02 00 00 BC
+5     | 03 01 03 00 02 00 00 BC
+6     | 03 01 0F 00 02 00 00 BC
+7/7*  | 03 01 03 00 02 00 00 BC
+D     | 03 01 0F 00 02 00 00 BC
+E     | 03 01 0F 00 02 00 00 BC
+F     | 03 01 0F 00 06 00 00 BC
+10    | 03 01 0F 00 06 00 00 BC
+11    | 03 01 0F 00 06 00 00 BC
+12    | 03 01 0F 00 06 00 00 BC
+13    | 03 01 0F 00 02 00 00 BC
+21    | 03 01 0F 00 0E 00 00 BC
+22    | 03 01 0F 00 0E 00 00 BC
+23    | 03 01 0F 00 0E 00 00 BC
+24    | 03 01 0F 00 0E 00 00 BC
+25    | 03 01 0F 00 0E 00 00 BC
+26    | 03 01 0F 00 0E 00 00 BC
+29    | 03 01 0F 00 0E 00 00 BC
+2A    | 03 01 0F 00 0E 00 00 BC
+2D    | 03 01 0F 00 03 00 00 BC
+2E    | 03 01 0F 00 0E 00 00 BC
+30    | 03 01 0F 00 0E 00 00 BC
+37i   | 03 01 0F 00 0E 00 00 BC
+37n   | 03 01 0F 00 0E 00 00 BC
+38i   | 03 01 0F 00 0E 00 00 BC
+38n   | 03 01 0F 00 0E 00 00 BC
+3D    | 03 01 0F 00 0E 00 00 BC
+@endnode
+
+@node "Table 7.4.4-3 CRT Controller Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-3 CRT Controller Registers@{b}
+
+The following data is organized as: 
+Port 3D4 Index 00 thru 18, then 31, 32, 33, 34, 35, 36, 37, 3D
+
+Mode  | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 | 31 32 33 34 35 36 37 3D
+------|----------------------------------------------------------------------------|------------------------
+0/0*  | 2D 27 28 90 2B A0 BF 1F 00 4F 06 07 00 00 00 00 9C 8E 8F 14 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+0+/0+ | 2D 27 28 90 2B A0 BF 1F 00 4F 0E 07 00 00 00 00 9C 8E 8F 14 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+1/1*  | 2D 27 28 90 2B A0 BF 1F 00 4F 06 07 00 00 00 00 9C 8E 8F 14 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+1+/1+ | 2D 27 28 90 2B A0 BF 1F 00 4F 0E 07 00 00 00 00 9C 8E 8F 14 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+2/2*  | 5F 4F 50 82 55 81 BF 1F 00 4F 06 07 00 00 00 00 9C 8E 8F 28 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+2+/2+ | 5F 4F 50 82 55 81 BF 1F 00 4F 0E 07 00 00 00 00 9C 8E 8F 28 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+3/3*  | 5F 4F 50 82 55 81 BF 1F 00 4F 06 07 00 00 00 00 9C 8E 8F 28 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+3+/3+ | 5F 4F 50 82 55 81 BF 1F 00 4F 0E 07 00 00 00 00 9C 8E 8F 28 1F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+4     | 2D 27 28 90 2B 80 BF 1F 00 41 06 07 00 00 00 00 9C 8E 8F 14 17 96 B9 A2 FF | 00 -- 00 -- 00 -- -- 00
+5     | 2D 27 28 90 2B 80 BF 1F 00 41 06 07 00 00 00 00 9C 8E 8F 14 17 96 B9 A2 FF | 00 -- 00 -- 00 -- -- 00
+6     | 5F 4F 50 82 54 80 BF 1F 00 40 06 07 00 00 00 00 9C 8E 8F 28 17 96 B9 C2 FF | 00 -- 00 -- 00 -- -- 00
+7/7*  | 5F 4F 50 82 55 81 BF 1F 00 4F 0B 0C 00 00 00 00 83 9C 8F 28 0F 96 B9 A3 FF | 00 -- 00 -- 00 -- -- 00
+D     | 2D 27 28 90 2B 80 BF 1F 00 41 00 00 00 00 00 00 9C 8E 8F 14 00 96 B9 E3 FF | 00 -- 00 -- 00 -- -- 00
+E     | 5F 4F 50 82 54 80 BF 1F 00 40 00 00 00 00 00 00 9C 8E 8F 28 00 96 B9 E3 FF | 00 -- 00 -- 00 -- -- 00
+F     | 5F 4F 50 82 54 80 BF 1F 00 40 00 00 00 00 00 00 83 85 5D 28 0F 63 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+10    | 5F 4F 50 82 54 80 BF 1F 00 40 00 00 00 00 00 00 83 85 5D 28 00 63 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+11    | 5F 4F 50 82 54 80 BF 1F 00 40 00 00 00 00 00 00 EA 8C DF 28 00 E7 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+12    | 5F 4F 50 82 54 80 BF 1F 00 41 00 00 00 00 00 00 EA 8C DF 28 00 E7 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+13    | 5F 4F 50 82 54 80 BF 1F 00 40 00 00 00 00 00 00 9C 8E 8F 40 00 96 B9 E3 FF | 00 -- 00 -- 00 -- -- 00
+21    | 5F 4F 50 82 54 80 BF 1F 00 41 47 07 00 00 8E 00 E3 85 8F 42 04 F8 BA E3 FF | 00 28 00 0A 00 43 1F 00
+22    | 9F 83 84 82 8C 80 BF 1F 00 40 48 08 00 00 00 00 94 8D 5B 42 1F AF 75 A3 FF | 00 28 00 0A 00 43 1F 00
+23    | 97 83 84 1A 8D 16 0B 1F 00 06 07 08 00 00 00 00 64 8B 5D 42 1F 60 75 A3 FF | 00 -- 00 -- 00 -- -- 00
+24    | 5F 4F 50 82 54 80 BF 1F 00 40 40 07 00 00 00 00 EA 8C DF 28 00 E7 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+25    | 5F 4F 50 82 55 81 BF 1F 00 4F 40 08 00 00 00 00 EA 8C DF 28 00 E7 BA E3 FF | 00 -- 00 -- 00 -- -- 00
+26    | 5F 4F 50 82 54 80 0B 3E 00 40 6E 0D 00 00 00 00 60 8C DF 32 00 5B BA A3 FF | 00 -- 00 -- 00 -- -- 00
+29    | 7F 63 64 02 65 17 0B 3E 00 40 00 00 00 00 00 00 60 8C DF 50 00 5B BA A3 FF | 00 -- 00 -- 00 -- -- 00
+2A    | 7F 63 64 02 65 17 0B 3E 00 40 00 00 00 00 00 00 60 8C DF 32 00 5B BA A3 FF | 00 -- 00 -- 00 -- -- 00
+2D    | 5F 4F 50 82 54 18 C0 1F 00 40 40 0D 00 00 00 00 EA 8C DF 50 0F 60 75 A3 FF | 00 28 00 -- 00 -- -- 00
+2E    | 5F 4F 50 82 54 80 77 3E 00 40 60 0D 00 00 00 00 EA 8C DF 60 00 5B BA A3 FF | 00 0A 00 -- 00 -- -- 00
+30    | 63 50 50 02 54 17 0B 3E 00 40 00 00 00 00 00 00 60 8C DF 50 00 75 BA A3 FF | 00 -- 00 -- 00 -- -- 00
+37i   | 7F 63 64 1D 64 83 77 2F 00 60 60 0D 00 00 00 00 08 8E 8C 40 00 30 C3 FF FF | 00 -- 00 -- 80 43 1F 00
+37n   | 99 7F 80 04 83 17 26 E0 00 60 60 0E 00 00 00 00 9C 8A 8F 50 00 22 AB FF FF | 00 -- 00 -- 00 43 1F 00
+38i   | 7F 63 7F 80 82 83 BF 2F 00 40 60 0D 00 00 00 00 08 8E 8C 50 00 30 C3 FF FF | 00 -- 00 -- 80 -- -- 00
+38n   | 99 7F 80 1D 83 17 26 F5 00 60 60 0E 00 00 00 00 08 8A 8F 60 00 22 AB FF FF | 00 -- 00 -- 80 -- -- 00
+3D    | A1 7F 80 04 88 9E 4F FD 00 60 60 0E 00 00 00 00 08 89 FF 80 00 46 C3 FF FF | 00 -- 00 -- 9B -- -- 00
+@endnode
+
+@node "Table 7.4.4-4 GDC Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-4 GDC Registers@{b}
+
+The following data is organized as: 
+Port 3CE Index 00 thru 08
+
+Mode  | 00 01 02 03 04 05 06 07 08 
+------|----------------------------
+0/0*  | 00 00 00 00 00 10 0E 00 FF 
+0+/0+ | 00 00 00 00 00 10 0E 00 FF 
+1/1*  | 00 00 00 00 00 10 0E 00 FF 
+2/2+  | 00 00 00 00 00 10 0E 00 FF 
+3/3*  | 00 00 00 00 00 10 0F 00 FF 
+4     | 00 00 00 00 00 10 0F 00 FF 
+5     | 00 00 00 00 00 10 0D 00 FF 
+6     | 00 00 00 00 00 10 0A 00 FF 
+7/7*  | 00 00 00 00 00 10 0A 00 FF 
+D     | 00 00 00 00 00 00 05 0F FF 
+D*    | 00 00 00 00 00 00 05 0F FF 
+E     | 00 00 00 00 00 00 05 0F FF 
+F     | 00 00 00 00 00 00 05 0F FF 
+10    | 00 00 00 00 00 00 05 0F FF 
+11    | 00 00 00 00 00 00 05 0F FF 
+12    | 00 00 00 00 00 00 05 00 FF 
+13    | 00 00 00 00 00 00 0E 00 FF 
+21    | 00 00 00 00 00 00 0E 00 FF 
+22    | 00 00 00 00 00 00 0E 00 FF 
+23    | 00 00 00 00 00 00 0E 00 FF 
+24    | 00 00 00 00 00 00 0E 00 FF 
+25    | 00 00 00 00 00 00 0E 00 FF 
+26    | 00 00 00 00 00 00 0E 00 FF 
+29    | 00 00 00 00 00 00 05 0F FF 
+2A    | 00 00 00 00 00 00 0E 00 FF 
+2D    | 00 00 00 00 00 40 05 0F FF 
+2E    | 00 00 00 00 00 40 05 0F FF 
+30    | 00 00 00 00 00 40 05 0F FF 
+37t   | 00 00 00 00 00 40 05 0F FF 
+37n   | 00 00 00 00 00 40 05 0F FF 
+2F    | 00 00 00 00 00 40 05 0F FF 
+38i   | 00 00 00 00 00 40 C5 0F FF 
+38n   | 00 00 00 00 00 40 C5 0F FF 
+3D    | 00 00 00 00 00 40 C5 0F FF 
+@endnode
+
+@node "Table 7.4.4-5 ATC Indexed Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-5 ATC Indexed Registers@{b}
+
+The following data is organized as: 
+Port 3C1/3C0 Index 00 thru 0F, then 10, 11, 12, 13, 14, 16, 17
+
+Mode  | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | 10 11 12 13 14 16 17
+------|-------------------------------------------------|---------------------
+0/0*  | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 08 00 0F 00 00 00 00
+0+/0+ | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 08 00 0F 00 00 00 00
+1/1*  | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 08 00 0F 00 00 00 00
+2/2*  | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 08 00 0F 00 00 00 00
+2+/2+ | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 0C 00 0F 08 00 00 00
+3/3*  | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 08 00 0F 00 00 00 00
+3+    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 0C 08 0F 08 00 00 00
+4     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+5     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+6     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+7/7*  | 00 08 10 18 18 18 18 18 10 10 10 10 18 18 18 18 | 01 00 0F 08 00 00 00
+D     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+D*    | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+E     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00 00 00 00
+F     | 00 08 10 18 18 18 18 18 10 10 10 10 18 18 18 18 | 01 00 0F 00 00 00 00
+10    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 00 0F 00 00 00 00
+11    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 00 0F 00 00 00 00
+12    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 00 0F 00 00 00 00
+13    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 41 00 0F 00 00 00 00
+21    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 00 00 00 00
+22    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 00 00 00 00
+23    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 00 00 00 00
+24    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 00 00 00 00
+25    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 00 00 00 00
+26    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 0C 0F 00 00 00 00
+29    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 08 00 08 00
+2A    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 08 0F 08 00 08 00
+2D    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 0F 00 08 00
+2E    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 0F 00 08 00
+30    | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 0F 00 08 00
+37t   | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 0F 00 08 00
+37n   | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 01 0F 0F 00 08 00
+2F    | 00 02 02 02 04 05 06 08 38 09 0A 0C 3C 3D 3E 0E | 01 01 0F 0F 08 08 00
+38i   | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | 01 01 0F 0F 08 08 00
+38n   | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | 01 01 0F 0F 08 08 00
+3D    | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | 01 01 0F 0F 08 08 00
+@endnode
+
+@node "Table 7.4.4-6 General Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-6 General Registers@{b}
+
+The following data is organized as: 
+Port 3C2, 3CA Index 00 thru 02
+
+Mode  | 3C2 (Misc Out) | 3C2 (Idx 00) | 3CA (Idx 01) | 3CA (Idx 02)
+------|----------------|--------------|--------------|-------------
+0|0   | 23             | --           | --           | 00
+1|1   | A7             | --           | --           | 00
+2|2   | 23             | --           | --           | 00
+3|3   | A7             | --           | --           | 00
+4     | 23             | --           | --           | 00
+5     | 23             | --           | --           | 00
+6     | 23             | --           | --           | 00
+7/7*  | A6             | --           | --           | 00
+D     | 23             | --           | --           | 00
+E     | 23             | --           | --           | 00
+F     | A2             | --           | --           | 00
+10    | A7             | --           | --           | 00
+@endnode
+
+@node "Table 7.4.4-7 Timing Sequencer Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-7 Timing Sequencer Registers@{b}
+
+The following data is organized as: 
+Port 3C4 Index 00 thru 04
+
+Mode  | 00 | 01 | 02 | 03 | 04
+------|----|----|----|----|----
+0|0   | 03 | 0B | 03 | 00 | 03
+1|1   | 03 | 0B | 03 | 00 | 03
+2|2   | 03 | 01 | 03 | 00 | 03
+3|3   | 03 | 01 | 03 | 00 | 03
+4     | 03 | 0B | 03 | 00 | 02
+5     | 03 | 0B | 03 | 00 | 02
+6     | 03 | 0B | 03 | 00 | 06
+7/7*  | 03 | 01 | 03 | 00 | 03
+D     | 03 | 0B | 03 | 00 | 06
+E     | 03 | 0B | 03 | 00 | 06
+F     | 03 | 01 | 03 | 00 | 06
+10    | 03 | 01 | 03 | 00 | 06
+@endnode
+
+@node "Table 7.4.4-8 CRT Controller Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-8 CRT Controller Registers@{b}
+
+The following data is organized as: 
+Port 3C4 Index 00 thru 18
+
+Mode | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18
+-----|----------------------------------------------------------------------------
+0/0  | 37 27 2D 37 31 15 04 11 00 07 06 07 00 00 00 00 E1 24 C7 14 08 E0 F0 A3 FF
+1/1  | 37 27 2D 37 31 15 04 11 00 07 06 07 00 00 00 00 E1 24 C7 14 08 E0 F0 A3 FF
+2/2  | 70 4F 5C 2F 5F 07 04 11 00 07 06 07 00 00 00 00 E1 24 C7 28 08 E0 F0 A3 FF
+3/3  | 70 4F 5C 2F 5F 07 04 11 00 07 06 07 00 00 00 00 E1 24 C7 28 08 E0 F0 A3 FF
+4    | 37 27 2D 37 30 14 04 11 00 01 00 00 00 00 00 00 E1 24 C7 14 00 E0 F0 A2 FF
+5    | 37 27 2D 37 30 14 04 11 00 01 00 00 00 00 00 00 E1 24 C7 14 00 E0 F0 A2 FF
+6    | 70 4F 59 2D 5E 06 70 11 00 01 00 00 00 00 00 00 E0 23 C7 28 00 DF EF C2 FF
+7*   | 60 4F 56 2D 51 60 70 1F 00 0D 0B 0C 00 00 00 00 5E 2E 5D 28 0F 5E 0E A3 FF
+D    | 37 27 2D 37 30 14 04 11 00 00 00 00 00 00 00 00 E1 24 C7 14 00 E0 F0 E3 FF
+E    | 70 4F 59 2D 5E 06 70 11 00 00 00 00 00 00 00 00 E1 23 C7 28 00 E0 EF E3 FF
+F    | 60 4F 56 3A 50 60 70 1F 00 00 0B 0C 00 00 00 00 5E 2E 5D 28 0D 5E 0E E3 FF
+10   | 5B 4F 53 37 52 00 6C 1F 00 00 00 00 00 00 00 00 5E 2B 5D 28 0F 5F 0A E3 FF
+@endnode
+
+@node "Table 7.4.4-9 GDC Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-9 GDC Registers@{b}
+
+The following data is organized as: 
+Port 3CE Index 00 thru 08
+
+Mode  | 00 01 02 03 04 05 06 07 08
+------|----------------------------
+0|0   | 00 00 00 00 00 10 0E 00 FF
+1|1   | 00 00 00 00 00 10 0E 00 FF
+2|2   | 00 00 00 00 00 10 0E 00 FF
+3|3   | 00 00 00 00 00 10 0E 00 FF
+4     | 00 00 00 00 00 30 0F 00 FF
+5     | 00 00 00 00 00 30 0F 00 FF
+6     | 00 00 00 00 00 00 0D 00 FF
+7     | 00 00 00 00 00 10 0A 00 FF
+D     | 00 00 00 00 00 00 05 0F FF
+E     | 00 00 00 00 00 00 05 0F FF
+F     | 00 00 00 00 00 00 05 0F FF
+10    | 00 00 00 00 00 00 05 0F FF
+
+Two versions (CGA/EGA) of modes 0-3 are for 200, and 350 scan lines,
+respectively.
+@endnode
+
+@node "Table 7.4.4-10 ATC Registers"
+@toc "7.4 Operation Mode Tables"
+@{B}Table 7.4.4-10 ATC Registers@{b}
+
+The following data is organized as: 
+Port 3C1/3C0 Index 00 thru 0F, then 10, 11, 12, 13
+
+Mode  | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | 10 11 12 13
+------|-------------------------------------------------|------------
+0|0   | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 08 00 0F 00
+1|1   | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 08 00 0F 00
+2|2   | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 08 00 0F 00
+3|3   | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 08 00 0F 00
+4     | 00 13 15 17 02 04 06 07 10 11 12 13 14 15 16 17 | 01 00 03 00
+5     | 00 13 15 17 02 04 06 07 10 11 12 13 14 15 16 17 | 01 00 03 00
+6     | 00 13 15 17 02 04 06 07 10 11 12 13 14 15 16 17 | 01 00 01 00
+7*    | 00 08 08 08 08 08 08 08 10 18 18 18 18 18 18 18 | 0E 00 0F 08
+D     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00
+E     | 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 | 01 00 0F 00
+F     | 00 08 00 00 18 18 00 00 00 08 00 00 00 18 00 00 | 0B 00 05 00
+10*   | 00 01 02 03 04 05 14 07 38 39 3A 3B 3C 3D 3E 3F | 01 00 0F 00
+@endnode

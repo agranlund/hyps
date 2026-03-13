@@ -1,0 +1,286 @@
+@node "4. ET4000/W32i Timing Specifications"
+@{B}4. ET4000/W32i Timing Specifications@{b}
+
+@{"4.1 ISA Bus Timing" link "4.1 ISA Bus Timing"}
+@{"4.2 Micro Channel Bus Timing" link "4.2 Micro Channel Bus Timing"}
+@{"4.3 Local Bus Timing" link "4.3 Local Bus Timing"}
+@{"4.4 Video Bus Interface" link "4.4 Video Bus Interface"}
+@{"4.5 Display Memory Timing - Non-interleaved" link "4.5 Display Memory Timing - Non-interleaved"}
+@{"4.6 Clock Interface (Reset initialize and Clock Timing)" link "4.6 Clock Interface (Reset initialize and Clock Timing)"}
+@{"4.7 Translation ROM Interface" link "4.7 Translation ROM Interface"}
+@{"4.8 Image Port Timing" link "4.8 Image Port Timing"}
+@{"4.9 Display Memory Timing - Interleaved" link "4.9 Display Memory Timing - Interleaved"}
+
+@endnode
+
+@node "4.1 ISA Bus Timing"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.1 ISA Bus Timing@{b}
+
+NO.  DESCRIPTION                                              MIN(ns)  MAX(ns)
+-------------------------------------------------------------------------------
+A1   BUSALE min. pulse width                                    2.8      -
+A2   AEN setup time to BUSALE low                               4.4      -
+A3   AEN hold time from BUSALE low                              2.5      -
+A4   AEN hold time from IORC*, IOWC* high                       5.0      -
+A5   SBHE* setup time to IORC*, IOWC*, MWTC*, MRDC* low         0.0      -
+A6   SBHE* hold time from IORC*, IOWC*, MWTC*, MRDC* low       10.0      -
+A7   A<1:0> setup time to IORC*, IOWC*, MWTC*, MRDC* low        3.0      -
+A8   A<1:0> hold time from IORC*, IOWC*, MWTC*, MRDC* low       3.3      -
+A9   A<23:2> setup time to BUSALE low                           4.4      -
+A10  A<23:2> hold time from BUSALE low                          4.0      -
+A11  DB<15:0> setup time to IOWC* high                          0.0      -
+A12  DB<15:0> input delay from MWTC* low                         -    1.5s+0.3
+A13  DB<15:0> hold time from IOWC*, MWTC* high                  8.0      -
+A14  DB<15:0> delay from IORC* low                               -      21.8
+A15  DB<15:0> setup to IOCHRDY Z                               -4.2      -
+A16  DB<15:0> float delay from IORC*, MRDC* high                 -      18.0
+A17  IORC*, IOWC* min. high pulse width                        30.0      -
+A18  IORC*, IOWC* min. low pulse width                         30.0      -
+A19  MWTC*, MRDC* min. high pulse width                        30.0      -
+A20  MWTC*, MRDC* min. low pulse width                       1.5s+3      -
+A21  ADRE* high delay from IORC*, IOWC*, MWTC*, MRDC* low       -       14.0
+A22  ADRE* low delay from IORC*, IOWC*, MWTC*, MRDC* high       -       18.0
+A23  RDML*, RDMH* low delay from IORC*, IOWC*, MWTC*, MRDC* low -       21.0
+A24  RDML*, RDMH* high delay from IORC*, IOWC*, MWTC*, MRDC* hi -       20.0
+A25  DIR delay from IORC*, MRDC* low                            -       13.5
+A26  DIR delay from IORC*, MRDC* high                           -       18.0
+A27  IOCS16* low delay from A<15:0>, AEN low                    -       18.0
+A28  MCS16* low delay from A<23:17>                             -       11.6
+A29  IOWW* low delay from DB<7:0> valid                        25.0      -
+A30  IOWW* low min pulse width                                 25.0      -
+A32  IOCHRDY* low delay from MWTC*, MRDC*                       -       22.7
+A33  SRDY* low delay from MWTC* low                             -        9.2
+A34  ROME* low delay from MRDC* low                             -       17.5
+A35  ROME* high delay from MRDC* high                           -       13.7
+A36  IXCM* low delay from MRDC*, MWTC* low                      -       17.5
+A37  IXCM* high delay from MRDC*, MWTC* high                    -       13.7
+
+s = SCLK clock period
+
+@endnode
+
+@node "4.2 Micro Channel Bus Timing"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.2 Micro Channel Bus Timing@{b}
+
+NO   DESCRIPTION                                        MIN(ns) MAX(ns)
+-----------------------------------------------------------------------
+B1   S<1:0>*, M/IO*, SETUP* setup time to CMD* low        0.0      -
+B2   S<1:0>*, M/IO*, SETUP* hold time from CMD* low       8.0      -
+B3   CMD* high min. pulse width                          30.0      -
+B4   CMD* low min. pulse width                         1.5s+3.05   -
+B5   A<23:16>, SBHE*, MADE24 setup time to CMD* low      -0.15     -
+B6   A<23:16>, SBHE*, MADE24 hold time from CMD* low      8.18     -
+B7   A<15:0> setup time to CMD*                           0.0      -
+B8   A<15:0> hold time from CMD*                          7.0      -
+B9   DB<15:0> I/O setup time to CMD* high                -3.3      -
+B10  DB<15:0> memory input delay from CMD* low             -     1.5s+.3
+B11  DB<15:0> hold time from CMD* high                   12.0      -
+B12  DB<15:0> delay from CMD* low                        21.8      -
+B13  DB<15:0> setup to CHRDY Z                           67.0      -
+B14  DB<15:0> float delay from read CMD* high              -      12.0
+B15  ADRE* high delay from CMD* low                        -      15.0
+B16  ADRE* low delay from CMD* high                        -      26.4
+B17  RDMH*, RDML* low delay from CMD* low                  -      23.4
+B18  RDMH*, RDML* high delay from CMD* high                -      22.0
+B19  DIR to (read) to CMD* low                             -      18.3
+B20  DIR to (read) to CMD* high                            -      15.0
+B21  CS16* low delay from A<15:0>, S<1:0> (I/O)            -      22.2
+B22  CS16* low delay from A<23:15>, S<1:0> (memory)        -      11.6
+B23  CS16* float delay from CMD* high                      -      10.6
+B24  IOWW* delay from DB<15:0> valid                     25.0      -
+B25  IOWW* min. pulse width                              25.0      -
+B26  SFDB* low delay from A<23:0>                          -      21.1
+B27  SFDB* high delay from CMD* high                       -      15.5
+B28  CHRDY low delay from A<23:0> (early wait enable)      -      14.1
+B29  CHRDY high delay from CMD* low (early wait enable)    -      25.3
+B30  CHRDY low delay from CMD* low                         -      19.6
+B31  ROME* low delay from CMD* low                         -      15.4
+B32  ROME* high delay from CMD* high                       -      15.2
+B33  IXCM* low delay from CMD* low                         -      15.4
+B34  IXCM* high delay from CMD* high                       -      15.2
+
+s = SCLK clock period
+
+@endnode
+
+
+@node "4.3 Local Bus Timing"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.3 Local Bus Timing@{b}
+
+NO   DESCRIPTION                                   MIN(ns) MAX(ns)
+------------------------------------------------------------------
+C1   BCLK min. high pulse width                      5.3      -
+C2   BCLK min. low pulse width                       3.6      -
+C3   BCLK cycle time                                 30.0     -
+C4   ADS* setup time to BCLK high                    3.4      -
+C5   ADS* hold time from BCLK high                   3.0      -
+C6   BHE*,SEG<2:0>,BE3* setup time to BCLK high      1.2      -
+C7   BHE*,SEG<2:0>,BE3* hold time from BCLK high     6.0      -
+C8   WR*,MIO* setup time to BCLK high                4.9      -
+C9   WR*,MIO* hold time to BCLK high                 3.0      -
+C10  A<23:01>,BLE*,BE<1:0>* setup time to BCLK high  0.61     -
+C11  A<23:01>,BLE*,BE<1:0>* hold time from BCLK high 7.0      -
+C12  DB<31:0> input delay                             -    1.5s+.3
+C13  DB<31:0> setup time to BCLK high               -1.7      -
+C14  DB<31:0> hold time from BCLK high               4.0      -
+C15  DB<31:0> delay from BCLK high                    -      20.8
+C16  DB<31:0> float delay from BCLK high              -       5.5
+C17  ADRE* high delay from BCLK high                  -       9.0
+C18  ADRE* low delay from BCLK high                   -       9.0
+C19  RDMX* low delay from BCLK high                   -       9.8
+C20  RDMX* high delay from BCLK high                  -       8.2
+C21  DIR delay from BCLK high                         -      20.0
+C22  DIR delay from BCLK high                         -       5.2
+C23  BS16* low delay from SEG,A<23:0>                 -      15.0
+C24  BS16* high delay from BCLK high                  -      15.0
+C25  RDY* low delay from BCLK high                    -      12.0
+C26  RDY* high delay from BCLK high                   -       8.5
+C27  LOCAL* low delay from SEG,A<23:0>                -      16.31
+C28  LOCAL* high delay from BCLK high                 -      14.2
+C29  RDYR* setup time to BCLK high                   11.0      -
+C30  RDYR* hold time from BCLK high                   7.1      -
+C31  ROME* low delay from BCLK high                   -      15.4
+C32  ROME* high delay from BCLK high                  -      15.2
+C33  IXCM* low delay from BCLK high                   -      15.4
+C34  IXCM* high delay from BCLK high                  -      15.2
+C35  RDY* tri-state delay                             -       8.5
+
+s = SCLK clock period
+
+@endnode
+
+
+@node "4.4 Video Bus Interface"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.4 Video Bus Interface@{b}
+
+NO   DESCRIPTION                                   MIN(ns)  MAX(ns)
+--------------------------------------------------------------------
+D1   MCLK high pulse width (PCLK high = 6.0 ns)        2.5        -
+D2   MCLK low pulse width  (PCLK low  = 6.0 ns)        5.5        -
+D3   MCLK cycle time                                  10.0        -
+D4   PCLK high delay from MCLK                          -        4.5
+D5   AP<7:0> delay time from PCLK                      3.5       8.1
+D6   MBS* delay time from PCLK                         3.6       8.3
+D7   HS,VS delay time from PCLK                        4.3      15.8
+D8   SP<1:0> delay time from PCLK                      1.4       5.8
+D9   BDE delay time from PCLK                          3.5       9.1
+
+@endnode
+
+
+@node "4.5 Display Memory Timing - Non-interleaved"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.5 Display Memory Timing - Non-interleaved@{b}
+
+NO   DESCRIPTION                              MIN(ns)       MAX(ns)
+-------------------------------------------------------------------
+E1   AA,AB address setup time to RAS          32.30         36.12
+E2   AA,AB address hold time to RAS           19.01         26.37
+E3   AA,AB address setup time to CAS          11.81         29.20
+E4   AA,AB address hold time to CAS           25.93         28.19
+E5   RAS low to CAS low delay                 (3*SCLK)-6.92 (3*SCLK)-1.82
+E7   CAS low pulse width                      SCLK-3.13     SCLK-0.82
+E8   CAS high pulse width                     SCLK+0.82     SCLK-3.13
+E10  MWA*,MWB* setup time to CAS              9.88          10.70
+E11  CAS low to MWA*,MWB* high                SCLK-10.34    SCLK-9.30
+E12  MD out setup time to CAS                 10.26         10.81
+E13  MD out hold time                         24.95         27.93
+E14  MD in setup time(1)                      1.63          -
+     MD in setup time(2                       0.209         -
+E15  MD in hold time(1)                       6.374         -
+     MD in hold time(2)                       11.204        -
+E16  RAS high pulse width                     (3*SCLK)+1.45 (3*SCLK)+5.5
+E17  CAS cycle time                           SCLK          SCLK
+
+(1) = Indexed Register 37<2> = 1
+(2) = Indexed Register 37<2> = 0
+
+@endnode
+
+@node "4.6 Clock Interface (Reset initialize and Clock Timing)"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.6 Clock Interface (Reset initialize and Clock Timing)@{b}
+
+NO   DESCRIPTION                                   MIN(ns)  MAX(ns)
+--------------------------------------------------------------------
+F1   REST high pulse width                          2c+2      -
+F2   SCLK high pulse width                           7.2      -
+F3   SCLK low pulse width                            8.5      -
+F4   SCLK cycle time                                20.0      -
+F5   BCLK hold time from REST low                    5.5      -
+F6   UCPC,DB<15:0> setup time to REST low           -0.9      -
+F7   UCPC,DB<15:0> hold time from REST low           5.4      -
+
+c = greatest of SCLK, MCLK, or BCLK period
+
+@endnode
+
+
+@node "4.7 Translation ROM Interface"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.7 Translation ROM Interface@{b}
+
+NO   DESCRIPTION                                   MIN(ns)  MAX(ns)
+--------------------------------------------------------------------
+G1   XROM* low delay from commands                    -      19.4
+G2   XROM* high delay from commands                   -      18.3
+G3   Address delay from CMD*,IORC*,IOWC* low          -     2s+20.1
+G4   DB<7:0> setup time to commands                  0.3      -
+G5   DB<7:0> hold time from commands                12.0      -
+
+@endnode
+
+
+@node "4.8 Image Port Timing"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.8 Image Port Timing@{b}
+
+NO   DESCRIPTION                                 MIN(ns)  MAX(ns)
+-----------------------------------------------------------------
+H1   IXFS/IXLS/IXOF min. pulse width               s+5.0      -
+H2   IXWQ* low min. pulse width                      5.0      -
+H3   IXWQ* high min. pulse width                     5.0      -
+H4   IDMK/IM<7:0> setup time to IXWQ*                2.0      -
+H5   IDMK/IM<7:0> hold time to IXWQ*                 2.0      -
+
+s = SCLK period
+
+@endnode
+
+
+@node "4.9 Display Memory Timing - Interleaved"
+@toc "4. ET4000/W32i Timing Specifications"
+@{B}4.9 Display Memory Timing - Interleaved@{b}
+
+NO   DESCRIPTION                             MIN(ns)       MAX(ns)
+------------------------------------------------------------------
+J1   AA,AB address setup time to RAS         9.55          30.60
+J2   AA,AB address hold time to RAS          5.58           8.12
+J3   AA,AB address setup time to CAS         7.71          10.11
+J4   AA,AB address hold time to CAS          9.89          12.29
+J5   RAS low to CAS low delay                (3*SCLK)-6.71 (3*SCLK)-1.77
+J7   CAS low pulse width                     SCLK-3.13     SCLK-0.82
+J8   CAS high pulse width                    SCLK+0.82     SCLK-3.13
+J9   RAS to second CAS delay                 (4*SCLK)-6.71 (4*SCLK)-1.77
+J10  MWA*,MWB* setup time to CAS             0.72           2.68
+J11  CAS low to MWA*,MWB* high               SCLK-1.32      SCLK-0.36
+J12  MD out setup time to CAS                3.90           9.11
+J13  MD out hold time                        9.63          11.31
+J14  MD in setup time(1)                     3.583          -
+     MD in setup time(2)                     2.162          -
+J15  MD in hold time(1)                      6.374          -
+     MD in hold time(2)                     11.204          -
+J16  RAS high pulse width                    (3*SCLK)+1.45 (3*SCLK)+5.5
+J17  CAS cycle time                          SCLK           SCLK
+
+(1) = Indexed Register 37<2> = 1
+(2) = Indexed Register 37<2> = 0
+
+@endnode
+
+
+

@@ -1,0 +1,68 @@
+@node "Appendix Q. Mechanical Specifications"
+@{B}Mechanical Specifications@{b}
+
+ET4000/W32i
+160 Pin Plastic Flat Package
+
+The following dimensions are in millimeters (mm)
+unless otherwise specified.
+
+Top View:
+- Body Width/Length: 28.0 +/- 0.2
+- Total Width/Length (including pins): 32.0 +/- 0.4
+- Pin 1 Location: Bottom left, marked by circular index
+- Pin Count: 160 pins (40 pins per side)
+- Pin Pitch: 0.65
+- Pin Width: 0.3 +/- 0.1
+- Distance from corner to first pin (Typ): 1.325
+
+Side View:
+- Total Height (Max): 4.45
+- Body Thickness: 3.6 +/- 0.2
+- Stand-off Height: 0.45 +0.2/-0.1
+- Total Lead Span: 30.4 +/- 0.4
+- Coplanarity: 0.1
+
+Lead Detail:
+- Lead Thickness: 0.15 +0.1/-0.05
+- Foot Length: 0.8 +/- 0.2
+- Lead Angle: 0 to 10 degrees
+@endnode
+
+@node "Appendix Q. References"
+@{B}References@{b}
+
+The following is provided to assist in acquiring support materials for
+host bus interfacing and VGA programming.
+
+@{B}Host Bus Interfacing@{b}
+
+@{I}AT Bus Design@{i}
+by Edward Scolari
+Annabooks
+12145 Alta Caramel Court, Suite 250
+San Diego, CA 92128
+
+@{I}Micro Channel Architecture: Revolution in Personal Computing@{i}
+by Pat A. Bowlds, Ph.D.
+Van Nostrand Reinhold
+115 Fifth Avenue
+New York, New York 10003
+
+@{I}IBM Personal System/2 Hardware Interface Technical Reference -@{i}
+@{I}Architectures@{i}
+IBM document reference number - 84F8933
+
+@{I}EISA Specification Version 3.12, BCPR Services, Inc.@{i}
+
+@{B}VGA Programming@{b}
+
+@{I}Programmer's Guide to the EGA and VGA Cards@{i}
+by Richard F. Ferraro
+Addison-Wesley Publishing Company, Inc.
+
+@{I}Advanced Programmer's Guide to SuperVGAs@{i}
+by George Sutty and Steve Blair
+Simon & Schuster, Inc.
+Brady Books
+@endnode

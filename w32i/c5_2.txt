@@ -1,0 +1,1316 @@
+@node "5.2 CRTC Register Description"
+@toc "5. ET4000/W32i Register Descriptions"
+@{B}5.2 CRTC Register Description@{b}
+
+The CPU interface to the ET4000/W32i internal primary CRT Controller 
+consists of 33 read/write registers. Of these registers, one register,
+the CRTC Index Register, is accessed by a separate independent I/O address
+(3#4, where # = B in monochrome emulation modes; D in color emulation 
+modes, as controlled by bit 0 in the Miscellaneous Output Register.) The 
+remaining 32 registers are internally indexed, which means that they are 
+accessed via a common I/O address (3#5) with one of the 32 registers that 
+is actually accessed selected by the CRTC Index Register.
+
+All values are in hexadecimal unless otherwise noted.
+
+@{B}Table 5.2-1 CRTC Index Register@{b}
+                                                                Port
+Register Name                                                   Address
+@{"CRTC Index Register" link "5.2.1 CRTC Index"}                             (Read/Write)    3#4
+
+
+@{B}Table 5.2-2 CRTC Indexed Registers@{b}
+
+                                                                Port
+CRTC Indexed Register Name              CRTC Indexed Address    Address
+@{"Horizontal Total" link "5.2.3 CRTC Indexed Register 0: Horizontal Total"}                        0       (Read/Write)    3#5
+@{"Horizontal Display End" link "5.2.4 CRTC Indexed Register 1: Horizontal Display End"}                  1       (Read/Write)    3#5
+@{"Horizontal Blank Start" link "5.2.5 CRTC Indexed Register 2: Horizontal Blank Start"}                  2       (Read/Write)    3#5
+@{"Horizontal Blank End" link "5.2.6 CRTC Indexed Register 3: Horizontal Blank End"}                    3       (Read/Write)    3#5
+@{"Horizontal Sync Start" link "5.2.7 CRTC Indexed Register 4: Horizontal Sync Start"}                   4       (Read/Write)    3#5
+@{"Horizontal Sync End" link "5.2.8 CRTC Indexed Register 5: Horizontal Sync End"}                     5       (Read/Write)    3#5
+@{"Vertical Total" link "5.2.9 CRTC Indexed Register 6: Vertical Total"}                          6       (Read/Write)    3#5
+@{"Overflow Low" link "5.2.10 CRTC Indexed Register 7: Overflow Low"}                            7       (Read/Write)    3#5
+@{"Initial Row Addr (Raster Counter)" link "5.2.11 CRTC Indexed Register 8: Preset Row Scan/Initial Row Address"}       8       (Read/Write)    3#5
+@{"Maximum Row Address" link "5.2.12 CRTC Indexed Register 9: Maximum Row Address"}                     9       (Read/Write)    3#5
+@{"Cursor Start Row Address" link "5.2.13 CRTC Indexed Register A: Cursor Start Row Address"}                A       (Read/Write)    3#5
+@{"Cursor End Row Address" link "5.2.14 CRTC Indexed Register B: Cursor End Row Address"}                  B       (Read/Write)    3#5
+@{"Linear Starting Address Middle" link "5.2.15 CRTC Indexed Register C: Linear Starting Address Middle"}          C       (Read/Write)    3#5
+@{"Linear Starting Address Low " link "5.2.16 CRTC Indexed Register D: Linear Starting Address Low"}            D       (Read/Write)    3#5
+@{"Cursor Address Middle" link "5.2.17 CRTC Indexed Register E: Cursor Address Middle"}                   E       (Read/Write)    3#5
+@{"Cursor Address Low" link "5.2.18 CRTC Indexed Register F: Cursor Address Low"}                      F       (Read/Write)    3#5
+@{"Vertical Sync Start" link "5.2.19 CRTC Indexed Register 10: Vertical Sync Start"}                     10      (Read/Write)    3#5
+@{"Vertical Sync End" link "5.2.20 CRTC Indexed Register 11: Vertical Sync End"}                       11      (Read/Write)    3#5
+@{"Vertical Display End" link "5.2.21 CRTC Indexed Register 12: Vertical Display End"}                    12      (Read/Write)    3#5
+@{"Row Offset" link "5.2.22 CRTC Indexed Register 13: Row Offset"}                              13      (Read/Write)    3#5
+@{"Underline Row Address" link "5.2.23 CRTC Indexed Register 14: Underline Row Address"}                   14      (Read/Write)    3#5
+@{"Vertical Blank Start" link "5.2.24 CRTC Indexed Register 15: Vertical Blank Start"}                    15      (Read/Write)    3#5
+@{"Vertical Blank End" link "5.2.25 CRTC Indexed Register 16: Vertical Blank End"}                      16      (Read/Write)    3#5
+@{"CRTC Mode" link "5.2.26 CRTC Indexed Register 17: CRTC Mode"}                               17      (Read/Write)    3#5
+@{"Split Screen Start Low (Line Compare)" link "5.2.27 CRTC Indexed Register 18: Line Compare (Split Screen)"}   18      (Read/Write)    3#5
+@{"System Segment Map Comparator" link "5.2.28 CRTC Indexed Register 30: System Segment Map Comparator"}           30      (Read/Write)    3#5
+@{"General Purpose" link "5.2.29 CRTC Indexed Register 31: General Purpose"}                         31      (Read/Write)    3#5
+@{"RAS/CAS Configuration" link "5.2.30 CRTC Indexed Register 32: RAS/CAS Configuration"}                   32      (Read/Write)    3#5
+@{"Extended Start Address" link "5.2.31 CRTC Indexed Register 33: Extended Start Address"}                  33      (Read/Write)    3#5
+@{"Auxiliary Control Register" link "5.2.32 CRTC Indexed Register 34: Auxiliary Control Register"}              34      (Read/Write)    3#5
+@{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"}                           35      (Read/Write)    3#5
+@{"Video System configuration 1" link "5.2.34 CRTC Indexed Register 36: Video System Configuration 1"}            36      (Read/Write)    3#5
+@{"Video System configuration 2" link "5.2.35 CRTC Indexed Register 37: Video System Configuration 2"}            37      (Read/Write)    3#5
+@{"Horizontal Overflow" link "5.2.36 CRTC Indexed Register 3F: Horizontal Overflow"}                     3F      (Read/Write)    3#5
+
+# = B in monochrome emulation modes; D in color emulation modes, 
+controlled by bit 0 in the Miscellaneous Output Register.
+
+NOTE: The "KEY" must be set in order to write CRTC indices above 18, 
+except indices 33 and 35, (CRTC 35 is protected by bit 7 of CRTC 11). 
+See Section 5.1.2 Input Status Register Zero for definition of "KEY".
+
+Many of the CRTC values, such as the Linear Starting Address and the 
+Vertical Sync Start, are broken up into numerous non-adjacent 
+registers. This is because of the need to maintain IBM VGA and EGA 
+compatibility. For example, Vertical Sync Start bits 7:0 are in 
+Register 10 hex, Vertical Sync Start bits 9:8 are in Register 7, 
+Overflow Low. These two registers provide the 10-bit vertical sync 
+start value in IBM's VGA. The ET4000/W32i chip supports 11-bit 
+vertical values, so Register 35 hex, Overflow High, contains bit 10 of 
+the vertical sync start value. Although this can sometimes be 
+awkward, it is the only way to provide both IBM VGA and EGA 
+compatibility and the extended functionality of the ET4000/W32i chip.
+
+Because there are so many ET4000/W32i registers and because many CRTC 
+values are spread over numerous registers, the following table lists 
+many of the registers arranged according to general function.
+
+@{B}Table 5.2-3 CRTC Registers By Function@{b}
+
+Primary         Sub             CRTC            Indexed Register
+Function        Function        Index           Name
+Horizontal      Scan line       0               Horizontal Total (bit 7:0)
+timings         length          3F              Horizontal Overflow (bit 8)
+
+                Display         1               Horizontal Display End (bit 7:0)
+                enable          3               Horizontal Blank End (bit 6:5)
+                                                (Horizontal Display Enable Skew)
+
+                Blanking        2               Horizontal Blank Start (bit 7:0)
+                                3F              Horizontal Overflow (bit 8)
+                                3               Horizontal Blank End (HBE bit 0:4)
+                                5               Horizontal Sync End (HBE bit 5)
+
+                Sync            4               Horizontal Sync Start (bit 7:0)
+                                3F              Horizontal Overflow (bit 8)
+                                5               Horizontal Sync End (bit 4:0)
+
+Vertical        Frame           6               Vertical Total (bit 7:0)
+timings         height          7               Overflow Low (VT bit 8,9)
+                                35              Overflow High (VT bit 10)
+
+                Display         12              Vertical Display End (bit 7:0)
+                enable          7               Overflow Low (VDE bit 8,9)
+                                35              Overflow High (VDE bit 10)
+
+                Blanking        15              Vertical Blank Start (bit 7:0)
+                                7               Overflow Low (VBS bit 8)
+                                9               Maximum Row Address (VBS bit 9)
+                                35              Overflow High (VBS bit 10)
+                                16              Vertical Blank End (bit 7:0)
+
+                Sync            10              Vertical Sync Start (bit 7:0)
+                                7               Overflow Low (VSS bit 8,9)
+                                35              Overflow High (VSS bit 10)
+                                11              Vertical Sync End (bit 3:0)
+
+Cursor          Address         F               Cursor Address Low (bit 7:0)
+                                E               Cursor Address Middle (bit 15:8)
+                                33              Extended Start Address (CURA bit 19:16)
+
+                Row Address     A               Cursor Start Row Address (bit 4:0)
+                                B               Cursor Stop Row Address (bit 4:0)
+
+                Skew            B               Cursor Stop Row Address (bit 6,5)
+
+Memory          Linear          D               Linear Start Addr Low (bit 7:0)
+address         address         C               Linear Start Addr Middle (bit 15:8)
+                                33              Extended Start Address (LA bit 19:16)
+
+                Row offset      13              Row Offset (bit 7:0)
+                                3F              Row Offset (bit 8)
+
+Split           Start scan      9               Maximum Row Addr (Split Scr bit 9)
+screen          line            18              Line Compare (bit 7:0)
+                                7               Overflow Low (Line Compare bit 8)
+                                35              Overflow High (Line Compare bit 10)
+
+For the rest of the descriptions in this section: # = B in monochrome 
+emulation modes; D in color emulation modes, controlled by bit 0 in the 
+@{"Miscellaneous Output Register" link "5.1.1 Miscellaneous Output Register"}.
+@endnode
+
+@node "5.2.1 CRTC Index"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.1 CRTC Index@{b}
+I/O address = 3#4
+
+Bit         Description                                     Access
+7:6         Reserved.
+5:0         Current CRTC index.                             RW
+
+
+Bit         Description
+Bits 5:0    These bits provide the index of the currently selected 
+            internally indexed register. The CRTC Index register 
+            determines which CRTC indexed register will be accessed when 
+            a read/write is performed using port address 3#5.
+@endnode
+
+@node "5.2.2 CRTC Indexed Registers"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.2 CRTC Indexed Registers@{b}
+
+The following registers are CRTC indexed registers. These registers are 
+accessed by first writing the index of the desired register to the 
+CRTC Index register and then accessing the register using the 
+address 3#5.
+@endnode
+
+@node "5.2.3 CRTC Indexed Register 0: Horizontal Total"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.3 CRTC Indexed Register 0: Horizontal Total@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Total character times per horizontal            RW
+            scan line (-5 VGA, -2 for EGA mode).
+
+Bit         Description
+Bits 7:0    The Horizontal Total register defines the horizontal scan 
+            line time by controlling the length of the scan line in 
+            character times units. The character time unit is defined 
+            by TS Indexed Register 1, bit 0.
+@endnode
+
+@node "5.2.4 CRTC Indexed Register 1: Horizontal Display End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.4 CRTC Indexed Register 1: Horizontal Display End@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Character count of horizontal                   RW
+            display enable end -1.
+
+Bit         Description
+Bits 7:0    The Horizontal Display End register contains the 8-bit 
+            value of the internal horizontal character counter after 
+            which the horizontal display enable period is to end. The 
+            total number of characters displayed per horizontal scan 
+            line is one greater than the contents of the Horizontal 
+            Display End register.
+@endnode
+
+@node "5.2.5 CRTC Indexed Register 2: Horizontal Blank Start"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.5 CRTC Indexed Register 2: Horizontal Blank Start@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Character count of horizontal blanking start.   RW
+
+Bit         Description
+Bits 7:0    The Horizontal Blank Start register contains the 8-bit value 
+            of the internal horizontal character counter at which 
+            horizontal blanking is to start.
+@endnode
+
+@node "5.2.6 CRTC Indexed Register 3: Horizontal Blank End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.6 CRTC Indexed Register 3: Horizontal Blank End@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Test bit.                                       RW
+6:5         Display enable skew.                            RW
+4:0         Character count of horizontal blanking end      RW
+            modulo 32 (EGA); 5 least significant bits of
+            character count of horizontal blanking end
+            modulo 64 (VGA mode).
+
+Bit         Description
+Bit 7       When set to 1, indicates normal mode of operation.
+
+Bits 6:5    These bits form a 2-bit integer that defines the skew of the 
+            horizontal display enable in character clocks as follows:
+
+            Bit
+            6       5       Skew
+            0       0       0 character clocks.
+            0       1       1 character clock.
+            1       0       2 character clocks.
+            1       1       3 character clocks.
+
+Bits 4:0    EGA mode: Provides the 5-bit value of the internal horizontal 
+            character counter at which horizontal blanking is to end. 
+            Since the character counter is an 8-bit counter and the 
+            Horizontal Blank End is a 5-bit register, the upper 3 bits 
+            of the character counter are ignored in making this 
+            comparison. This means that the horizontal blanking end 
+            position is defined relative to the horizontal blanking 
+            start position; the first time after the start of 
+            horizontal blanking that the Horizontal Blank End register 
+            matches the lower 5 bits of the character counter, 
+            horizontal blanking will end.
+
+            VGA mode: The Horizontal Blank End register value is 
+            increased to six bits; the five bits will provide the least 
+            significant five bits of this value, while the most 
+            significant bit is found in @{"CRTC Indexed Register 5" link "5.2.8 CRTC Indexed Register 5: Horizontal Sync End"} 
+            (Horizontal Sync End register) bit 7.
+
+@endnode
+
+
+@node "5.2.7 CRTC Indexed Register 4: Horizontal Sync Start"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.7 CRTC Indexed Register 4: Horizontal Sync Start@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Character count of horizontal sync start.       RW
+
+Bit         Description
+Bits 7:0    The Horizontal Sync Start register contains the 8-bit value 
+            of the internal horizontal character counter at which 
+            horizontal sync (the horizontal retrace pulse) is to start.
+@endnode
+
+@node "5.2.8 CRTC Indexed Register 5: Horizontal Sync End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.8 CRTC Indexed Register 5: Horizontal Sync End@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Bit 5 of Horizontal Blank End for VGA modes.    RW
+6:5         Horizontal sync skew.                           RW
+4:0         Character count of horizontal sync end          RW
+            modulo 32.
+
+Bit         Description
+Bit 7       Provides bit 5 of the Horizontal Blank End value for 
+            VGA modes.
+
+Bits 6:5    These bits form a 2-bit integer that defines the skew of 
+            the horizontal sync signal in character clocks as follows:
+
+            Bit
+            6       5       Skew
+            0       0       0 character clocks.
+            0       1       1 character clock.
+            1       0       2 character clocks.
+            1       1       3 character clocks.
+
+Bits 4:0    These bits make up the 5-bit value of the internal 
+            horizontal character counter at which horizontal sync is 
+            to end. Since the character counter is an 8-bit counter 
+            and horizontal sync end is a 5-bit value, the upper three 
+            bits of the character counter are ignored in making this 
+            comparison. This means that the horizontal sync end 
+            position is defined relative to the horizontal sync start 
+            position; the first time after the start of horizontal 
+            sync that the Horizontal Sync End register matches the 
+            lower 5 bits of the character counter, horizontal 
+            sync will end.
+@endnode
+
+@node "5.2.9 CRTC Indexed Register 6: Vertical Total"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.9 CRTC Indexed Register 6: Vertical Total@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         VGA mode: Horizontal scan lines per vertical    RW
+            frame -2 (bits 7:0).
+            EGA Mode: Horizontal scan lines per vertical    RW
+            frame -1 (bits 7:0).
+
+Bit         Description
+Bits 7:0    The Vertical Total register contains the lower eight bits of 
+            the 11-bit vertical total value, which defines the number 
+            of horizontal scan lines per vertical frame.
+
+            Note that bits 9:8 of the vertical total value are in the 
+            @{"Overflow Low" link "5.2.10 CRTC Indexed Register 7: Overflow Low"} register,
+            and bit 10 is in the @{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"} register.
+@endnode
+
+@node "5.2.10 CRTC Indexed Register 7: Overflow Low"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.10 CRTC Indexed Register 7: Overflow Low@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Vertical Sync Start (bit 9).                    RW
+6           Vertical Display Enable End (bit 9).            RW
+5           Vertical Total (bit 9).                         RW
+4           Line Compare (Split Screen) (bit 8).            RW
+3           Vertical Blank Start (bit 8).                   RW
+2           Vertical Sync Start (bit 8).                    RW
+1           Vertical Display Enable End (bit 8).            RW
+0           Vertical Total (bit 8).                         RW
+
+
+Bit         Description
+Bits 7:0    The Overflow register contains one extra bit for each of 
+            five values that cannot fit in a single byte. Bits 9:8 of 
+            the @{"Vertical Total" link "5.2.9 CRTC Indexed Register 6: Vertical Total"}, @{"Vertical Display End" link "5.2.21 CRTC Indexed Register 12: Vertical Display End"}, and 
+            @{"Vertical Sync Start" link "5.2.19 CRTC Indexed Register 10: Vertical Sync Start"} are contained in the Overflow 
+            register, as is bit 8 for @{"Vertical Blank Start" link "5.2.24 CRTC Indexed Register 15: Vertical Blank Start"} and 
+            @{"Line Compare" link "5.2.27 CRTC Indexed Register 18: Line Compare (Split Screen)"}.
+
+@endnode
+
+@node "5.2.11 CRTC Indexed Register 8: Preset Row Scan/Initial Row Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.11 CRTC Indexed Register 8: Preset Row Scan/Initial Row Address@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Reserved.
+6:5         Byte Panning.                                   RW
+4:0         Initial row address after vertical sync.        RW
+
+Bit         Description
+Bits 6:5    Control horizontal byte panning in modes programmed as
+            multiple shift modes.
+
+Bits 4:0    Define the row address of the first scan line following
+            vertical sync.
+@endnode
+
+@node "5.2.12 CRTC Indexed Register 9: Maximum Row Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.12 CRTC Indexed Register 9: Maximum Row Address@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Double Scan Enable: 200-to-400 scanline conv    RW
+6           Line Compare (Split Screen) (bit 9).            RW
+5           Vertical Blank Start (bit 9).                   RW
+4:0         Number of scan lines per character row -1.      RW
+
+Bit         Description
+Bit 7       When set to 1, sets scan lines to 400 from 200.
+            This divides the clock in the row scan counter by 2,
+            effectively doubling the lines displayed by displaying
+            every line twice.
+            When set to 0, returns the row scan counter clock equal
+            to the horizontal scan rate.
+
+Bit 6       Bit 9 of the @{"Line Compare" link "5.2.27 CRTC Indexed Register 18: Line Compare (Split Screen)"} register.
+
+Bit 5       Bit 9 of the @{"Vertical Blank" link "5.2.24 CRTC Indexed Register 15: Vertical Blank Start"} register.
+
+Bits 4:0    These bits define the height in scan lines of each
+            character row. It is used to select the desired scan
+            line from the font character being displayed.
+
+@endnode
+
+
+@node "5.2.13 CRTC Indexed Register A: Cursor Start Row Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.13 CRTC Indexed Register A: Cursor Start Row Address@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Reserved.
+6           Reserved.
+5           Used to turn the cursor off (=1) or on (=0).    RW
+4:0         The row address at which the cursor starts      RW
+            being enabled.
+
+Bit         Description
+Bit 5       When set to 1, turns the cursor off.
+
+            When set to 0, turns the cursor on.
+
+Bits 4:0    These bits contain the value of the internal row address 
+            counter at which the cursor is to begin to be enabled.
+@endnode
+
+@node "5.2.14 CRTC Indexed Register B: Cursor End Row Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.14 CRTC Indexed Register B: Cursor End Row Address@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7           Reserved.
+6:5         Cursor skew.                                    RW
+4:0         The row address at which the cursor stops being RW
+            enabled.
+
+Bit         Description
+Bits 4:0    These bits contain the row address at which the cursor is 
+            to stop being enabled. That is, Cursor End Row Address 
+            register equals the last cursor row address displayed 
+            plus 1.
+
+Bits 6:5    These bits form a 2-bit integer that defines the skew of 
+            the cursor signal in character clocks as follows:
+
+            Bit
+            6       5       Skew
+            0       0       0 character clocks.
+            0       1       1 character clock.
+            1       0       2 character clocks.
+            1       1       3 character clocks.
+
+In general, the cursor location must maintain a relationship with the 
+display enable signal such that a cursor positioned at both the extreme 
+left and extreme right of the screen will always appear.
+
+@endnode
+
+
+@node "5.2.15 CRTC Indexed Register C: Linear Starting Address Middle"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.15 CRTC Indexed Register C: Linear Starting Address Middle@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Linear starting address (<15:8>).               RW
+
+Bit         Description
+Bits 7:0    This register contains bits 15:8 of the 20-bit linear starting 
+            address. The linear starting address is the display memory 
+            address at which the regen buffer (the area of memory 
+            scanned by the linear counter for video data) begins; the 
+            linear counter is set to this value at the start of the 
+            vertical frame. The linear starting address can be 
+            incremented or decremented to perform horizontal character 
+            panning; the ATC's horizontal pixel panning feature can be 
+            used for finer horizontal panning. In graphics modes, the 
+            linear starting address can be incremented or decremented 
+            by the value of the Row Offset register to perform smooth 
+            (scan line) vertical scrolling. In text modes, the linear 
+            starting address can be used to perform character vertical 
+            scrolling; in this case, the Initial Row Address register 
+            can be used to adjust, on a scan line basis, to smooth-scroll 
+            the text.
+
+            Note that bits 19:16 of the linear starting address are in 
+            the @{"Extended Start Address" link "5.2.31 CRTC Indexed Register 33: Extended Start Address"} register and bits 7:0 are in the 
+            @{"Linear Starting Address Low" link "5.2.16 CRTC Indexed Register D: Linear Starting Address Low"} register.
+@endnode
+
+@node "5.2.16 CRTC Indexed Register D: Linear Starting Address Low"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.16 CRTC Indexed Register D: Linear Starting Address Low@{b}
+I/O address = 3#5
+
+Bit         Description                                     Access
+7:0         Linear starting address (<7:0>).                RW
+
+Bit         Description
+Bits 7:0    This register contains bits 7:0 of the 20-bit linear starting 
+            address. See Section @{"5.2.15" link "5.2.15 CRTC Indexed Register C: Linear Starting Address Middle"}, Linear Starting Address Middle 
+            register for details on the linear starting address.
+
+@endnode
+
+@node "5.2.17 CRTC Indexed Register E: Cursor Address Middle"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.17 CRTC Indexed Register E: Cursor Address Middle@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Cursor start address (<15:8>).                        RW
+
+
+Bit      Description
+Bits 7:0 This register contains bits 15:8 of the 20-bit cursor address.
+         The cursor address is the display memory address at which the
+         cursor is located in text mode.
+
+         Note that bits 7:0 of the cursor address are in the
+         @{"Cursor Address Low" link "5.2.18 CRTC Indexed Register F: Cursor Address Low"} register, and bits 19:16 are in the
+         @{"Extended Start Address" link "5.2.31 CRTC Indexed Register 33: Extended Start Address"} Register.
+@endnode
+
+@node "5.2.18 CRTC Indexed Register F: Cursor Address Low"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.18 CRTC Indexed Register F: Cursor Address Low@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Cursor start address (<7:0>).                         RW
+
+
+Bit      Description
+Bits 7:0 The Cursor Address Low register contains bits 7:0 of the
+         20-bit cursor address.
+         See @{"Section 5.2.17" link "5.2.17 CRTC Indexed Register E: Cursor Address Middle"} Cursor Address Middle register
+         for details on the cursor address.
+@endnode
+
+@node "5.2.19 CRTC Indexed Register 10: Vertical Sync Start"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.19 CRTC Indexed Register 10: Vertical Sync Start@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Scan line at which vertical sync starts.              RW
+
+
+Bit      Description
+Bits 7:0 This register contains the lower eight bits of the 11-bit
+         vertical sync start value. The vertical sync start value
+         specifies the value of the internal line counter at which
+         vertical sync (the vertical retrace pulse) is to start.
+
+         Note that bits 9:8 of the vertical sync start value are in the
+         @{"Overflow Low" link "5.2.10 CRTC Indexed Register 7: Overflow Low"} register, and bit 10 is in the @{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"}
+         register.
+@endnode
+
+@node "5.2.20 CRTC Indexed Register 11: Vertical Sync End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.20 CRTC Indexed Register 11: Vertical Sync End@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7        Protection bit.                                       RW
+6        Reserved.
+5        Enable vertical interrupt when low.                   RW
+4        Clear vertical interrupt when low.                    RW
+3:0      Scan line at which vertical sync ends modulo 16.      RW
+
+
+Bit      Description
+Bit 7    When set to 1, prevents CRTC registers 0-7 and 35, from being
+         written to, with the exception of bit 4 of the Overflow
+         register (CRTC Register 7) and bits 4,7 of CRTC Indexed
+         Register 35.
+
+Bit 5    When set to 0, enables the vertical interrupt to occur. If bit
+         5 is set to 0 and the vertical interrupt is cleared, then IRQ
+         will be asserted when "VS" becomes true.
+
+         When set to 1, vertical interrupts cannot occur.
+
+Bit 4    When set to 0, clears the vertical interrupt. If bit 5 is low
+         and the vertical interrupt is cleared, then output pin IRQ
+         will be asserted when output line "VS" becomes true. The
+         vertical interrupt should be cleared whenever a vertical
+         interrupt occurs, before re-enabling interrupts.
+
+Bits 3:0 These bits contain the 4-bit value of the internal line
+         counter at which the vertical sync signal is to end. Since the
+         line counter is an 11-bit counter and vertical sync end is a
+         4-bit value, the upper 7 bits of the line counter are ignored
+         in making this comparison. This means that the vertical sync
+         end position is defined relative to the vertical sync start
+         position; the first time after the start of vertical sync that
+         the Vertical Sync End register matches the lower 4 bits of the
+         line counter, vertical sync will end.
+@endnode
+
+@node "5.2.21 CRTC Indexed Register 12: Vertical Display End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.21 CRTC Indexed Register 12: Vertical Display End@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Number of last scan line displayed vertically.         RW
+
+
+Bit      Description
+Bits 7:0 This register contains the lower eight bits of the 11-bit
+         vertical display end value.
+
+         Note that bits 9:8 of the vertical display end value are in the
+         @{"Overflow Low" link "5.2.10 CRTC Indexed Register 7: Overflow Low"} register, while bit 10 is in the @{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"}
+         register.
+@endnode
+
+@node "5.2.22 CRTC Indexed Register 13: Row Offset"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.22 CRTC Indexed Register 13: Row Offset@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Word memory address offset between the start          RW
+         of one displayed row and the next.
+
+
+Bit      Description
+Bits 7:0 This register specifies the amount to be added to the internal
+         linear counter when advancing from one screen row to the next.
+         The addition is performed whenever the internal row address
+         counter advances past the maximum row address value,
+         indicating that all the scan lines in the present row have
+         been displayed. The Row Offset register is programmed in terms
+         of CPU-addressed words per scan line, counted as either words
+         or doublewords, depending on whether byte or word mode is in
+         effect. If the CRTC Mode register is set to select byte mode,
+         the Row Offset register is programmed with a word value. So
+         for a 640-pixel (80-byte) wide graphics display, a value of
+         80/2 = 40 (28 hex) would normally be programmed, where 80 is
+         the number of bytes per scan line. If the CRTC Mode register
+         is set to select word mode, then the Row Offset register is
+         programmed with a doubleword, rather than a word, value. For
+         instance, in 80-column text mode, a value of 160/4=40 (28 hex)
+         would be programmed, because from the CPU-addressing side,
+         each character requires 2 linear bytes (character code byte
+         and attribute byte), for a total of 160 (A0 hex) bytes per row.
+
+         In effect, the Row Offset register defines a virtual screen
+         width, so that the physical screen area could be considered a
+         window onto a virtual screen that has a width defined by the
+         Row Offset register. The horizontal pixel panning feature of
+         the ATC can be used with the linear start address to move
+         horizontally around a virtual screen larger than the actual
+         screen size, and the linear start address and the Initial Row
+         Address register can be used to move vertically.
+@endnode
+
+@node "5.2.23 CRTC Indexed Register 14: Underline Row Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.23 CRTC Indexed Register 14: Underline Row Address@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7        Reserved (=0).
+6        Doubleword addressing.                                RW
+5        Linear address count by 4.                            RW
+4:0      Row address at which underline signal is              RW
+         to be asserted.
+
+
+Bit      Description
+Bit 6    When set to 1, indicates that memory addresses being used are
+         doubleword addresses.
+
+Bit 5    When set to 1, clocks the memory address counter with the
+         character clock divided by 4, used when doubleword addressing
+         is used. NOTE: When bit 3 of the CRTC Mode Register also
+         equals 1, the linear counter will increment twice per
+         character.
+
+Bits 4:0 These bits contain the value of the row address counter at
+         which the underline is to be enabled. The ATC enables
+         underline attribute decoding and displays the underline
+         whenever the underline attribute is true during that scan
+         line. The underline may be disabled by setting the Underline
+         Row Address register to a value greater than the setting of
+         the @{"Maximum Row Address" link "5.2.12 CRTC Indexed Register 9: Maximum Row Address"} register. The value set is equal to
+         the scan line number requested minus one.
+@endnode
+
+@node "5.2.24 CRTC Indexed Register 15: Vertical Blank Start"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.24 CRTC Indexed Register 15: Vertical Blank Start@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Scan line at which vertical blanking begins -1.       RW
+
+
+Bit      Description
+Bits 7:0 This register contains bits 7:0 of the 11-bit Vertical Blank
+         Start value. The Vertical Blank Start specifies the value of
+         the internal line counter at which vertical blanking is to
+         start -1.
+
+         Note that bit 8 of the Vertical Blank Start value is in the
+         @{"Overflow Low" link "5.2.10 CRTC Indexed Register 7: Overflow Low"} register, and bit 9 of the Vertical Blank Start
+         value is in the @{"Maximum Row Address" link "5.2.12 CRTC Indexed Register 9: Maximum Row Address"} register, while bit 10 is
+         in the @{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"} register.
+@endnode
+
+@node "5.2.25 CRTC Indexed Register 16: Vertical Blank End"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.25 CRTC Indexed Register 16: Vertical Blank End@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7:0      Scan line at which vertical blanking ends.            RW
+
+
+Bit      Description
+Bits 7:0 This register contain the 8-bit value of the internal line
+         counter at which vertical blanking is to end. Since the line
+         counter is an 11-bit counter and the Vertical Blank End is an
+         8-bit register, the upper three bits of the line counter are
+         ignored in making this comparison. This means that the
+         vertical blanking end position is defined relative to the
+         Vertical Blank Start position; the first time after the start
+         of vertical blanking that the Vertical Blank End register
+         matches the lower 8 bits (In EGA mode only bits 4:0 are used
+         in the comparison) of the line counter, vertical blanking
+         will end.
+@endnode
+
+@node "5.2.26 CRTC Indexed Register 17: CRTC Mode"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.26 CRTC Indexed Register 17: CRTC Mode@{b}
+I/O address = 3#5
+
+Bit      Description                                           Access
+7        Hold control.                                         RW
+6        Word/byte mode select.                                RW
+5        Alternate address line +MA00 output.                  RW
+4        Reserved.
+3        Linear counters count by 2.                           RW
+2        Line counter count by 2.                              RW
+1        Alternate address line LA14 output.                   RW
+0        Alternate address line LA13 output.                   RW
+
+
+Bit      Description
+Bit 7    When set to 0, places all horizontal and vertical timing
+         control circuitry into a hold state.
+
+Bit 6    When set to 0, selects word mode.
+         When set to 1, selects byte mode.
+
+Bit 5    Provides an alternate value for LA00 output during the display
+         enable period; that is, the display memory address line LA00
+         is multiplexed. In word mode, when this bit is set to 0, the
+         LA00 output line is equal to linear counter bit 13. When this
+         bit is set to 1, the LA00 output line is equal to linear
+         counter bit 15. In byte mode, bit 5 has no effect, and linear
+         counter bit 0 is always multiplexed to LA00. Word mode is
+         typically used in text mode.
+
+         The reason for selecting this alternate value for LA00 is so
+         that the CRTC display memory mapping matches the CPU display
+         memory mapping. In text mode, even/odd mode (See Section
+         5.3.7, TS Memory Mode register) is active to allow CPU memory
+         addressing to match the CRTC organization of display memory.
+         In even/odd mode, the CPU A<0> line is used to select between
+         plane 0 and plane 1, with planes 2 and 3 storing the soft
+         character font.
+
+         The CRTC matches this by shifting the linear address counter
+         up one bit before placing it on the LA(17:00) lines (refer to
+         the discussion of bit 6, word/byte mode select, below), and
+         then the full 16 bits of the character code and attribute for
+         a given character are accessed in parallel to generate the
+         character. Consequently, the linear counter provides no direct
+         value for the LA00 line. The highest useful linear address
+         counter value should be wrapped to LA00, to provide the
+         maximum addressable memory in text modes. When 16KB per plane
+         is installed, bit 5 should be set to 0 to wrap linear address
+         bit 13 to LA00, providing the CRTC with 16KB addressing. When
+         more than 16KB of memory per plane is installed, bit 5 should
+         be set to 1 to wrap linear address bit 15 to LA00, providing
+         the CRTC with 64KB of addressing.
+
+         Externally, the CPU address line A<14> or A<16> or a page
+         select bit, should correspond to the LA00 line in even/odd
+         mode. In non-even/odd mode, the CPU address line A<0> should
+         correspond to the LA00 line.
+
+Bit 3    When set to 1, causes the linear counter to increment on every
+         other character clock, rather than incrementing on every
+         character clock.
+
+         When set to 0, the linear counter is incremented on every
+         character clock. This is typically associated with situations
+         where DOTCLK is not divided by two but VLOAD is divided by two
+         and word mode addressing is selected; the linear counting is
+         divided by two to synchronize the linear counters with the ATC
+         video data rate. If VLOAD and DOTCLK are both divided by two,
+         then bit 3 should not be set to 1. NOTE: When this bit is
+         equal to 1 and bit 5 of the Underline Row Address Register is
+         also equal to 1, then the linear counter will increment twice
+         per character.
+
+Bit 2    When set to 1, causes the line counter to increment on every
+         other scan line, rather than incrementing on every scan line.
+         This has the effect of doubling all vertical timings without
+         affecting any horizontal timings.
+
+         When set to 0, the line counter increments with every scan
+         line.
+
+Bit 1    Provides an alternate value for LA14 output during the display
+         enable period; that is, the display memory address line LA14
+         is multiplexed.
+
+         When set to 1, linear counter bit 14 or bit 13, in byte or
+         word mode, respectively, is multiplexed to LA14.
+
+         When set to 0, the LA14 output line is equal to row address
+         bit 1, so that out of each group of four scan lines, scan
+         lines 2 and 3 are addressed 16KB after the corresponding even
+         scan lines 0 and 1.
+
+Bit 0    Provides an alternate value for LA13 output during the display
+         enable period; that is, the display memory address line,
+         LA13, is multiplexed.
+
+         When set to 1, linear counter bit 13 or bit 12, in byte or
+         word mode, respectively, is multiplexed to LA13.
+@endnode
+
+@node "5.2.27 CRTC Indexed Register 18: Line Compare (Split Screen)"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.27 CRTC Indexed Register 18: Line Compare (Split Screen)@{b}
+I/O address = 3#5
+
+Bit      Description                                       Access
+7:0      Line Compare.                                     RW
+
+
+Bit      Description
+Bits 7:0 This register contains bits 7:0 of the compare target. The line
+         compare target value specifies the value of the internal line
+         counter at which the internal linear counter is to be reset to
+         0. This means that at the scan line after the scan line
+         specified by the line compare target value the display will
+         reflect the contents of display memory starting at address 0.
+         This split screen section will continue to the bottom of the
+         screen, and will remain unchanged even if the linear starting
+         address is changed.
+
+         Note that bit 8 of the line compare value is contained in the
+         Overflow Low register, bit 9 is in the @{"Maximum Row Address" link "5.2.12 CRTC Indexed Register 9: Maximum Row Address"}
+         register, while bit 10 is in the @{"Overflow High" link "5.2.33 CRTC Indexed Register 35: Overflow High"} register.
+@endnode
+
+@node "5.2.28 CRTC Indexed Register 30: System Segment Map Comparator"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.28 CRTC Indexed Register 30: System Segment Map Comparator@{b}
+I/O address = 3#5
+
+Bit      Description                                       Access
+7:5      Reserved.
+4:0      Addressing mode.                                  RW
+
+
+Bit      Description
+Bits 4:0 These bits are compared to the host's upper address bus or decode
+         and are used to select the video memory segments within the
+         system memory map. The default value on power-up for bits 4:0 is
+                                   Bits
+                                  4 3 2 1 0
+                                  1 1 1 0 0
+
+         ISA bus bits 1:0 compare to inputs SEGE and A<22>, respectively.
+         If System Linear Mode is disabled, this comparison is ANDed with
+         inputs A<21> and A<20>, which must be low. If System Linear Mode
+         is enabled, A<21> and A<20> are address inputs. Bits 4:2 are
+         always ignored.
+
+         MCA bus bits 2:0 compare to inputs MADE24, A<23> and A<22>,
+         respectively. If System Linear Mode is disabled, this comparison
+         is ANDed with inputs A<21> and A<20>, which must be low. If
+         System Linear Mode is enabled, A<21> and A<20> are address
+         inputs. Bits 4:3 are always ignored.
+
+         Local Bus bits 5:0 compare to inputs SEG2, SEG1, SEG0, A<23>,
+         and A<22>, respectively. If System Linear Mode is disabled,
+         this comparison is ANDed with inputs A<21> and A<20>, which
+         must be low. If System Linear Mode is enabled, A<21> and A<20>
+         are address inputs.
+
+         When the Image Port is enabled, A<22:20> are ignored (see
+         Section 5.7 IMA Register Descriptions,
+         Section 3.8 Image Port Interface).
+         Consequently, maximum system linear space is 1MB.
+@endnode
+
+@node "5.2.29 CRTC Indexed Register 31: General Purpose"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.29 CRTC Indexed Register 31: General Purpose@{b}
+I/O address = 3#5
+
+Bit      Description                                       Access
+7        Clock Select 4.                                   RW
+6        Clock Select 3.                                   RW
+5:4      Reserved.
+3:0      General purpose.                                  RW
+
+
+Bit      Description
+Bits 6:7 The values in these bits are driven out on the CS<4> and CS<3>
+         pins (see Section 3.4). Clock Select bit 2 is in the CRTC
+         @{"Indexed Register 34" link "5.2.32 CRTC Indexed Register 34: Auxiliary Control Register"}, bit 6, and Clock Select bits <1:0> are in
+         @{"Misc Output Register" link "5.1.1 Miscellaneous Output Register"} bits <3:2>. These five clock
+         select lines provide selection of up to 32 different video
+         clock frequencies.
+
+Bits 3:0 These bits are provided to the programmer as a general storage
+         location. An example of its use would be to maintain
+         configuration information about the video system.
+@endnode
+
+@node "5.2.30 CRTC Indexed Register 32: RAS/CAS Configuration"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.30 CRTC Indexed Register 32: RAS/CAS Configuration@{b}
+(RCCONF; protected by key)
+I/O address = 3#5
+
+Bit      Description                                       Access
+7        Memory interleave enable.                         RW
+6:5      RCD<1:0> delay.                                   RW
+4:3      RSP<1:0> ($1+1)*SCLK, RAS pre-charge time.        RW
+2        Reserved.
+1:0      CSW<1:0> ($1+1)*SCLK, CAS low pulse-width.        RW
+
+
+Bit      Description
+Bit 7    When set to 1 (memory interleave enabled), the chip operates
+         properly only if CSW<0> = 0, CSP<0> = 0, and CRTC Indexed
+         Register 37 bit 0 = 1. When interleave is enabled, the
+         CAS<7:4> signals are applied to the "odd" bank and CAS<3:0>
+         signals are applied to the "even" bank. The W32i memory
+         controller can perform a memory access every SCLK.
+
+Bits 6:5 These two bits are used to control row/column delay. They are
+         used as follows:
+                                   Bit      trcd
+                                   6 5    # clocks
+                                   1 1       3
+                                   1 0       2
+                                   0 1       3
+                                   0 0       1
+
+Bits 4:3 RSP<1:0>, plus 1, form a programmed value for RASB, RASA
+         pre-charge control (Trsp). The actual pulse width high is
+         equal to the programmed value plus 1 of SCLK clock period.
+
+Bits 1:0 CSW<1:0>, plus 1 ($1+1), form the programmed value for low
+         CAS pulse width control (Tcas). The actual pulse width value
+         in SCLK periods is determined by the following table:
+
+         CRTC 32
+
+                      Graphics                   Text
+               Mode   CAS<7:0>      CAS<7:6;3:2>      CAS<5:4;1:0>
+               CSW    CAS Low       CAS Low           CAS Low
+               <1:0>  Pulse Width   Pulse Width       Pulse Width
+                0 0        1             1                 1
+                0 1        2             2                 2
+                1 0        1             3                 1
+                1 1        1             4                 1
+
+         Note: If bit 7 is set to 1, CSW<0> always = 0.
+@endnode
+
+@node "5.2.31 CRTC Indexed Register 33: Extended Start Address"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.31 CRTC Indexed Register 33: Extended Start Address@{b}
+I/O address = 3#5
+
+Bit      Description                                       Access
+7:4      Cursor address bit (<19:16>).                     RW
+3:0      Linear start address bits (<19:16>).              RW
+
+
+Bit      Description
+Bits 7:4 These are bits 19:16 of the 20-bit @{"Cursor Address value" link "5.2.17 CRTC Indexed Register E: Cursor Address Middle"}.
+
+Bits 3:0 These are bits 19:16 of the 20-bit @{"Linear Starting Address value" link "5.2.15 CRTC Indexed Register C: Linear Starting Address Middle"}.
+@endnode
+
+@node "5.2.32 CRTC Indexed Register 34: Auxiliary Control Register"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.32 CRTC Indexed Register 34: Auxiliary Control Register@{b}
+(protected by key)
+I/O address = 3#5
+
+Bit      Description                                       Access
+7        Memory write time select                          RW
+6        Memory address setup time select.                 RW
+5        ENXL 1=enable translation ROM when writing        RW
+         CRTC/MISCOUT.
+4        ENXR 1=enable translation ROM when reading        RW
+         CRTC/MISCOUT.
+3        ENVS VSE register port address                    RW
+         (1=46E8, 0=3C3).
+2        TRIS 1=tri-state the ET4000/W32i's                RW
+         output tri-state pins.
+1        CS2 MCLK clock select 2* RW
+0        EMCK 1=enable translation of CS0 bit.             RW
+
+Bit      Description
+Bit 7    MWA, MWB setup time select from RAS. When set to 1, selects 0ns
+         setup from RAS.
+
+         When set to 0, selects 1/2 SCLK clock period (i.e., 10ns '@@''
+         SCLK = 50MHz).
+
+Bit 6    AA<9:0>, AB<9:0> setup time select from CAS. When set to 1,
+         selects 4ns setup from CAS.
+
+         When set to 0, selects 1/2 SCLK clock period.
+
+Bits 5:4 (Bit 5 for write, bit 4 for read) when set to 1, disable the
+         RDMEL output when an I/O read/write to the CRTC Data register
+         3#5 or MISCOUT register is performed. This allows the
+         external translation ROM to be enabled for the CRTC register.
+         To use the translation, external ROM must be incorporated.
+
+         When set to 0, the Translation Mode is disabled.
+
+Bit 3    When set to 1, will set the Video Subsystem Enable register
+         port address to 46E8; 0=3C3.
+
+Bit 2    When set to 1 (Output tri-state control), causes all output
+         pins to go to a tri-state condition. The symbols are as
+         follows; see @{"Section 3" link "3. ET4000/W32i Pin Descriptions"} for pin numbers. RASB*, RASA*,
+         CAS<3:0>*, MWB*, MWA*, MD<31:0>, AB<9:0>, AA<9:0>, VS, HS,
+         AP<7:0>, PCLK, MBS*
+
+Bit 1    Clock select 2 (CS2), in conjunction with the @{"MISCOUT" link "5.1.1 Miscellaneous Output Register"}<3:2>
+         clock select lines (CS1, CS0) and in combination with
+         @{"CRTC Indexed Register 31" link "5.2.29 CRTC Indexed Register 31: General Purpose"}<7:6>, provides up to 32 video
+         clocks to be selected. See @{"CRTC Indexed Register 31" link "5.2.29 CRTC Indexed Register 31: General Purpose"}
+         for more information regarding clock selects.
+
+Bit 0    When set to 1, is used to enable the ET4000/W32i to translate
+         the clock select bits (CS1, CS0). (See Section 5.1.1,
+         @{"Miscellaneous Output Register" link "5.1.1 Miscellaneous Output Register"}) Also, during ENXL set to 1,
+         EMCK is used to select the external translation ROM's map
+         while in 6845 mode (see Miscellaneous Output Register).
+@endnode
+
+@node "5.2.33 CRTC Indexed Register 35: Overflow High"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.33 CRTC Indexed Register 35: Overflow High@{b}
+I/O address = 3#5
+
+Bit      Description                                       Access
+7        Vertical interlace mode (1=enable).               RW
+6        CRTCB or CRTC interrupt select.                   RW
+5        External sync reset (gen-lock) the line/chr       RW
+         counter (1=enable).
+4        Line Compare (Split Screen) Bit 10.               RW
+3        Vertical Sync Start Bit 10.                       RW
+2        Vertical Display End Bit 10.                      RW
+1        Vertical Total Bit 10.                            RW
+0        Vertical Blank Start Bit 10.                      RW
+
+
+Bit      Description
+Bit 7    When set to 1, will enable the vertical interlace mode where
+         the odd-numbered lines will be displayed, followed by the
+         even-numbered lines, thus doubling the effective vertical
+         resolution with the same vertical timing.
+
+Bit 6    When set to 1, will select the CRTCB or Sprite as the vertical
+         interrupt.
+
+         When set to 0, will select the CRTC as the vertical interrupt.
+
+         Note: To enable/clear vertical interrupt, see @{"Section 5.2.20" link "5.2.20 CRTC Indexed Register 11: Vertical Sync End"},
+         CRTC Indexed Register 11, bits 5:4.
+
+Bit 5    When set to 1, will enable the SYNR input to reset the
+         ET4000/W32i's internal line and character counter
+         asynchronously. Also, the TKN<1:0> outputs are redefined as
+         TKN<1>= interlace mode active, TKN<0>=EVEN field. For
+         additional details see @{"Section 3" link "3. ET4000/W32i Pin Descriptions"}, I/O pin descriptions.
+
+         Note: SYNR is redefined as Image Port Data Byte Mask if IMAE
+         (IMA Indexed Register F7: Image Port Enable), CRTCB/Sprite
+         Enable, bit 0 is set to 1. See @{"Section 3" link "3. ET4000/W32i Pin Descriptions"} I/O Pin Description
+         for an explanation of SYNR.
+
+Bits 4:0 These are bit 10 of the Line Compare (Split Screen Start),
+         Vertical Sync Start, Vertical Display End, Vertical Total, and
+         Vertical Blank Start values, respectively.
+@endnode
+
+@node "5.2.34 CRTC Indexed Register 36: Video System Configuration 1"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.34 CRTC Indexed Register 36: Video System Configuration 1@{b}
+(VSCONF1) (protected by key)
+I/O address = 3#5
+
+Bit      Description                                       Access
+7        16-bit I/O read/write.                            RW
+6        16-bit display memory read/write.                 RW
+5        Enable memory mapped registers.                   RW
+4        Enable system linear map.                         RW
+3        Enable memory management buffers.                 RW
+2:0      Refresh count per line.                           RW
+
+
+Bit      Description
+Bit 7    When set to 1 in ISA, Micro Channel, and Local Bus
+         implementations, will enable the 16-bit CPU I/O read/write
+         data bus interface at the DB<15:0> input.
+
+         When set to 0 (power-up default condition) in ISA or Micro
+         Channel implementations, will enable the 8-bit CPU I/O
+         read/write data bus interface. For Local Bus implementations,
+         the power-up default is 1 and should not be programmed to 0.
+
+Bit 6    When set to 1 in ISA, Micro Channel, and Local Bus
+         implementations, will enable the 16-bit CPU memory read/write
+         data bus interface at the DB<15:0> input. This is the
+         power-up default condition in @{I}local bus@{i} configurations.
+
+         When set to 0 in ISA or Micro Channel implementations, will
+         enable the 8-bit CPU memory read/write data bus interface at
+         the DB<15:0> input. For Local Bus implementations, 0 will
+         enable the 32-bit CPU memory read/write data bus interface.
+         This is the power-up default condition in @{I}ISA and Micro
+         Channel@{i} configurations.
+
+                         CPU Memory Data Bus Width
+                   Bit 6       ISA/MCA       Local Bus
+                     0            8             32
+                     1           16             16
+
+Bit 5    When set to 1 (and bit 3 also set to 1), enables the memory
+         mapped registers (MMU and Accelerator). See Sections 2.10 -
+         2.11 for more information on memory mapped registers, and
+         Section 7.3 for the effect this bit has on the Video Memory
+         Map.
+
+Bit 4    When set to 1, enables the system linear map, i.e., the video
+         memory is accessed directly as flat CPU addresses in an up to
+         4 megabyte area of physical memory, rather than via the 64K
+         segments at physical address A0000/B0000.
+
+Bit 3    When set to 1, enables the three memory management buffers.
+         Accessing one of these buffers will indirectly access the video
+         memory at an offset determined by the corresponding MMU Base
+         Pointer register. See @{"Section 2.10" link "2.10 Memory Management Unit (MMU)"} for more information
+         on memory mapped registers, and @{"Section 7.3" link "7.3 Video Memory Map"} for the effect this
+         bit has on the Video Memory Map.
+
+Bits 2:0 These bits form a 3-bit value equal to the number of refresh
+         cycles to the DRAM per scan line, i.e., if programmed to 000
+         then no refresh operation occurs.
+@endnode
+
+@node "5.2.35 CRTC Indexed Register 37: Video System Configuration 2"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.35 CRTC Indexed Register 37: Video System Configuration 2@{b}
+@{B}(VSCONF2) (protected by key)@{b}
+I/O address = 3#5
+
+@{B}Bit     Description                                         Access@{b}
+7       FIFO low threshold control.                         RW
+6       Test: 1=TLI internal test mode.                     RW
+5       FIFO high threshold control.                        RW
+4       16-bit ROM enable.                                  RW
+3       Effective Row/Column memory address                 RW
+        (AB<9:0>, AA<9:0>).
+2       Memory data latch delay.                            RW
+1       Reserved.
+0       Display Memory data bus width.                      RW
+
+@{B}Bit     Description@{b}
+Bit 7   When set to 1, increases the FIFO low threshold control. For
+        example, if the CRTC or CRTCB (primary or secondary window) is
+        16 bits/pixel and the MCLK to SCLK ratio is > 1.25 (this is the
+        recommended setting in this case); or, if the 128x128-pixel
+        Sprite is enabled.
+
+Bit 6   When set to 1, directs the ET4000/W32i to internal test mode
+        set-up. This bit must be set to 0 at all other times for normal
+        operation. Default power-up condition is 0.
+
+Bit 5   When set to 0, will increase the utilization of the display
+        memory's bandwidth. However, the memory's response time to the
+        host might be increased. This bit should normally be set to 0
+        for better performance. Default power-up condition is 0.
+
+Bit 4   When set to 1, enables the 16-bit ROM configuration for ISA,
+        Micro Channel, and Local Bus implementations (power-up default
+        for Local Bus). When set to 0 (default power-up condition),
+        enables the 8-bit ROM configuration for ISA and Micro Channel
+        implementations, and 32-bit for Local Bus. The following table
+        illustrates the configurations:
+
+                                16-bit      32-bit
+                                ISA/MCA     Local
+                                Bus         Bus
+                32-bit enable   -           0
+                16-bit enable   1           1
+                8-bit enable    0           -
+                Power-up        0           1
+
+        NOTE: If 16-bit ROM is selected with the ISA bus, then the ROM
+        size should be set to 32K. Bits 3 & 5 of TS Indexed Register 7:
+        TS Auxiliary Mode must be set to 1,1 so that the ROM size is
+        set to 32K.
+
+Bit 3   Determines the effective row/column memory address, as
+        illustrated in the following table:
+
+        Bit 3           Programmed      Row             Column
+        DRAM Type       value           Address         Address
+        256K x 4,8,16   1               AB<8:0>         AB<8:0>
+                                        AA<8:0>         AA<8:0>
+        1MB x 4         0               AB<9:0>         AB<9:0>
+                                        AA<9:0>         AA<9:0>
+
+        When set to 0, pin 81 is redefined as AB<9>, and pin 75 is
+        redefined as AA<9>. See section 3.6 Display Memory Interface
+        pin descriptions for more information. See also section
+        3.3.1.2 ISA Bus Interface, XR16, and 3.7.1 Hardware Sprite,
+        BDE, for additional redefinitions effected by the setting of
+        this bit.
+
+Bit 2   When set to 0, delays sampling (3ns delay typical) of the MD
+        bus from the DRAM, allowing use of DRAMs with slower access
+        time (slower tcac or taa).
+
+        When set to 1 (power-up default), provides normal sampling of
+        MD bus. It is recommended that this bit be set to 1 for
+        interleave memory configurations.
+
+        NOTE: The ET4000/W32i utilizes the interleave capability and
+        uses the 4 CAS* and 2 WRITE ENABLE* signal configuration
+        exclusively. Reference sample schmematics for memory design
+        methods. The W32i interleave DRAM requires 4 additional
+        signals: CAS<7:4>, which are pins 95, 96, 3, and 123,
+        respectively.
+
+Bit 0   Determines the width (from 16-bit to 32-bit) of the MD<31:0>
+        bi-directional display memory data bus:
+
+        Bit 0   MD<31:24>   MD<23:16>   MD<15:8>    MD<7:0>     Bus Width
+        1       MD<31:24>   MD<23:16>   MD<15:8>    MD<7:0>     32
+        0       --          MD<15:8>    --          MD<7:0>     16
+@endnode
+
+@node "5.2.36 CRTC Indexed Register 3F: Horizontal Overflow"
+@toc "5.2 CRTC Register Description"
+@{B}5.2.36 CRTC Indexed Register 3F: Horizontal Overflow@{b}
+I/O address = 3#5
+
+@{B}Bit     Description                                         Access@{b}
+7       Row Offset Bit 8.                                   RW
+6       Reserved.
+5       Reserved.
+4       Horizontal Sync Start Bit 8.                        RW
+3       Reserved.
+2       Horizontal Blank Start Bit 8.                       RW
+1       Reserved (always set to 0).
+0       Horizontal Total Bit 8.                             RW
+
+@{B}Bit     Description@{b}
+Bit 7   Provides a ninth bit to specify the amount to be added to the
+        internal linear counter when advancing from one screen row to
+        the next.
+        5.2.22 CRTC Indexed Register 13: Row Offset.
+
+Bit 4   Provides a ninth bit for the value of the internal horizontal
+        character counter at which horizontal sync is to start.
+        5.2.7 CRTC Indexed Register 4: Horizontal Sync Start.
+
+Bit 2   Provides a ninth bit for the value of the internal horizontal
+        character counter at which horizontal blanking is to start.
+        5.2.5 CRTC Indexed Register 2: Horizontal Blank Start.
+
+Bit 0   Provides a ninth bit to define the horizontal scan line time.
+        5.2.3 CRTC Indexed Register 0: Horizontal Total.
+@endnode
+

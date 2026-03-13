@@ -1,0 +1,1098 @@
+@node "8. Programming Interface"
+@{B}8. Programming Interface@{b}
+
+The functions that are supported as program calls to the adapter are listed
+in this section. These calls are made through software interrupt 10H
+(INT 10H).
+
+Functions are identified by the content of the AH register at the time of
+the call; in some cases, the AH register identifies a group of similar
+functions and the AL register identifies the specific function. The
+primary functions are:
+
+@{B}Interrupt 10 Functions@{b}
+
+(AH)    Function
+00H     @{"Mode Set" link "AH=0 Set video mode"}
+01H     @{"Set Cursor Type" link "AH=1 Set cursor type (start and stop scan lines)"}
+02H     @{"Set Cursor Position" link "AH=2 Set cursor position."}
+03H     @{"Read Cursor Position" link "AH=3 Read cursor position."}
+04H     @{"Read Light Pen Position (not supported)" link "AH=4 Read light pen position"}
+05H     @{"Select Active Display Page" link "AH=5 Select active page."}
+06H     @{"Scroll Active Page Up" link "AH=6 Scroll up active page."}
+07H     @{"Scroll Active Page Down" link "AH=7 Scroll down active page."}
+08H     @{"Read Character(s) at Current Cursor Position" link "AH=8 Read character and attribute at cursor position."}
+09H     @{"Write Character(s) at Current Cursor Position" link "AH=9 Write character and attribute at cursor position."}
+0AH     @{"Write Character(s) Only at Current Cursor Position" link "AH=0A Write character only at cursor position."}
+0BH     @{"Set Color Palette" link "AH=0B Color select for color/graphics adapter compatible modes."}
+0CH     @{"Write Dot" link "AH=0C Draw graphics pixel."}
+0DH     @{"Read Dot" link "AH=0D Read graphics pixel color (actually attribute that goes to the palette RAM)."}
+0EH     @{"Write Teletypewriter to Active Page" link "AH=0E Write TTY."}
+0FH     @{"Return Current Video State" link "AH=0F Return video information."}
+10H     @{"Set Palette Registers" link "AH=10 Set EGA palette registers."}
+10H,F0H @{"Set HiColor mode" link "AH=10, AL=F0 Set HiColor mode."}
+10H,F1H @{"Get DAC type" link "AH=10, AL=F1 Get DAC type"}
+10H,F2H @{"Set/Set HiColor" link "AH=10, AL=F2 Get/Set HiColor format."}
+11H     @{"Character Generator Routine" link "AH=11 Font interface."}
+12H     @{"Alternate Select" link "AH=12 Return EGA information or select alternate print screen handler."}
+13H     @{"Write String" link "AH=13 Write text string."}
+1AH     @{"Display Combination Code" link "AH=1A Read/write display code function."}
+1BH     @{"Return Functionality/State Information" link "AH=1B Return functionality/state information."}
+1CH     @{"Save/Restore" link "AH=1C Save/restore video state."}
+14H     Reserved
+15H     Reserved
+16H     Reserved
+17H     Reserved
+18H     Reserved
+19H     Reserved
+
+
+@{B}ACL Programming Considerations@{b}
+
+Mathematical Algorithm that Accelerator Implements:
+Stepping of Destination Address:
+
+da = Starting Dst Address (from MMU Translation)
+for (ypos = 0; ypos <= ycnt; ypos++) {
+  for (xpos = 0; xpos < xcnt; xpos++) {
+      if (xdir)
+          process(da - xpos);
+      else
+          process(da + xpos);
+  }
+  if (ydir)
+      da = da - dyof;
+  else
+      da = da + dyof;
+}
+
+@endnode
+
+
+@node "AH=0 Set video mode"
+@toc "8. Programming Interface"
+@{B}AH=0 Set video mode@{b}
+     Input:
+     AL=mode to set (see table below).
+     Output:
+     none.
+
+Mode   Typ Clr/Shd  Alpha   Buff  Box  Max Disp     VClk    HFrq   VFrq
+           Shades   Format  Start Size Pag Size     (MHZ)   (KHZ)  (Hz)
+-------------------------------------------------------------------------
+0       T  16/256K  40x25   B8000 8x8  8   320x200  28.322  31.50  70.00
+0*      T  16/256K  40x25   B8000 8x14 8   320x350  28.322  31.50  70.00
+0+      T  16/256K  40x25   B8000 9x16 8   360x400  28.322  31.50  70.00
+1       T  16/256K  40x25   B8000 8x8  8   320x200  28.322  31.50  70.00
+1*      T  16/256K  40x25   B8000 8x14 8   320x350  28.322  31.50  70.00
+1+      T  16/256K  40x25   B8000 9x16 8   360x400  28.322  31.50  70.00
+2       T  16/256K  80x25   B8000 8x8  8   640x200  28.322  31.50  70.00
+2*      T  16/256K  80x25   B8000 8x14 8   640x350  28.322  31.50  70.00
+2+      T  16/256K  80x25   B8000 9x16 8   720x400  28.322  31.50  70.00
+3       T  16/256K  80x25   B8000 8x8  8   640x200  28.322  31.50  70.00
+3*      T  16/256K  80x25   B8000 8x14 8   640x350  28.322  31.50  70.00
+3+      T  16/256K  80x25   B8000 9x16 8   720x400  28.322  31.50  70.00
+4       G  4/256K   40x25   B8000 8x8  1   320x200  25.175  31.50  70.00
+5       G  4/256K   40x25   B8000 8x8  1   320x200  25.175  31.50  70.00
+6       G  2/256K   80x25   B8000 8x8  1   640x200  25.175  31.50  70.00
+7       T  Mono     80x25   B0000 9x14 8   720x350  28.322  31.50  70.00
+7+      T  Mono     80x25   B0000 9x16 8   720x400  28.322  31.50  70.00
+D       G  16/256K  40x25   A0000 8x8  8   320x200  25.175  31.50  70.00
+E       G  16/256K  80x25   A0000 8x8  4   640x200  25.175  31.50  70.00
+F       G  Mono     80x25   A0000 8x14 2   640x350  25.175  31.50  70.00
+10      G  16/256K  80x25   A0000 8x14 2   640x350  25.175  31.50  70.00
+11      G  2/256K   80x30   A0000 8x16 1   640x480  25.175  31.50  60.00
+11  72h G  2/256K   80x30   A0000 8x16 1   640x480  32.514  38.70  72.70
+12      G  16/256K  80x30   A0000 8x16 1   640x480  25.175  31.50  60.00
+12  72h G  16/256K  80x30   A0000 8x16 1   640x480  32.514  38.70  72.70
+13      G  256/256K 40x25   A0000 8x8  1   320x200  25.175  31.50  70.00
+21      T  16/256K  132x60  B8000 8x8  2   1056x480 40.000  30.50  60.00
+22      T  16/256K  132x44  B8000 8x9  2   1056x396 40.000  30.50  70.00
+23      T  16/256K  132x25  B8000 8x16 4   1056x400 40.000  30.50  70.00
+24      T  16/256K  132x28  B8000 8x14 4   1056x392 40.000  30.50  70.00
+25      G  16/256K  80x60   A0000 8x8  1   640x480  25.175  31.50  60.00
+25  72h G  16/256K  80x60   A0000 8x8  1   640x480  32.514  38.70  72.70
+26      T  16/256K  80x60   B8000 9x8  2   720x480  28.322  31.50  60.00
+29  35k G  16/256K  100x37  A0000 8x16 1   800x600  36.000  35.50  56.00
+29  38k G  16/256K  100x37  A0000 8x16 1   800x600  40.000  38.00  60.00
+29  48k G  16/256K  100x37  A0000 8x16 1   800x600  50.350  48.40  72.70
+2A  35k T  16/256K  100x40  B8000 8x15 4   800x600  36.000  35.50  56.00
+2A  38k T  16/256K  100x40  B8000 8x15 4   800x600  40.000  38.00  60.00
+2D      G  256/256  80x25   A0000 8x14 1   640x350  25.175  31.50  70.00
+#2D     G  32k/65k  80x25   A0000 8x14 1   640x350  50.350  31.50  70.00
+2E      G  256/256K 80x30   A0000 8x16 1   640x480  25.175  31.50  60.00
+2E  72h G  256/256K 80x30   A0000 8x16 1   640x480  32.514  38.70  72.70
+#2E     G  35k/65k  80x30   A0000 8x16 1   640x480  50.350  31.50  60.00
+%2E     G  16.8mil  80x30   A0000 8x16 1   640x480  75.000  31.50  60.00
+2F      G  256/256K 80x25   A0000 8x16 1   640x400  25.175  31.50  70.00
+#2F     G  35k/65k  80x25   A0000 8x16 1   640x400  50.350  31.50  70.00
+30  35k G  256/256K 100x37  A0000 8x16 1   800x600  36.000  35.50  56.00
+#30 35k G  35k/65k  100x37  A0000 8x16 1   800x600  72.000  35.50  56.00
+30  38k G  256/256K 100x37  A0000 8x16 1   800x600  40.000  38.00  60.00
+#30 38k G  35k/65k  100x37  A0000 8x16 1   800x600  80.000  38.00  60.00
+30  48k G  256/256K 100x37  A0000 8x16 1   800x600  50.350  48.40  72.70
+37i     G   16/256K 128x48  A0000 8x16 1   1024x768 44.900  35.50  87.00
+37n     G   16/256K 128x48  A0000 8x16 1   1024x768 65.000  49.00  60.50
+37 72m  G   16/256K 128x48  A0000 8x16 1   1024x768 72.000  56.30  69.80
+38i     G  256/256K 128x48  A0000 8x16 1   1024x768 44.900  35.50  87.00
+38n     G  256/256K 128x48  A0000 8x16 1   1024x768 65.000  49.00  60.50
+38 72m  G  256/256K 128x48  A0000 8x16 1   1024x768 72.000  56.30  69.80
+3Di     G   16/256K 160x64  A0000 8x16 1   1280x1024 80.000 48.10  87.00
+
+NOTE: ALL BIOS MODES MAY NOT BE AVAILABLE ON ALL ET4000-BASED DESIGNS.
+
+T = Text modes (A/N)
+G = Graphics modes (APA)
+* Extended Graphics Adapter text modes with 350 scan lines.
++ 9x16 character cell enhanced text modes with 400 scan lines.
+i = interlaced modes
+n = noninterlaced modes
+# = Capable of 32,768 or 65,536 colors with Sierra HiColor DAC
+% = Capable of 16.8 million colors with AT&T DAC and 1mb display memory
+
+Note that there are a number of distinct text modes available including
+132-column monochrome text modes.
+
+NOTES:
+
+1. AL bit 7 can be 0 or 1. When set to 1, the MODE SET function does not
+   clear the display buffer.
+
+2. Default modes are 3+ for color monitor and 7+ for monochrome monitor.
+
+3. Modes 0 through 6 emulate IBM Color Graphics Adapter support.
+
+4. Modes 0, 2, and 5 are identical to modes 1, 3, and 4 respectively.
+
+5. There is no hardware cursor in graphics (G) modes. Altering the
+   hardware cursor type has no effect in these modes.
+
+6. Selecting the number of scan lines in alphanumeric modes is detailed
+   under "(BL) = 30H, Select Scan Lines for Alphanumeric Modes."
+
+7. Use of the equipment flags variable at address 0:410 (applicable bits
+   are <5,4>):
+   * Binary XX11 XXXX = monochrome
+   * Binary XX10 XXXX = color
+
+If there is more than one video adapter in the system, the equipment flag
+setting at the time of the set mode call determines if the mode should
+be set in the color or monochrome adapter. If necessary, color modes
+will be converted to monochrome mode 7 and monochrome modes to color
+mode 3. If there is only one adapter, then in EGA mode, the equipment
+flag forces a color or monochrome mode to be set, with conversion if
+necessary. In VGA mode, the equipment flag automatically gets changed to
+agree with the mode being set.
+@endnode
+
+
+@node "AH=1 Set cursor type (start and stop scan lines)"
+@toc "8. Programming Interface"
+@{B}AH=1 Set cursor type (start and stop scan lines)@{b}
+     Input:
+     CH=start scan line for cursor.
+     CL=end scan line for cursor.
+     Output:
+     none.
+
+     Note: Only bits 0 through 4 should be set.
+@endnode
+
+@node "AH=2 Set cursor position."
+@toc "8. Programming Interface"
+@{B}AH=2 Set cursor position.@{b}
+     Input:
+     BH=page for which cursor is to be set.
+     DH=row position cursor is to be set to.
+     DL=column position cursor is to be set to.
+     Output:
+     none.
+
+     Note: (0,0) is upper left of screen.
+@endnode
+
+@node "AH=3 Read cursor position."
+@toc "8. Programming Interface"
+@{B}AH=3 Read cursor position.@{b}
+     Input:
+     BH=page for which cursor is to be read.
+     Output:
+     CH=current start scan line for cursor.
+     CL=current stop scan line for cursor.
+     DH=row position of cursor in selected page.
+     DL=column position of cursor in selected page.
+@endnode
+
+@node "AH=4 Read light pen position"
+@toc "8. Programming Interface"
+@{B}AH=4 Read light pen position@{b}
+     Input:
+     none.
+     Output:
+     AH=0 then light pen switch not activated, return values invalid.
+        1 then light pen switch activated, valid values returned.
+     BX=pixel column.
+     CH=raster line.
+     CX=raster line (new graphics modes).
+     DH=row of character light pen position.
+     DL=column of character light pen position.
+@endnode
+
+@node "AH=5 Select active page."
+@toc "8. Programming Interface"
+@{B}AH=5 Select active page.@{b}
+     Input:
+     AL=page to select as active page.
+     Output:
+     none.
+@endnode
+
+@node "AH=6 Scroll up active page."
+@toc "8. Programming Interface"
+@{B}AH=6 Scroll up active page.@{b}
+     Input:
+     AL=number of lines rows are to move up.
+        0 means blank window.
+     BH=attribute used to fill blank line or lines at bottom.
+     CH=row of upper left corner of scroll window.
+     CL=column of upper left corner of scroll window.
+     DH=row of lower right corner of scroll window.
+     DL=column of lower right corner of scroll window.
+     Output:
+     none.
+@endnode
+
+@node "AH=7 Scroll down active page."
+@toc "8. Programming Interface"
+@{B}AH=7 Scroll down active page.@{b}
+     Input:
+     AL=number of lines rows are to move down.
+        0 means blank window.
+     BH=attribute used to fill blank line or lines at top.
+     CH=row of upper left corner of scroll window.
+     CL=column of upper left corner of scroll window.
+     DH=row of lower right corner of scroll window.
+     DL=column of lower right corner of scroll window.
+     Output:
+     none.
+@endnode
+
+@node "AH=8 Read character and attribute at cursor position."
+@toc "8. Programming Interface"
+@{B}AH=8 Read character and attribute at cursor position.@{b}
+     Input:
+     BH=page to read from.
+     Output:
+     AH=attribute of character at cursor position.
+     AL=character read from cursor position.
+
+     Note: Attribute valid in text modes only. Only characters drawn in
+     white matched in graphics modes.
+@endnode
+
+@node "AH=9 Write character and attribute at cursor position."
+@toc "8. Programming Interface"
+@{B}AH=9 Write character and attribute at cursor position.@{b}
+     Input:
+     AL=character to write at cursor position.
+     BH=page to write character and attribute to.
+     BL=attribute to write character with in text mode.
+        =foreground color in graphics mode.
+     CX=number of times to write character and attribute.
+     Output:
+     none.
+
+     Note: If bit 7 of BL is 1 in graphics mode, then the character is
+     XOR'd into video memory, else the character displaces the previous
+     contents of video memory. (XOR not valid in 256 color modes.)
+
+     Note: In 256 color modes, the value passed in BH is used as the
+     background color.
+@endnode
+
+@node "AH=0A Write character only at cursor position."
+@toc "8. Programming Interface"
+@{B}AH=0A Write character only at cursor position.@{b}
+     Input:
+     AL=character to write at cursor position.
+     BH=page to write character and attribute to.
+     BL=(in graphics modes only) foreground color for character.
+     CX=number of times to write character and attribute.
+     Output:
+     none.
+
+     Note: See previous notes for function AH=9.
+@endnode
+
+@node "AH=0B Color select for color/graphics adapter compatible modes."
+@toc "8. Programming Interface"
+@{B}AH=0B Color select for color/graphics adapter compatible modes.@{b}
+     Input:
+     BH=0 means set the background color specified by BL.
+       <>0 means set the palette specified by BL.
+     BL=color value to be used:
+        * When setting the background color, BL selects any of the 16
+          colors with a value of 0-15 with bits 0-3.
+        * When selecting the palette, BL operates as follows:
+          bit 0=0 selects palette 0 (green/red/brown).
+          bit 0=1 selects palette 1 (cyan/magenta/white).
+     Output:
+     none.
+
+     Note: In text modes, the set background function sets the border
+     color only. In graphics modes, the set background function sets
+     both the border and background colors.
+
+     Note: This function is implemented via emulation, since the EGA
+     does not have the same color registers as the color/graphics
+     adapter.
+
+     Note: Actual operation is to set palette register 0 for background,
+     palette register 11h for overscan, and palette registers 1-3 for
+     palette colors 1-3. Palette registers are set in any graphics
+     mode, although this was valid only in 320x200 graphics mode on the
+     color/graphics adapter.
+@endnode
+
+@node "AH=0C Draw graphics pixel."
+@toc "8. Programming Interface"
+@{B}AH=0C Draw graphics pixel.@{b}
+     Input:
+     AL=color (actually attribute that goes to the palette RAM) to
+        draw pixel in.
+     BH=page to draw pixel in.
+     CX=screen column to write pixel at.
+     DX=screen row to write pixel at.
+     Output:
+     none.
+
+     Note: If bit 7 of AL is 1, then the pixel is XOR'd with the
+     contents of video memory (except in 256 color modes).
+@endnode
+
+@node "AH=0D Read graphics pixel color (actually attribute that goes to the palette RAM)."
+@toc "8. Programming Interface"
+@{B}AH=0D Read graphics pixel color (actually attribute that goes to the palette RAM).@{b}
+     Input:
+     BH=page to read pixel from.
+     CX=screen column to read pixel from.
+     DX=screen row to read pixel from.
+     Output:
+     AL=pixel value read (attribute of pixel).
+
+     Note: Interpretation of value returned depends on graphics mode in
+     effect.
+@endnode
+
+@node "AH=0E Write TTY."
+@toc "8. Programming Interface"
+@{B}AH=0E Write TTY.@{b}
+     Input:
+     AL=character to write.
+     BL=color to draw character in graphics mode.
+     Output:
+     none.
+
+     Note: Carriage return, backspace, line feed, and bell are commands,
+     not displayed characters. Cursor is moved to the right after
+     character is displayed, with wrap and scroll at right margin of
+     screen.
+@endnode
+
+@node "AH=0F Return video information."
+@toc "8. Programming Interface"
+@{B}AH=0F Return video information.@{b}
+     Input:
+     none.
+     Output:
+     AL=video mode in effect.
+     AH=text columns supported in current mode.
+     BH=active display page.
+
+     Note: Bit 7 of AL is set to 1 if the regen buffer was not cleared
+     when the mode was set.
+@endnode
+
+@node "AH=10 Set EGA palette registers."
+@toc "8. Programming Interface"
+@{B}AH=10 Set EGA palette registers.@{b}
+     AL=0 set color for a single palette register.
+     Input:
+     BH=color to set palette register to.
+     BL=palette register to set color of.
+     Output:
+     none.
+
+     AL=1 set color for overscan (border color) register.
+     Input:
+     BH=color to set overscan register to.
+     Output:
+     none.
+
+     AL=2 set colors for all 16 palette and the overscan registers.
+     Input:
+     ES:DX=address of table organized as follows:
+           bytes 0-15=colors for palette registers 0-15.
+           byte 16=color for overscan register.
+     Output:
+     none.
+
+     AL=3 select interpretation of intensity/blink attribute bit.
+     Input:
+     BL=0 select high intensity background.
+        1 select blinking.
+     Output:
+     none.
+
+     AL=4 reserved.
+
+     AL=5 reserved.
+
+     AL=6 reserved.
+
+     AL=7 read individual palette register.
+     Input:
+     BL=palette register to read (range 0 to 15).
+     Output:
+     BH=value read.
+
+     AL=8 read overscan register.
+     Input:
+     none.
+     Output:
+     BH=value read.
+
+     AL=9 read all palette registers and overscan.
+     Input:
+     ES:DX points to 17 byte table area.
+     Output:
+     bytes 0-15 = palette values.
+     byte 16 = overscan value.
+
+     AL=10h set individual color register (external palette).
+     Input:
+     BX=color register to set.
+     DH=red value to set.
+     CH=green value to set.
+     CL=blue value to set.
+     Output:
+     none.
+
+     AL=11h reserved.
+
+     AL=12h set block of color registers.
+     Input:
+     ES:DX=pointer to table of color values in RGB format (i.e. 3 bytes
+           for each entry).
+     BX=starting index.
+     CX=number of color registers to set.
+     Output:
+     none.
+
+     AL=13h select color page.
+     BL=00 select paging mode.
+     Input:
+     BH=paging mode.
+        0 - selects 4 register pages of 64 registers.
+        1 - selects 16 register pages of 16 registers.
+     Output:
+     none.
+
+     BL=01 select page.
+     Input:
+     BH=page value (0 to nn, where nn = 3 in page mode 0 and nn = 15
+        in page mode 1).
+
+     AL=14h reserved.
+
+     AL=15h read individual color register.
+     Input:
+     BX=color register to read.
+     Output:
+     DH=red value read.
+     CH=green value read.
+     CL=blue value read.
+
+     AL=16h reserved.
+
+     AL=17h read block of color registers.
+     Input:
+     ES:DX=pointer to destination for RGB table (3 bytes/entry).
+     BX=starting index.
+     CX=number of color registers read.
+     Output:
+     (ES:DX)=table.
+
+     AL=18h reserved.
+
+     AL=19h reserved.
+
+     AL=1Ah read color page state.
+     Input:
+     none
+     Output:
+     BL=current paging mode.
+     BH=current page.
+
+     AL=1Bh sum colors to gray shades (VGA only).
+     (This call reads R, G, and B values found in external palette ram
+     and performs a weighted sum (30% red, 59% green, and 11% blue), 
+     then writes the result into each R, G, and B component of color 
+     register (original data is overwritten).
+     Input:
+     BX=starting index.
+     CX=number of color registers to sum.
+@endnode
+
+@node "AH=10, AL=F0 Set HiColor mode."
+@toc "8. Programming Interface"
+@{B}AH=10, AL=F0 Set HiColor mode.@{b}
+
+This call will attempt to set a 16-or 24-bit/pixel (HiColor) mode with
+the same X and Y dimensions as the specified 256-color mode. The call
+will fail if there is not a HiColor DAC present, if the specified mode
+is invalid, or there are memory or other hardware limitations. Note:
+16-bit/pixel defaults to 5/5/5 format.
+
+     Input:
+     BL=FF, BH=mode no.: Set RGB 24-bit/pixel mode (format 3);
+     valid (256-color) mode numbers are: 2D, 2E, 2F.
+     BL=FE, BH=mode no.: Set BGR 24-bit/pixel mode (format 4);
+     valid (256-color) mode numbers are: 2D, 2E, 2F.
+     BL=mode no.: Set 16-bit/pixel mode; valid (256-color) mode
+     numbers are: 2D; 2E; 2F; 30 (set bit 7 of mode no.=1 to not clear
+     memory).
+
+     Output:
+     AL=10
+     AH=0 if succeeded.
+     <> 0 if failed (not equal to 0).
+@endnode
+
+@node "AH=10, AL=F1 Get DAC type"
+@toc "8. Programming Interface"
+@{B}AH=10, AL=F1 Get DAC type@{b}
+     Input:
+     none.
+     Output:
+     AL =10
+     AH =0
+     BL =0 normal DAC.
+        =1 Sierra SC11481, SC11486, SC11488 high-color DACs.
+        =2 Sierra SC11485, SC11487, SC11489 high-color DACs.
+        =3 AT&T ATT20C491 high-color DACs.
+        =4 Cirrus CL-GD5200 (ACUMOS ADAC1) high-color DACs.
+        =5 Sierra SC15025, SC15026 high-color DACs.
+        =6 INMOS IM5G174 high-color DACs.
+        =7 Music MU9C1880 high-color DACs.
+@endnode
+
+@node "AH=10, AL=F2 Get/Set HiColor format."
+@toc "8. Programming Interface"
+@{B}AH=10, AL=F2 Get/Set HiColor format.@{b}
+     NOTE: Must be in 16-bit/pixel HiColor mode in order to set format.
+     Input:
+     BL =Code for HiColor format.
+        0=Get format.
+        1=Set format (5/5/5).
+        2=Set format (5/6/5).
+
+     Output:
+     AL=10
+     AH =0 if succeeded.
+        <> 0 if failed (not equal to 0).
+     BL =0 if wasn't in HiColor mode.
+        =1 if now in format (5/5/5).
+        =2 if now in format (5/6/5).
+        =3 if now in format (8R/8G/8B).
+        =4 if now in format (8B/8G/8R).
+
+* Formats:
+
+(1)  Bit 15      <14:10>          <9:5>            <4:0>
+     reserved    RED              GREEN            BLUE
+                 (5)              (5)              (5)
+
+(2)              <15:11>          <10:5>           <4:0>
+                 RED              GREEN            BLUE
+                 (5)              (6)              (5)
+
+(3)              <23:16>          <15:8>           <7:0>
+                 RED              GREEN            BLUE
+                 (8)              (8)              (8)
+
+(4)              <23:16>          <15:8>           <7:0>
+                 BLUE             GREEN            RED
+                 (8)              (8)              (8)
+
+1 supports Format (1)
+2 supports Formats (1) and (2)
+3 supports Formats (1), (2), and (3)
+4 supports Formats (1), (2), (3), and (4)
+5 supports Formats (1), (2), and (4)
+@endnode
+
+@node "AH=11 Font interface."
+@toc "8. Programming Interface"
+@{B}AH=11 Font interface.@{b}
+      AL=0 load user font into soft font (text mode).
+      Input:
+            BH=# of bytes per character.
+            BL=# of soft font to load font into.
+            CX=# of characters to store.
+            DX=offset into table of first character to store.
+            ES:BP=pointer to font to load.
+      Output:
+            none.
+
+      AL=1 load ROM monochrome font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      AL=2 load ROM 8x8 double dot font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      AL=3 select fonts displayed (text mode).
+      Input:
+            BL=specification for high/low attribute bit 3: bits 4,1,0=soft 
+            font # selected when attr bit 3 is 0. Bits 5,3,2=soft font # 
+            selected when attr bit 3 is 1.
+      Output:
+            none.
+
+      AL=4 load ROM 8x16 font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      Note: The following functions AL=1X are the same as AL=0X, except:
+      * The active page must be zero.
+      * The char_height variable will be recalculated.
+      * The crt_rows variable will be recalculated as: 
+        INT( ( 200 | 350 | 400) / char_height ) - 1.
+      * regen_length will be recalculated as: ( crt_rows + 1 ) * crt_columns * 2.
+      * The CRTC will be reprogrammed as: Max scan line = char_height - 1.
+            Cursor start   = char_height - 2.
+            Cursor end     = char_height - 1 (cursor_type set via 
+                             set_cursor_type BIOS function).
+            Vert disp end  = (( crt_rows + 1 ) * char_height ) - 1 
+                             [char_height*2 above if double scan].
+            Underline      = char_height - 1 (mono. modes only).
+
+      AL=10 load user font into soft font (text mode).
+      Input:
+            BH=# of bytes per character.
+            BL=# of soft font to load font into.
+            CX=# of characters to store.
+            DX=offset into table of first character to store.
+            ES:BP=pointer to font to load.
+      Output:
+            none.
+
+      AL=11 load ROM monochrome font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      AL=12 load ROM 8x8 double dot font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      AL=14 load ROM 8x16 font into soft font (text mode).
+      Input:
+            BL=# of soft font to load font into.
+      Output:
+            none.
+
+      AL=20 set user font chars 128-255 for color/graphics adapter 
+      compatible modes (graphics).
+      Input:
+            ES:BP=pointer to font to load.
+      Output:
+            none.
+
+      AL=21 set user font (graphics).
+      Input:
+            BL=# of rows on screen, as follows:
+                  0 then DL=user specified # rows.
+            DL=# rows.
+                  1 then 14 rows.
+                  2 then 25 rows.
+                  3 then 43 rows.
+            CX=character height.
+            ES:BP=pointer to font to load.
+      Output:
+            none.
+
+      AL=22 set ROM 8x14 font (graphics).
+      Input:
+            BL=# of rows on screen, as follows:
+                  0 then DL=user specified # rows.
+            DL=# rows.
+                  1 then 14 rows.
+                  2 then 25 rows.
+                  3 then 43 rows.
+
+      AL=23 set ROM 8x8 double dot font (graphics).
+      Input:
+            BL=# of rows on screen, as follows:
+                  0 then DL=user specified # rows.
+            DL=# rows.
+                  1 then 14 rows.
+                  2 then 25 rows.
+                  3 then 43 rows.
+
+      AL=24 set ROM 8x16 font (graphics).
+      Input:
+            BL=# of rows on screen, as follows:
+                  0 then DL=user specified # rows.
+            DL=# rows.
+                  1 then 14 rows.
+                  2 then 25 rows.
+                  3 then 43 rows.
+
+      AL=30 return font information.
+      Input:
+            BH=0 return pointer to upper 128 graphics characters (INT 01Fh
+                 pointer-color/graphics adapter compatible modes).
+            BH=1 return pointer to graphics font (INT 043h pointer).
+            BH=2 return pointer to ROM 8x14 font.
+            BH=3 return pointer to ROM 8x8 double dot font.
+            BH=4 return pointer to top half of ROM 8x8 double dot font.
+            BH=5 return pointer to ROM font supplement for 9x14 text.
+            BH=6 return pointer to ROM 8x16 font.
+            BH=7 return pointer to ROM font supplement for 9x16 text.
+      Output:
+            CX=char_height.
+            DL=crt_rows -1.
+            ES:BP=pointer to table selected by BH.
+@endnode
+
+@node "AH=12 Return EGA information or select alternate print screen handler."
+@toc "8. Programming Interface"
+@{B}AH=12 Return EGA information or select alternate print screen handler.@{b}
+      BL=10 return information.
+      Input:
+            none.
+      Output:
+            BH = 0 color mode, addressed at 03DX.
+               = 1 monochrome mode, addressed at 03BX.
+            BL = installed video memory as follows:
+                 0 = 64K bytes installed.
+                 1 = 128K bytes installed.
+                 2 = 192K bytes installed.
+                 3 = 256K (or more) bytes installed.
+            CH = feature bits (bits 4-7 of info_1 shifted right).
+            CL = switches (bits 0-3 of info_1).
+
+      BL=20 select this BIOS's print screen routine, which supports all
+      modes of this BIOS.
+      Input:
+            none.
+      Output:
+            none.
+
+      Note: This function selects the print screen routine built into this
+      ROM to replace the standard BIOS print screen routine.
+
+      BL=30 select scan lines for text modes.
+      Input:
+            AL=scan lines to set (takes effect on next mode change).
+                 0 = 200 scan lines.
+                 1 = 350 scan lines.
+                 2 = 400 scan lines.
+      Output:
+            AL=12h.
+
+      BL=31 set default palette load.
+      Input:
+            AL=# enable/disable palette loading.
+                 0=enable palette loading.
+                 1=disable palette loading.
+      Output:
+            AL=12h.
+
+      BL=32 Enable/disable video.
+      Input:
+            AL=# enable/disable video.
+                 0=enable video.
+                 1=disable video.
+      Output:
+            AL=12h.
+
+      BL=33 Enable/disable gray scale summing.
+      Input:
+            AL=# enable/disable gray scale summing.
+                 0=enable summing.
+                 1=disable summing.
+      Output:
+            AL=12h.
+
+      BL=34 Enable/disable cursor emulation.
+      Input:
+            AL=# enable/disable cursor emulation.
+                 0=enable emulation.
+                 1=disable emulation.
+      Output:
+            AL=12h.
+
+      BL=35 Select/deselect display.
+      Input:
+            Buffers for adapter and planar video are initialized then:
+            AL=# select/deselect adapter/planar video.
+                 0=initial deselect adapter video.
+                 1=initial select planar video.
+                 2=deselect active display.
+                 3=select inactive display.
+            ES:DX=pointer to 128-byte buffer.
+      Output:
+            AL=12h.
+
+      BL=36 Enable/disable video output.
+      Input:
+            AL=# enable/disable video output.
+                 0=enable video output.
+                 1=disable video output.
+      Output:
+            AL=12h.
+@endnode
+
+@node "AH=13 Write text string."
+@toc "8. Programming Interface"
+@{B}AH=13 Write text string.@{b}
+      Input:
+            AL=0 text string is characters only. Cursor not moved from 
+                 original position.
+                 BL=attribute to write text string with.
+            1 text string is characters only. Cursor moved to end of 
+              text string.
+                 BL=attribute to write text string with.
+            2 text string is alternating character/attribute sequence. 
+              Cursor not moved from original position.
+            3 text string is alternating character/attribute sequence. 
+              Cursor moved to end of text string.
+            BH=page to write text string to.
+            CX=count of characters (not bytes) in string to display.
+            DH=row position at which to start displaying string.
+            DL=column position at which to begin displaying string.
+            ES:BP=pointer to text string to be written.
+
+      Note: Scroll, backspace, carriage return, if any, will take place 
+      in the active page only.
+@endnode
+
+@node "AH=1A Read/write display code function."
+@toc "8. Programming Interface"
+@{B}AH=1A Read/write display code function.@{b}
+
+      Display combination codes:
+      00 - No display.
+      01 - Monochrome with 5151.
+      02 - CGA with 5153/4
+      03 - Reserved.
+      04 - EGA with 5153/4.
+      05 - EGA with 5151.
+      06 - Professional Graphics System with 5175.
+      07 - VGA with analog BW.
+      08 - VGA with analog color.
+      09 - Reserved.
+      0A - System 30 with 5153/4.
+      0B - System 30 with analog BW.
+      0C - System 30 with color.
+      0D to FE - Reserved.
+      FF - Unknown.
+
+      AL=0 Read display code.
+      Input:
+            none.
+      Output:
+            AL=1Ah.
+            BL=Active display code.
+            BH=Alternate display code.
+
+      AL=1 Write display code.
+      Input:
+            BL=Active display code.
+            BH=Alternate display code.
+      Output:
+            AL=1Ah.
+@endnode
+
+@node "AH=1B Return functionality/state information."
+@toc "8. Programming Interface"
+@{B}AH=1B Return functionality/state information.@{b}
+      Input:
+            BX=implementation type.
+            ES:DI=buffer (40h bytes).
+      Output:
+            AL=1Bh.
+            Buffer, in the following format:
+
+      offset  type    description
+      00      word    Offset to static functionality information
+      02      word    Segment to static functionality information
+      04      byte    Video mode
+      05      word    Number of columns on screen
+      07      word    Length of regen buffer
+      09      word    Start address of regen buffer (offset)
+      0B      8*word  Cursor position for 8 pages (row, column)
+      1B      word    Cursor mode setting (start, end)
+      1D      byte    Active page
+      1E      word    CRTC address
+      20      byte    Current setting of 3x8 register (mode register)
+      21      byte    Current setting of 3x9 register
+      22      byte    Rows on screen
+      23      word    Character height
+      25      byte    Active display combination code
+      26      byte    Alternate display combination code
+      27      word    Colors supported for current video mode
+      29      byte    Display pages supported for current video mode
+      2A      byte    Scan lines in current video mode
+                      0=200
+                      1=350
+                      2=400
+                      3=480
+                      4=Reserved.
+                      5=600 (Note: IBM reserves this)
+                      6=768 (Note: IBM reserves this)
+                      7-255=Reserved.
+      2B      byte    Primary character block
+                      0=block 0
+                      1=block 1
+                      .
+                      .
+                      255=block 255
+      2C      byte    Secondary character block
+      2D      byte    Miscellaneous state information
+                      0-1=all modes on all monitors active
+                      1-1=summing active
+                      2-1=monochrome active
+                      3-1=mode set default palette loading disabled
+                      4-1=cursor emulation active
+                      5-0=background intensity / 1=blinking
+                      6-7=Reserved.
+      2E      byte    Reserved.
+      2F      byte    Reserved.
+      30      byte    Reserved.
+      31      byte    Video memory available
+                      0=64KB
+                      1=128KB
+                      2=192KB
+                      3=256KB
+                      4-255=Reserved.
+      32      byte    Save pointer state information
+                      0 512 character set active
+                      1 dynamic save area active
+                      2 alpha font override active
+                      3 graphics font override active
+                      4 palette override active
+                      5 DCC extension active
+                      6-7=Reserved.
+      33-3F byte      Reserved.
+
+      Format of static functionality table:
+
+                      bit flags: 0=not supported
+                                 1=supported
+
+      offset  type    description
+      00      byte    Bit Video modes
+                      0 mode 0
+                      1 mode 1
+                      2 mode 2
+                      3 mode 3
+                      4 mode 4
+                      5 mode 5
+                      6 mode 6
+                      7 mode 7
+      01      byte    Bit Video modes
+                      0 mode 8
+                      1 mode 9
+                      2 mode A
+                      3 mode B
+                      4 mode C
+                      5 mode D
+                      6 mode E
+                      7 mode F
+      02      byte    Bit Video modes
+                      0 mode 10
+                      1 mode 11
+                      2 mode 12
+                      3 mode 13
+                      4-7 Reserved.
+      03-06   byte    Reserved.
+      07      byte    Bit Scan lines available in text mode
+                      0 200 scan lines
+                      1 350 scan lines
+                      2 400 scan lines
+                      3-7 Reserved.
+      08      byte    Character blocks available in text mode
+      09      byte    Maximum number of active character blocks in text modes
+      0A      byte    Bit Miscellaneous functions
+                      0 all modes on all monitors
+                      1 summing
+                      2 character font loading
+                      3 mode set default palette loading
+                      4 cursor emulation
+                      5 EGA palette
+                      6 color palette
+                      7 color paging
+      0B      byte    Bit Miscellaneous functions
+                      0 light pen
+                      1 save/restore
+                      2 background intensity / blinking control
+                      3 DCC
+                      4-7 Reserved.
+      0C      byte    Reserved.
+      0D      byte    Reserved.
+      0E      byte    Bit Save pointer functions
+                      0 512 character set
+                      1 dynamic save area
+                      2 alpha font override
+                      3 graphics font override
+                      4 palette override
+                      5 DCC extension
+                      6-7 Reserved.
+      0F      byte    Reserved.
+@endnode
+
+@node "AH=1C Save/restore video state."
+@toc "8. Programming Interface"
+@{B}AH=1C Save/restore video state.@{b}
+      AL=0 Return save/restore state buffer size.
+      Input:
+            CX=requested states.
+      Output:
+            AL=1Ch.
+            BX=# of 64 byte blocks needed for save buffer.
+
+      AL=1 Save state
+      Input:
+            CX=requested states.
+            ES:BX=pointer to save area.
+      Output:
+            (ES:BX) area modified.
+      AL=1Ch
+
+      AL=2 Restore state.
+      Input:
+            CX=requested states.
+            ES:BX=pointer to save area.
+      Output:
+            AL=1Ch.
+
+            Requested states in CX - defined as follows:
+            bit 0=1 - save/restore video hardware state.
+            bit 1=1 - save/restore video BIOS data area.
+            bit 2=1 - save/restore video external palette.
+            bits 3-F=Reserved.
+@endnode

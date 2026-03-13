@@ -1,0 +1,97 @@
+@node "5. ET4000/W32i Register Descriptions"
+@{B}5. ET4000/W32i Register Descriptions@{b}
+
+@{B}Table 5.0-1 ET4000/W32i Registers@{b}
+
+@{U}Register               R/W Operation  I/O Port Address           Bits@{u}
+
+@{I}@{"General" link "5.1 General Registers"}@{i}
+Misc. Output           W              03C2                       <7:0>
+                       R              03CC                       <7:0>
+Input Status 0         R              03C2                       <7:0>
+Input Status 1         R              03#A                       <7:0>
+Feature Control        W              03#A                       <7:0>
+                       R              03CA                       <7:0>
+Video Subsystem Enable RW             03C3/46E8                  <7:0>
+
+@{I}External Palette RAM@{i}
+Pixel Mask             RW             03C6                       <7:0>
+Pixel Write Address    RW             03C8                       <7:0>
+Pixel Color Value      RW             03C9                       <7:0>
+Pixel Read Address     W              03C7                       <7:0>
+DAC State              R              03C7                       <7:0>
+
+@{I}@{"Attribute Controller (ATC)" link "5.5 ATC Register Descriptions"}@{i}
+Address/Index          W              03C0 (Index)               <7:0>
+                       R              03C0                       <7:0>
+Indexed registers      W              03C0 (Data)                <7:0>
+                       R              03C1                       <7:0>
+
+@{I}@{"Primary CRT Controller (CRTC)" link "5.2 CRTC Register Description"}@{i}
+Address/Index          RW             03#4                       <7:0>
+Indexed registers      RW             03#5                       <7:0>
+
+@{I}@{"Timing Sequencer (TS)" link "5.3 TS Register Descriptions"} @{i}
+Address/Index          RW             03C4                       <7:0>
+Indexed registers      RW             03C5                       <7:0>
+
+@{I}@{"Graphics Display Controller (GDC)" link "5.4 GDC Register Descriptions"}@{i}
+Segment Select 1       RW             03CD                       <7:0>
+Segment Select 2       RW             03CB                       <7:0>
+Address/Index          RW             03CE                       <7:0>
+Indexed registers      RW             03CF                       <7:0>
+
+@{I}@{"Secondary CRT Controller (CRTCB/Sprite)" link "5.6 CRTCB/Sprite Register Descriptions"}@{i}
+Address/Index          RW             21xA (Index)1              <7:0>
+Indexed registers      RW             21xB (Data)1               <7:0>
+
+@{I}@{"Image Port (IMA)" link "5.7 IMA Register Descriptions"}@{i}
+Address/Index          RW             21xA (Index)1              <7:0>
+Indexed registers      RW             21xB (Data)1               <7:0>
+
+# = B in monochrome emulation modes; D in color emulation modes, 
+controlled by bit 0 in the Miscellaneous Output Register.
+1 x = IOD<2:0>. See @{"Section 3.3.1.1" link "3.3.1.1 ISA PORI"}, IOD<2:0>.
+
+
+@{B}Table 5.0-2 ET4000/W32i Mapped Registers@{b}
+See @{"Section 7.3" link "7.3 Video Memory Map"} for the memory base address for the MMU and ACL registers.
+The offset in the table below is added to the base address to calculate 
+the actual address of the register.
+
+@{U}Register                                R/W            Offs      Bits@{u}
+
+@{I}@{"Memory Management Unit (MMU)" link "5.8 MMU Register Descriptions"}@{i}
+MMU Base Pointer 0                      RW             00       <21:0>
+MMU Base Pointer 1                      RW             04       <21:0>
+MMU Base Pointer 2                      RW             08       <21:0>
+MMU Control Register                    RW             13        <7:0>
+
+@{I}@{"Graphics Accelerator (ACL)" link  "5.9 ACL Register Descriptions"}@{i}
+Suspend/Terminate                       RW             30        <7:0>
+Operation State                         WO             31        <7:0>
+Sync Enable                             RW             32        <7:0>
+Interrupt Mask                          RW             34        <7:0>
+Interrupt Status                        RW             35        <7:0>
+Accelerator Status                      RW             36        <7:0>
+Pattern Address                         RW             80       <21:0>
+Source Address                          RW             84       <21:0>
+Pattern Y Offset                        RW             88       <11:0>
+Source Y Offset                         RW             8A       <11:0>
+Destination Y Offset                    RW             8C       <11:0>
+Virtual Bus Size                        RW             8E        <7:0>
+X/Y Direction                           RW             8F        <7:0>
+Pattern Wrap                            RW             90        <7:0>
+Source Wrap                             RW             92        <7:0>
+X Position                              RW             94       <11:0>
+Y Position                              RW             96       <11:0>
+X Count                                 RW             98       <11:0>
+Y Count                                 RW             9A       <11:0>
+Routing Control                         RW             9C        <7:0>
+Reload Control                          RW             9D        <7:0>
+Background Raster Operation             RW             9E        <7:0>
+Foreground Raster Operation             RW             9F        <7:0>
+Destination Address                     RW             A0       <21:0>
+
+* See @{"Section 2.11.3" link "2.11.3 The Accelerator's Queue"} on reading and writing accelerator registers.
+@endnode

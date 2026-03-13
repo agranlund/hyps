@@ -1,0 +1,286 @@
+@node "1. Introduction"
+@{B}1. Introduction@{b}
+
+The Tseng Labs ET4000/W32i video controller is an ISA/EISA/MCA-
+compatible graphics chip that delivers an 8-/16-/32-bit bus or CPU
+direct (local bus) interface. It features a Graphical User Interface
+(GUI) Accelerator, and advanced features for the developing imaging
+and multimedia markets. The host interface is the second generation
+of Tseng Labs cache/memory management architecture, and features
+performance that is approximately five times greater than its
+predecessor, the ET4000/AX. A unique feature of ET4000 architecture is
+that the design maximizes the capabilities of DRAM, and eliminates the
+requirement for VRAM. The ET4000/W32i will allow DRAM designs to
+significantly outperform competing and more costly VRAM 2D-based
+solutions, and supports from 512KB to 4MB memory configurations. The
+highest performance design requires high-speed data transfer from host
+to Accelerator utilizing a zero wait state 32-bit CPU direct
+connection, while providing enhanced Windows performance for graphics
+functions such as BitBLT, raster operations, pixel amplification(TM), and
+cursor control. The ET4000/W32i provides 32 multiplexed address/data
+lines, and can be connected to the processor via the local bus.
+ISA/EISA/MCA designs can use a 16-bit design, and allow the additional
+pins to be reassigned to other features during power-up. The processor
+direct interface is most useful for applications such as live video
+decompression, and bit-map intensive applications such as true-color
+that require maximum bandwidth to the display memory.
+
+GUI Optimization
+
+The Graphics Accelerator design provides distribution of graphics
+functions from the CPU to the video controller, freeing the CPU to
+return to other tasks. Among the features are BitBLT, full 256 Raster
+Operation support, hardware cursor support or a second simultaneous
+display window, Imaging Port, memory-to-memory BLTs with masking, and
+pixel amplification(TM). The W32i is designed to optimize GUI application
+functionality and performance, speeding the operation of applications
+like Microsoft Windows significantly. Additionally, the W32i operates
+in all graphics modes, whether they be planar, or linear packed pixel
+modes. Among the supported modes are 1, 4, 16, 256, 32K, 64K, and
+16.7 million colors. Pixel depths may be up to 32 bits per pixel.
+True color modes (16.7 million colors) are optimized in the
+ET4000/W32i, providing the desktop computer market with the highest
+quality 2D images.
+
+Multimedia and Imaging
+
+Multimedia and imaging are enhanced through inclusion of a unique
+Image Memory Access port (IMA) that allows direct access to the frame
+buffer at high speed. An 8-bit port into the memory can be opened
+allowing images to be displayed on screen in real time, at color
+depths of up to 16.7 million simultaneous colors. Additionally, the
+second hardware display window (CRTCB) may be overlaid and resized up
+to the size of display, creating an effective second simultaneous
+dual-window display. The frame buffer size can be up to 4 megabytes.
+
+Future Display Standards
+
+Up to two separate linear frame buffers may be displayed simultaneously
+by the ET4000/W32i. Previous SuperVGA drivers require the programmer to
+work in segments aligned on 64KB boundaries, requiring additional CPU
+overhead for managing segment crossings. This results in a reduction
+in performance. Advanced designs using 1-, 2-, or 4MB segments can
+write to any point in the video memory within a single operation.
+As a result, the simplified drivers create the maximum possible system
+performance for microcomputers.
+
+The ET4000/W32i is packaged in a 160-pin PFP (Plastic Flat Package)
+configuration.
+@endnode
+
+
+@node "1.1 ET4000/W32i Specifications"
+@{B}1.1 ET4000/W32i Specifications@{b}
+
+The following is an outline of the ET4000/W32i graphics controller
+specifications.
+
+I. Input Interface
+
+   A. Host Processor:
+      1. Data Bus: 8-, 16-, or 32-bit memory and I/O bus
+      2. Address: 20-, 22-, 24-bit address bus
+      3. Bus Control: ISA, EISA, MCA, or Local Bus
+
+   B. IMA Port
+      1. Data Bus: 8-bit
+      2. Address: Implied (internally generated via programming)
+      3. Bus Control: Tseng IMA bus protocols
+
+II. Output Interface
+
+   A. Monitor:
+      1. Interlaced or non-interlaced V-SYNC and H-SYNC with
+         polarity control
+      2. 8-bit pixel output AP<7:0>
+
+   B. External DAC look-up: pixel clock, blanking, and external DAC
+      read/write decode controls
+
+III. Resource Management
+
+   A. Memory Management:
+      1. Graphics Data Controller: VGA compatible data
+         rotate/mask/logical functions
+      2. Cache: Proprietary enhanced-LRU replacement policy and
+         block transfer
+      3. FIFO: up to two FIFOs for display pixel data
+      4. Memory Control Unit (MCU):
+         a. memory types: DRAM-fast page mode only
+         b. memory size:
+            512KB example: (4) 256K x 4
+            1MB example:  (8) 256K x 4
+            2MB example: (16) 256K x 4 (Interleave)
+         c. memory timing: programmable RAS/CAS timing in terms
+            of system clock (independent of display clock)
+
+   B. System Priority Controller (SPC): Intelligent SPC to resolve
+      multiprocessors and ET4000/W32i resource requests to optimize
+      MCU resource utilization.
+
+   C. CRT Controllers (primary and secondary (CRTC, CRTCB)):
+      1. Horizontal: 9-bit programmable display enable, blanking,
+         and H-SYNC
+      2. Vertical: 11-bit programmable line counter for display
+         enable, blanking, split screen, and V-SYNC
+
+   D. Display address controller:
+      1. Linear Address Generator: 20-bit linear doubleword address
+         with programmable starting address, row address offset
+      2. Row Address Generator: 5-bit row scan address provides
+         up to 32-line character height
+      3. Hardware Cursor: a 64x64x2 sprite creating a second
+         hardware window for simultaneous display of graphics, or
+         even full motion (30 frame/second) digital video.
+      4. Cursor: 20-bit cursor position and 5-bit cursor start,
+         5-bit cursor end control
+
+   E. Attribute controller:
+      1. Text: support for up to two 256 character sets;
+         IBM-compatible text attribute decoding;
+         IBM-compatible cursor blink/underline;
+         AT&T-compatible underline decoding (in color text mode)
+         Font width: programmable text font width: 6, 7, 8, 9,
+         10, 12, and 16 pixel
+      2. Graphics: plane graphics, linear-byte/word (packed pixel),
+         monochrome and CGA color graphics format;
+         VGA-compatible color LUT (look-up table)
+
+   F. Timing Interface: select up to 8 MCLK (pixel clock):
+      86MHz (graphics), 56MHz (text); system clock, 50MHz
+
+   G. Graphics Accelerator:
+      1. Data Path: 32-bit with 256 Raster Operation support
+      2. Address: Destination/Source/Pattern maps up to 4MB
+         addressing
+      3. Functions: D/S/P BLT, tiling, pattern, FG/BG ROP,
+         and CPU-assisted operations
+
+IV. Display Data Format
+
+   A. Plane, Linear byte, Linear word graphics and VGA-compatible
+      text format up to 16-bit wide character
+
+   B. Display Capability:
+      1. Resolution: up to 1024 x 768 in 65,536 colors interlaced
+         or non-interlaced in graphics mode
+      2. Pixel Clock Rate: graphics mode, 86MHz; text mode, 56MHz
+
+V. Compatibility
+
+   A. Register level: CGA/MDA/HERC/EGA/VGA
+   B. Display level: 8514A
+   C. Monitor: IBM's 8503, 8512, 8513, 8514, 5154, 5153, 5151,
+      NEC's MultiSync, MultiSync Plus, XL, and other monitors
+      with up to 1024 x 1024-pixel resolution
+@endnode
+
+
+@node "1.2 ET4000/W32i Overview"
+@{B}1.2 ET4000/W32i Overview@{b}
+
+- IBM Video Graphics Array (VGA) and Enhanced Graphics Adapter (EGA)
+  register-level compatibility.
+
+- Pin-to-pin compatible with ET4000/W32.
+
+- Supports interface to 386/486 SX/DX local bus, ISA/EISA/MCA bus,
+  with data bus width up to 32 bits.
+
+- Local Bus has programmable number of wait states down to
+  0-wait state, with no external PAL chips required.
+
+- All display memory can be read from or written to with minimum
+  wait states.
+
+- Memory Management Unit (MMU) allows the host to access any location
+  in the full 4MB range of display memory through any of three
+  independent apertures.
+
+- Internal Multiport Cache(TM) is capable of serving multiple masters.
+  Host, Image Port, and internal Graphics Accelerator can all access
+  the cache simultaneously. Multiport Cache paves the way for
+  multiprocessor systems.
+
+- Graphics Accelerator provides hardware drawing assist functions,
+  such as bit block transfers (BitBLT), patterned lines, circles,
+  and so forth.
+
+- Pixel Amplification(TM) speeds text painting, color expansion, and
+  rectangular area fill operations up to 8 times the speed of
+  CPU-based processing.
+
+- All 256 Raster Operations are included in hardware, freeing the
+  CPU from time-consuming data manipulation.
+
+- High-speed 8-bit Image Port allows data-intensive sources that
+  cannot be transmitted across the system bus - a cost-efficient
+  means of accessing display memory.
+
+- Supports 64x64x2 sprite for use as hardware cursor.
+
+- Secondary CRT Controller can be used to display picture-in-picture
+  graphics or even full motion (30 frame/second) digital video.
+
+- Supports Pixel Clock frequencies up to 86MHz.
+
+- Supports resolutions up to 640x480 at 24 bits per pixel in
+  interlaced format.
+
+- 20-bit linear start and cursor address supports display from any
+  location in the 4MB display memory.
+
+- Split-screen feature, allows second independent window starting
+  at display memory address zero. Split-screen window occupies
+  full width of screen, with starting scan line software-selectable.
+  Panning can be disabled within a split screen.
+
+- Support for traditional VGA RAMDACs, HiColor DACs, and
+  True Color DACs.
+
+- Provides all controls for host interface to external RAMDAC,
+  even on the local bus.
+
+- Programmable memory timing allows connection to dynamic RAMs
+  of any speed.
+
+- Programmable CAS before RAS refresh, providing memory refresh
+  during display blanking.
+@endnode
+
+@node "1.3 Notational Conventions"
+@{B}1.3 Notational Conventions@{b}
+
+Some of the terms, acronyms, and abbreviations used in this document
+are defined in the following:
+
+bpp        Bits per pixel
+Byte       8 bits
+CGA        Color Graphics Adapter
+CPU        Central Processing Unit
+CRTC       Cathode Ray Tube Controller (Primary video display)
+CRTCB      Secondary video display
+DAC        Digital-to-Analog Converter
+Doubleword 4 bytes
+DRAM       Dynamic Random-Access Memory
+EGA        Enhanced Graphics Adapter
+EISA       Extended Industry Standard Architecture
+GDC        Graphics Display Controller
+GUI        Graphical User Interface
+IMA        Image Memory Access port (Image Port)
+ISA        Industry Standard Architecture
+Kb         Kilobit
+KB         Kilobyte
+MB         Megabyte
+MCA        Micro Channel Architecture
+Pixel      Picture Element
+Quadword   8 bytes
+RAM        Random Access Memory
+ROM        Read-Only Memory
+ROP        Raster Operations
+TS         Timing Sequencer
+VESA       Video Electronic Standards Association
+VGA        Video Graphics Array
+Word       2 bytes
+@endnode
+

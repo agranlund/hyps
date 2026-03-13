@@ -1,0 +1,350 @@
+@node "Appendix A. ET4000/W32i (Microsoft) Raster Operations Codes and Definitions"
+@{B}Appendix A. ET4000/W32i (Microsoft) Raster Operations@{b}
+@{B}Codes and Definitions@{b}
+
+The ET4000/W32i supports all Microsoft 256 Raster Operation Codes. These
+codes define the ways in which BitBLT combines the bits in a source
+bitmap with the bits in a brush or pattern bitmap, and the bits in the
+destination bitmap.
+
+Operands used in operations are:
+
+      S       Source bitmap
+      P       Pattern bitmap
+      D       Destination bitmap
+
+Boolean operators used in operations are:
+
+      o       Bitwise OR
+      x       Bitwise Exclusive OR
+      a       Bitwise AND
+      n       Bitwise NOT (invert)
+
+Operations presented in this description are in reverse Polish notation.
+Example:
+      DPSoo = logical OR on source and pattern, then
+              another logical OR with destination.
+              Result is stored in destination.
+
+This operation can also be stated in this manner: DPoSo. Either form
+accomplishes the same objective though the latter may be somewhat more
+clear. Generally, functions are expressed so that they are easily read
+outward from the place at which they change from upper to lower case.
+
+Example: PSDPSanaxx can be read as:
+
+      PSD PSa naxx: 'and' source with pattern.
+      PSDPSa n axx: complement result.
+      PS D PSan a xx: 'and' with destination.
+      P S PDPSana x x: 'xor' with source.
+      P SDPSanax x: 'xor' with pattern.
+
+Another more complex example is SSPxDSxaxn, which, expanded is:
+
+      S SP DSxaxn: 'xor' source and pattern.
+      SSPx DSx axn: 'xor' destination and source.
+      S [SPx][DSx]a xn: 'and' the bracketed items.
+      S SPxDSxa x n: 'xor' result of last step with source.
+      SSPxDSxax n: complement result, and put into destination.
+
+@{B}Raster Operation Codes (ROP)@{b}
+
+Each raster operation code is an 8-bit value that represents the result
+of the Boolean operation on pre-defined pattern (P), source (S), and
+destination (D) values. For example, the operation indices for the PSo,
+PSon, and DPSoo operations are:
+
+                                                      Arbitrary
+      P        S        D        PSo      PSon     DPSoo    Function
+      0        0        0        0        1        0        1
+      0        0        1        0        1        1        0
+      0        1        0        1        0        1        0
+      0        1        1        1        0        1        1
+      1        0        0        1        0        1        1
+      1        0        1        1        0        1        0
+      1        1        0        1        0        1        1
+      1        1        1        1        0        1        0
+      Hex Opcode:                FC       03       FE       59
+
+Boolean functions can be represented by the string of 1's and 0's on the
+right side of such a table. In this example, PSon is the string
+00000011 (read from bottom to top), which is 03h. Note the PSon
+function in line 4 of the table.
+
+In general, arbitrary functions, like the one on the far right in the
+table, have a unique hexadecimal number associated with them (in this
+instance, 0x59). By referring to the table, you can find the
+appropriate ROP and a function that evaluates it (DPSnox).
+
+The value of each raster operation code determines the location of the
+raster operation in the table: the PSo operation is in line 252 (FCh)
+of the table; DPSoo is in line 254 (FEh), and so on.
+
+@{B}Operation Code List@{b}
+
+The list that follows is of the Boolean functions in hexadecimal (the ROP
+value) and reverse Polish notation, along with common names for same.
+
+Boolean        Boolean
+function       function       Common
+in HEX         in R Polish    name
+
+00             0              Blackness
+01             DPSoon         -
+02             DPSona         -
+03             PSon           -
+04             SDPona         -
+05             DPon           -
+06             PDSxnon        -
+07             PDSaon         -
+08             SDPnaa         -
+09             PDSxon         -
+0A             DPna           -
+0B             PSDnaon        -
+0C             SPna           -
+0D             PDSnaon        -
+0E             PDSonon        -
+0F             Pn             -
+10             PDSona         -
+11             DSon           NOTSRCERASE
+12             SDPxnon        -
+13             SDPaon         -
+14             DPSxnon        -
+15             DPSaon         -
+16             PSDPSanaxx     -
+17             SSPxDSxaxn     -
+18             SPxPDxa        -
+19             SDPSanaxn      -
+1A             PDSPaox        -
+1B             SDPSxaxn       -
+1C             PSDPaox        -
+1D             DSPDxaxn       -
+1E             PDSox          -
+1F             PDSoan         -
+20             DPSnaa         -
+21             SDPxon         -
+22             DSna           -
+23             SPDnaon        -
+24             SPxDSxa        -
+25             PDSPanaxn      -
+26             SDPSaoxxn      -
+27             SDPSxnox       -
+28             DPSxa          -
+29             PSDPSaoxxn     -
+2A             DPSana         -
+2B             SSPxPDxaxn     -
+2C             SPDSoax        -
+2D             PSDnox         -
+2E             PSDPxox        -
+2F             PSDNoan        -
+30             PSna           -
+31             SDPnaon        -
+32             SDPS00x        -
+33             Sn             NOTSRCCOPY
+34             SPDSaox        -
+35             SPDSxnox       -
+36             SDPox          -
+37             SDPoan         -
+38             PSDPoax        -
+39             SPDnox         -
+3A             SPDSxox        -
+3B             SPDnoan        -
+3C             PSx            -
+3D             SPDSonox       -
+3E             SPDSnaox       -
+3F             PSan           -
+40             PSDnaa         -
+41             DPSxon         -
+42             SDxPDxa        -
+43             SPDSanaxn      -
+44             SDna           SRCERASE
+45             DPSnaon        -
+46             DSPDaox        -
+47             PSDPxaxn       -
+48             SDPxa          -
+49             PDSPDoaxxn     -
+4A             DPSDoax        -
+4B             PDSnox         -
+4C             SDPana         -
+4D             SSPxDSxoxn     -
+4E             PDSPxox        -
+4F             PDSnoan        -
+50             PDna           -
+51             DSPnaon        -
+52             DPSDaox        -
+53             SPDSxaxn       -
+54             DPSonon        -
+55             Dn             DSTINVERT
+56             DPSox          -
+57             DPSoan         -
+58             PDSPoax        -
+59             DPSnox         -
+5A             DPx            PATINVERT
+5B             DPSDonox       -
+5C             DPSDxox        -
+5D             DPSnoan        -
+5E             DPSDnaox       -
+5F             DPan           -
+60             PDSxa          -
+61             DSPDSaoxxn     -
+62             DSPDoax        -
+63             SDPnox         -
+64             SDPSoax        -
+65             DSPnox         -
+66             DSx            SRCINVERT
+67             SDPSonox       -
+68             DSPDSonoxxn    -
+69             PDSxxn         -
+6A             DPSax          -
+6B             PSDPSoaxxn     -
+6C             SDPax          -
+6D             PDSPDoaxxn     -
+6E             SDPSnoax       -
+6F             PDSanan        -
+70             PDSana         -
+71             SSDxPDxaxn     -
+72             SDPSxox        -
+73             SDPnoan        -
+74             DSPDxox        -
+75             DSPnoan        -
+76             SDPSnaox       -
+77             DSan           -
+78             PDSax          -
+79             DSPDSoaxxn     -
+7A             DPSDnoax       -
+7B             SDPxnan        -
+7C             SPDSnoax       -
+7D             DPSxnan        -
+7E             SPxDSxo        -
+7F             DPSaan         -
+80             DPSaa          -
+81             SPxDSxon       -
+82             DPSxna         -
+83             SPDSnoaxn      -
+84             SDPxna         -
+85             PDSPnoaxn      -
+86             DSPDSoaxxn     -
+87             PDSaxn         -
+88             DSa            SRCAND
+89             SDPSnaoxn      -
+8A             DSPnoa         -
+8B             DSPDxoxn       -
+8C             SDPnoa         -
+8D             SDPSxoxn       -
+8E             SSDxPDxax      -
+8F             PDSanan        -
+90             PDSxna         -
+91             SDPSnoaxn      -
+92             DSPDPoaxxn     -
+93             SPDaxn         -
+94             PSDPSoaxxn     -
+95             DPSaxn         -
+96             DPSxx          -
+97             PSDPSonoxxn    -
+98             SDPSonoxn      -
+99             DSxn           -
+9A             DPSnax         -
+9B             SDPSoaxn       -
+9C             SPDnax         -
+9D             DSPDPoaxn      -
+9E             DSPDSaoxxn     -
+9F             PDSxan         -
+A0             DPa            -
+A1             PDSPnaoxn      -
+A2             DPSnoa         -
+A3             DPSDxoxn       -
+A4             PDSPonoxn      -
+A5             PDxn           -
+A6             DSPnax         -
+A7             PDSPoaxn       -
+A8             DPSoa          -
+A9             DPSoxn         -
+AA             D              -
+AB             DPSono         -
+AC             SPDSxax        -
+AD             DPSDaoxn       -
+AE             DSPnao         -
+AF             DPno           -
+B0             PDSnoa         -
+B1             PDSPxoxn       -
+B2             SSPxDSxox      -
+B3             SDPanan        -
+B4             PSDnax         -
+B5             DPSDoaxn       -
+B6             DSPDPoaxxn     -
+B7             SDPxan         -
+B8             PSDPxax        -
+B9             DSPDaoxn       -
+BA             DPSnao         -
+BB             DSno           MERGEPAINT
+BC             SPDSanax       -
+BD             SDxPDxan       -
+BE             DPSxo          -
+BF             DPSano         -
+C0             PSa            MERGECOPY
+C1             SPDSnaoxn      -
+C2             SPDSonoxn      -
+C3             PSxn           -
+C4             SPDnoa         -
+C5             SPDSxoxn       -
+C6             SDPnax         -
+C7             PSDPoaxn       -
+C8             SDPoa          -
+C9             SPDoxn         -
+CA             DPSDax         -
+CB             SPDSaoxn       -
+CC             S              SRCCOPY
+CD             SDPono         -
+CE             SDPnao         -
+CF             SPno           -
+D0             PSDnoa         -
+D1             PSDPxoxn       -
+D2             PDSnax         -
+D3             SPDSoaxn       -
+D4             SSPxPDxax      -
+D5             DPSanan        -
+D6             PSDPSaoxxn     -
+D7             DPSxan         -
+D8             PDSPxax        -
+D9             SDPSaoxn       -
+DA             DPSDanax       -
+DB             SPxDSxan       -
+DC             SPDnao         -
+DD             SDno           -
+DE             SDPxo          -
+DF             SDPano         -
+E0             PDSoa          -
+E1             PDSoxn         -
+E2             DSPDxax        -
+E3             PSDPaoxn       -
+E4             SDPSxax        -
+E5             PDSPaoxn       -
+E6             SDPSanax       -
+E7             SPxPDxan       -
+E8             SSPxDSxax      -
+E9             DSPDSanaxxn    -
+EA             DPSao          -
+EB             DPSxno         -
+EC             SDPao          -
+ED             SDPxno         -
+EE             DSo            SRCPAINT
+EF             SDPnoo         -
+F0             P              PATCOPY
+F1             PDSono         -
+F2             PDSnao         -
+F3             PSno           -
+F4             PSDnao         -
+F5             PDno           -
+F6             PDSxo          -
+F7             PDSano         -
+F8             PDSao          -
+F9             PDSxno         -
+FA             DPo            -
+FB             DPSnoo         -
+FC             PSo            -
+FD             PSDnoo         -
+FE             DPSoo          -
+FF             1              WHITENESS
+@endnode
+
+
