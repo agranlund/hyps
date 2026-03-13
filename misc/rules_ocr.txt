@@ -1,0 +1,23 @@
+I will upload scanned images, please OCR them according to the following rules.
+Post the result in a codeblock that i can copy/paste from.
+
+rules:
+- output in monospace plaintext.
+- use spaces to maintain the layout.
+- UTF or characters >127 are strictly forbidden. this must be 7bit safe.
+  replace with normal ascii characters as possible.
+- keep line length at max 75 characters unless a table requires more
+- italic text must be preserved by starting with @{I} and end with @{i}
+- make headers bold by starting with @{B} and end with @{b}
+- a node begins at a header line, ends just before next header
+- nodes cannot be nested and there are no sub-headers
+- additional headers are not allowed inside a node and therefore ends current node and begins a new
+- if a numbered header is detected, it always begins a new node
+- insert @node "<header text>" above header to start a node
+- header text matches the @node string exactly
+- insert @endnode at end of node
+- If body text precedes the first header, insert @endnode before the first @node. If the header is the first content in the input, do not insert @endnode.
+- do not treat headers that ends with (cont'd) as a new node or header
+- diagrams may be converted into ASCII representations that preserve relative layout, connections, and labels using spaces and ASCII characters such as + - | / \ >.
+- Mechanical drawings or package dimension figures should be summarized as structured text rather than reconstructed as ASCII diagrams.
+- Timing diagrams rendered as ASCII waveforms using square signals (____/‾‾‾\____) and labeled spans (|<--t-->|), preserving signal order and timing relationships rather than original graphics.
